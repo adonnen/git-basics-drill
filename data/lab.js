@@ -1,9 +1,10 @@
 /* =============================================================================
    lab.js — the hands-on exercise.
 
-   A list of steps the reader works through in a real terminal. Acts I-VI stay
-   entirely on their own machine with no remote. Act VII is optional and adds
-   one, still locally, using a bare repository as the "server".
+   A list of steps the reader works through in a real terminal. Everything up
+   to act VII stays on the reader's own machine with no remote. Two acts are
+   optional: VI rewrites the repository's root commit, and VIII adds a remote,
+   still locally, using a bare repository as the "server".
 
    ---------------------------------------------------------------------------
    THE SHAPE OF A STEP
@@ -31,7 +32,7 @@
    A divider is a step with an "act" instead of a task:
 
      { act: "IV — divergence and a real conflict" },
-     { act: "VII — optional: working with a remote", optional: true },
+     { act: "VIII — optional: working with a remote", optional: true },
 
    Steps are numbered automatically, so inserting one renumbers the rest.
 
@@ -534,7 +535,57 @@ const LAB = [
   ]
 },
 
-{ act: "VI — undoing things" },
+{ act: "VI — optional: a file that should have been there from the start", optional: true },
+
+{
+  title: "Put a licence into the very first commit",
+  task: [
+    "A licence file belongs to this project, and it should have been part of it",
+    "from the beginning rather than bolted on at the end. Write one, then get it",
+    "into the *root* commit, so that every commit in the history contains it —",
+    "without flattening the two merges you built in acts IV and V, and without",
+    "changing any other file. Give yourself a way back before you start."
+  ],
+  solution: [
+    "printf 'MIT License\\n\\nCopyright (c) 2026 Your Name\\n' > LICENSE",
+    "git branch before-rewrite      # a label on the old history, just in case",
+    "",
+    "ROOT=$(git rev-list --max-parents=0 HEAD)   # the one commit with no parent",
+    "git checkout --detach $ROOT",
+    "git add LICENSE",
+    "git commit --amend --no-edit   # a NEW root commit: same message, new hash",
+    "",
+    "# replay everything that came after the old root onto the new one",
+    "git rebase --rebase-merges --onto HEAD $ROOT main",
+    "",
+    "# the rebase leaves you back on main",
+    "# without --rebase-merges, both merges would be flattened away"
+  ]
+},
+
+{
+  title: "Confirm every commit carries it",
+  task: [
+    "Prove the rewrite did what you wanted and nothing more: every commit",
+    "reachable from `main` contains the licence, the graph still shows both",
+    "merges, the commit count is unchanged, and no other file moved. Then take",
+    "your safety net down."
+  ],
+  solution: [
+    "for c in $(git rev-list main); do",
+    "  git cat-file -e $c:LICENSE 2>/dev/null || echo \"missing in $c\"",
+    "done                           # silence means every one of them has it",
+    "",
+    "git log --oneline --graph main # both merges still there",
+    "git rev-list --count main      # the same number of commits as before",
+    "git diff before-rewrite main -- . ':!LICENSE'   # empty: nothing else moved",
+    "",
+    "git branch -D before-rewrite   # verified, so the safety net can go",
+    "# every hash changed — the reflog still remembers the old ones"
+  ]
+},
+
+{ act: "VII — undoing things" },
 
 {
   title: "Stash again, this time with untracked files",
@@ -704,7 +755,7 @@ const LAB = [
   ]
 },
 
-{ act: "VII — optional: working with a remote", optional: true },
+{ act: "VIII — optional: working with a remote", optional: true },
 
 {
   title: "Make a \"server\" on your own machine",

@@ -1976,6 +1976,90 @@ const CARDS = [
 },
 
 {
+  stage:    "08 history edits",
+  question: "You branched off the wrong branch. Move your two commits onto `main`, leaving behind the branch you started from?",
+  answer: [
+    "$ git rebase --onto main refactor task-queue",
+    "| before  base ─ refactor ─ skeleton ─ tests   ← task-queue",
+    "|",
+    "| after   base ─ refactor",
+    "|            └── skeleton ─ tests              ← task-queue"
+  ],
+  detail: [
+    "Read the three arguments as three answers: land them *on* `main`, stop",
+    "counting at `refactor`, move `task-queue`. Git replays every commit that is",
+    "in the branch but not in `refactor`, so the refactor work is cut away rather",
+    "than carried along. Plain `git rebase main task-queue` counts from the",
+    "common ancestor instead, and moves the refactor commit too."
+  ],
+  figure: [
+    "git rebase --onto NEWBASE UPSTREAM BRANCH",
+    "                     │        │       │",
+    "                     │        │       └─ which commits to move",
+    "                     │        └───────── where to stop counting, excluded",
+    "                     └────────────────── where they land"
+  ],
+  proGit:   "Git-Branching-Rebasing",
+  bottomUp: "branching-and-the-power-of-rebase"
+},
+
+{
+  stage:    "08 history edits",
+  question: "Your rebase came out in a straight line and the merge commits are gone. Keep the shape?",
+  answer: [
+    "Rebase replays *non-merge* commits one at a time, so a two-parent commit has",
+    "nowhere to land and the topology is flattened.",
+    "$ git rebase --rebase-merges --onto <new-base> <old-base> main"
+  ],
+  detail: [
+    "Nothing is lost but the shape — the flattened history ends at exactly the",
+    "same tree, file for file. Seven commits carrying two merges come out as",
+    "five carrying none. `--rebase-merges` rebuilds the merges as it goes, and",
+    "`rebase.rebaseMerges = true` makes it the default."
+  ],
+  figure: [
+    "plain rebase                --rebase-merges",
+    "",
+    "  * second work               *   Merge second",
+    "  * feature work              |\\",
+    "  * main moves                | * second work",
+    "  * Second                    |/",
+    "  * First commit              *   Merge feature",
+    "                              |\\",
+    "  5 commits, 0 merges         7 commits, 2 merges"
+  ],
+  proGit:   "Git-Tools-Rewriting-History",
+  bottomUp: "branching-and-the-power-of-rebase"
+},
+
+{
+  stage:    "08 history edits",
+  question: "A licence should have been in the repository from the very first commit. Put it there?",
+  answer: [
+    "$ ROOT=$(git rev-list --max-parents=0 HEAD)",
+    "$ git checkout --detach $ROOT",
+    "$ git add LICENSE && git commit --amend --no-edit",
+    "$ git rebase --rebase-merges --onto HEAD $ROOT main"
+  ],
+  detail: [
+    "`--max-parents=0` picks the one commit with no parent. Amending it builds a",
+    "new commit object rather than editing the old one, and since a commit's",
+    "hash covers its parent's, everything after it is rebuilt too — expect every",
+    "hash in the repository to change. If the branch is already published the",
+    "follow-up is `git push --force-with-lease`, and anyone holding a clone has",
+    "to reset onto the new history rather than pull."
+  ],
+  figure: [
+    "before   7c1a4e0 ─ 2f9b83d ─ 4ad0c11     nothing licences the root",
+    "",
+    "after    e5b62af ─ 9d3c740 ─ 0bf1e28     a licence from commit one",
+    "         └─ same changes, same messages, new identities"
+  ],
+  proGit:   "Git-Tools-Rewriting-History",
+  bottomUp: "a-commit-by-any-other-name"
+},
+
+{
   stage:    "09 cherry-picking",
   question: "Copy one specific commit from anywhere in the repo onto your current branch?",
   answer: [
