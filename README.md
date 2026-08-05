@@ -321,12 +321,15 @@ drill:
   table of what each flag touches. Not by restating the answer.
 
 Write cards in your own words. Cards *link* to Pro Git and to Git from the
-Bottom Up, and linking carries no obligation, but copying does: Pro Git is
-CC BY-NC-SA, which cannot be redistributed under this repository's MIT licence,
-so neither its prose nor its diagrams can be adapted into a card. Wiegley's
-CC BY 4.0 is more relaxed and would allow it with credit — but its attribution
-duty would then outlive the MIT notice and follow every fork, so the tidier
-habit is to describe what git does and draw the shape yourself.
+Bottom Up, and linking carries no obligation, but copying does. Pro Git
+([progit/progit2](https://github.com/progit/progit2)) is CC BY-NC-SA 3.0, which
+cannot be redistributed under this repository's MIT licence, so neither its
+prose nor its diagrams may be adapted into a card. Git from the Bottom Up
+([jwiegley/git-from-the-bottom-up](https://github.com/jwiegley/git-from-the-bottom-up))
+is CC BY 4.0 and would allow it with credit — but that attribution duty would
+outlive the MIT notice and follow every fork, so the tidier habit is to describe
+what git does and draw the shape yourself. Both licences are in those
+repositories if you want to check rather than take this on trust.
 
 ---
 
