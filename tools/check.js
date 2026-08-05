@@ -210,7 +210,7 @@ api.filter = 'all';
 console.log('\nviews');
 api.applyView('lab');
 check(!api.el.lab.hidden && api.el.stage.hidden, 'the lab view hides the deck');
-check(api.el.chips.hidden && api.el.filterbar.hidden, 'the deck filters hide with it');
+check(api.el.filters.hidden, 'the deck filters hide with it');
 api.showSummary();
 api.applyView('cards');
 check(!api.el.summary.hidden && api.el.stage.hidden, 'leaving and returning restores the summary');

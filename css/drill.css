@@ -3,8 +3,9 @@
 
    Two views share the page. "cards" shows one flashcard at a time with a
    stage filter and a progress graph; "lab" is a single scrolling page of
-   exercises whose solutions stay blurred until revealed. A theme switch and
-   a save/load toolbar serve both.
+   exercises whose solutions stay blurred until revealed. One control block at
+   the top right serves both: the view and theme switches joined in a single
+   bordered rectangle, and the green save/load buttons under them.
 
    Sections:
      1  theme tokens          6  progress graph
@@ -135,7 +136,7 @@ header{margin-bottom:26px}
 
 
 /* == 3. header ============================================================ */
-.topline{display:flex;align-items:center;gap:16px}
+.topline{display:flex;flex-wrap:wrap;align-items:flex-start;gap:16px}
 .prompt{color:var(--fog)}
 .prompt b{color:var(--ink);font-weight:600}
 .prompt .cmd{color:var(--amber)}
@@ -144,11 +145,20 @@ header{margin-bottom:26px}
   vertical-align:text-bottom;margin-left:2px;animation:blink 1.1s steps(1) infinite;
 }
 @keyframes blink{50%{opacity:0}}
-.sub{margin-top:10px;color:var(--fog);font-size:13.5px;max-width:66ch}
+.sub{margin-top:10px;color:var(--fog);font-size:13.5px}
 .sub code{color:var(--amber);font-size:.92em}
 
-/* Stage chips and toolbar buttons share one pill shape. */
-.chips,.toolbar{display:flex;flex-wrap:wrap;align-items:center;gap:7px;margin-top:16px}
+/* A panel groups one cluster of interface into a rectangle of its own — the
+   two filters, or the deck's grading row, graph and legend. Quieter than the
+   card: same surface, no shadow, tighter radius. */
+.panel{
+  background:var(--pane);border:1px solid var(--edge);border-radius:6px;
+  padding:14px 16px;margin-top:16px;
+}
+.panel > :first-child{margin-top:0}
+
+/* Stage chips and the small header buttons share one pill shape. */
+.chips{display:flex;flex-wrap:wrap;align-items:center;gap:7px;margin-top:16px}
 .chip,.tbtn{
   font-family:var(--mono);font-size:11.5px;color:var(--fog);
   background:transparent;border:1px solid var(--edge);border-radius:3px;
@@ -173,8 +183,23 @@ header{margin-bottom:26px}
 .fcount{font-size:11.5px;color:var(--fog)}
 .fcount.none{color:var(--rust)}
 
+/* The control column at the top right: switches first, progress under them. */
+.console{margin-left:auto;display:flex;flex-direction:column;align-items:stretch;gap:9px}
+
+/* The view and theme switches share one border and one width, so the pair
+   reads as a single block rather than two widgets that happen to be near
+   each other. Nothing is allowed between them. */
+.switches{
+  display:flex;flex-direction:column;
+  border:1px solid var(--edge);border-radius:4px;overflow:hidden;
+  background:var(--pane);
+}
+.switches .seg{border:0;border-radius:0}
+.switches .seg + .seg{border-top:1px solid var(--edge)}
+.switches .seg button{flex:1}
+
 /* Segmented switch — used for both the view and the theme. */
-.seg{display:inline-flex;border:1px solid var(--edge);border-radius:3px;overflow:hidden;margin-left:auto}
+.seg{display:flex;border:1px solid var(--edge);border-radius:3px;overflow:hidden}
 .seg button{
   font-family:var(--mono);font-size:11.5px;color:var(--fog);
   background:transparent;border:0;border-left:1px solid var(--edge);
@@ -184,8 +209,14 @@ header{margin-bottom:26px}
 .seg button:hover{color:var(--ink)}
 .seg button.on{color:var(--bg);background:var(--amber);font-weight:600}
 
-/* Toolbar readouts: bound filename, transient status message. */
-.tfile{font-size:11.5px;color:var(--amber);opacity:.75}
+/* Progress files. Green throughout — amber belongs to the switches above,
+   and the two rows must not read as the same kind of control. */
+.progress{display:flex;flex-wrap:wrap;align-items:center;justify-content:flex-end;gap:7px}
+.pbtn{color:var(--green);border-color:var(--green-edge)}
+.pbtn:hover{color:var(--green);border-color:var(--green);background:var(--green-wash)}
+
+/* Progress readouts: bound filename, transient status message. */
+.tfile{font-size:11.5px;color:var(--green);opacity:.8}
 .tstatus{font-size:11.5px;color:var(--fog);opacity:0;transition:opacity .2s}
 .tstatus.show{opacity:.85}
 .tstatus.err{color:var(--rust)}
@@ -372,6 +403,9 @@ header{margin-bottom:26px}
 /* == 10. responsive and motion ============================================ */
 @media (max-width:560px){
   body{padding:26px 14px 48px}
+  /* The control block gets the full width rather than crowding one edge. */
+  .console{width:100%;margin-left:0}
+  .progress{justify-content:flex-start}
   .face{padding:22px 20px 12px}
   .footrow{padding:0 20px 14px;flex-wrap:wrap}
   .prose.q{font-size:17.5px}

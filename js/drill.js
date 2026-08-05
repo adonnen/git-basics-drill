@@ -25,9 +25,9 @@ const $ = id => document.getElementById(id);
 const el = {
   // header
   blurb:$('blurb'), view:$('view'), chips:$('chips'), theme:$('theme'),
-  filterbar:$('filterbar'), search:$('search'),
+  filters:$('filters'), filterbar:$('filterbar'), search:$('search'),
   searchClear:$('searchClear'), searchCount:$('searchCount'),
-  // progress toolbar
+  // progress files
   pLoad:$('pLoad'), pSave:$('pSave'), pSaveAs:$('pSaveAs'),
   pFile:$('pFile'), pStatus:$('pStatus'), pInput:$('pInput'),
   // cards view
@@ -214,8 +214,7 @@ function applyView(next){
   view = next === 'lab' ? 'lab' : 'cards';
   const onCards = view === 'cards';
 
-  el.chips.hidden     = !onCards;
-  el.filterbar.hidden = !onCards;
+  el.filters.hidden = !onCards;   // the panel takes both filters with it
   el.stage.hidden   = !onCards || deckPanel !== 'stage';
   el.summary.hidden = !onCards || deckPanel !== 'summary';
   el.lab.hidden     =  onCards;
