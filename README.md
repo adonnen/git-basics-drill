@@ -320,6 +320,14 @@ drill:
 - Figures earn their place by showing a shape — a graph, a before-and-after, a
   table of what each flag touches. Not by restating the answer.
 
+Write cards in your own words. Cards *link* to Pro Git and to Git from the
+Bottom Up, and linking carries no obligation, but copying does: Pro Git is
+CC BY-NC-SA, which cannot be redistributed under this repository's MIT licence,
+so neither its prose nor its diagrams can be adapted into a card. Wiegley's
+CC BY 4.0 is more relaxed and would allow it with credit — but its attribution
+duty would then outlive the MIT notice and follow every fork, so the tidier
+habit is to describe what git does and draw the shape yourself.
+
 ---
 
 ## Notes for the curious
@@ -354,4 +362,13 @@ your time:
 - **Git from the Bottom Up**, John Wiegley — <https://jwiegley.github.io/git-from-the-bottom-up/>
 
 The deck is not a substitute for either. It is a way of finding out which parts
-you have actually retained.
+you have actually retained. Cards link to a section of one or both books; that
+is a bibliography, and no text or figure from either is reproduced here.
+
+---
+
+## License
+
+MIT — see [LICENSE](LICENSE). Use it, change it, teach from it, fork it into
+something better, commercially or otherwise; the one condition is that the
+copyright notice travels with the copy.
