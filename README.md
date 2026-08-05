@@ -187,6 +187,7 @@ git-drill/
 │   └── lab.js          the lab steps         ← add steps here
 │                       all three are plain lists of text, see below
 ├── examples/gitconfig  the aliases and settings the cards refer to
+├── tools/check.js      verifies a change without opening a browser
 └── docs/               the sketches in this README
 ```
 
@@ -294,6 +295,18 @@ Steps are numbered automatically, so inserting one renumbers the rest. One thing
 to know: a reader's ticked steps are remembered by the step *title*, so
 reordering is free but **renaming** one loses its tick in progress files people
 have already saved.
+
+### Checking a change
+
+```bash
+node tools/check.js
+```
+
+No framework and nothing to install. It boots the engine against a stand-in for
+the browser and checks the data files, the four text marks, both filters, view
+switching and the save/load round trip. Exit code 1 if anything fails.
+
+For anything visual — layout, themes, the blur on lab solutions — open the page.
 
 ### House style for cards
 

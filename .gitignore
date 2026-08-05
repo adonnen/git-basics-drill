@@ -1,9 +1,16 @@
-# Progress files are personal — keep yours out of the shared repo,
+# Personal development notes — never shared.
+CLAUDE.md
+HANDOFF.md
+
+# Progress files are personal. Keep yours out of the shared repository,
 # or commit it deliberately under a different name.
 git-drill-progress.json
+*-progress.json
 
+# OS and editor noise
 .DS_Store
 ._*
 Thumbs.db
 .vscode/
 .idea/
+*.swp

@@ -163,6 +163,10 @@
     # Pushing a new branch creates and links its upstream instead of failing
     # with "no upstream branch". Removes the most common friction in a
     # branch-per-task workflow. Needs git 2.37 or newer.
+    #
+    # Without it you have to say so once per branch:
+    #     git push --set-upstream origin <branch>
+    #     git push -u origin HEAD          # same thing, no name to retype
     autoSetupRemote = true
 
     # Refuse a force-push if the remote moved since your last fetch — even
