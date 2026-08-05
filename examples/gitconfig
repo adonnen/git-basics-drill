@@ -1,0 +1,203 @@
+# =============================================================================
+# Example git configuration — the aliases and settings the deck refers to.
+#
+# Nothing here is required to use git drill. It is the config the cards keep
+# pointing at, collected in one place so you can try it rather than retype it.
+#
+# HOW TO USE
+#   Open your own config and paste in the parts you want:
+#
+#       git config --global --edit
+#
+#   That opens the right file on any OS. Paste under the matching [section]
+#   heading, or paste whole sections if you have none yet.
+#
+#   To try a single alias without editing anything:
+#
+#       git config --global alias.lg "log --all --oneline --graph --decorate"
+#
+#   To see where a setting came from later:
+#
+#       git config --list --show-origin
+#
+# Take what you like and leave the rest. Anything you regret is one line to
+# delete — none of this changes your repositories, only how git talks to you.
+# =============================================================================
+
+
+[alias]
+
+# --- looking at history ------------------------------------------------------
+
+    # The graph, decorated, across every branch. The one to learn first: you
+    # debug history far faster when you can see its shape.
+    lg  = log --all --oneline --graph --decorate
+
+    # The same, but only your current branch. Unmerged work on other branches
+    # is invisible here — that is the --all flag's doing, not a filter.
+    lgb = log --oneline --graph --decorate
+
+    # Branch tips and tags only, interiors dropped. On a repository with
+    # thousands of commits this is the "shape of the project" view.
+    skel = log --graph --simplify-by-decoration --oneline --all
+
+    # A busy trunk read as a list of what landed, one entry per merge.
+    # Replace `main` with whichever branch you integrate into.
+    landed = log --first-parent main --oneline
+
+    # Status without the tutorial. -s short, -b with the branch line.
+    s = status -sb
+
+    # The last commit, with which files it touched.
+    last = log -1 HEAD --stat
+
+    # Word-level diff instead of line-level. Better for prose and docs.
+    wdiff = diff --word-diff=color
+
+    # The full history of one line in one file.
+    #   git blame-line 42 src/runner.py
+    blame-line = "!f() { git log -L $1,$1:$2; }; f"
+
+
+# --- staging and committing --------------------------------------------------
+
+    # What you are about to commit, and what you would still leave behind.
+    # Reading `git staged` before every commit is the cheapest good habit there
+    # is for keeping commits coherent.
+    staged   = diff --cached
+    unstaged = diff
+
+    # Fold a forgotten file into the last commit, keeping its message.
+    # Stage the file, run this, done — no "fix typo" commit.
+    fixit = commit --amend --no-edit
+
+    # Mark a fix for an OLDER commit now; fold it in later with `cleanup`.
+    #   git fixup <sha-of-the-commit-it-belongs-to>
+    fixup = commit --fixup
+
+    # Consume those markers: git reorders and squashes them for you.
+    # Change `main` to whichever branch you branched from.
+    cleanup = rebase -i --autosquash main
+
+
+# --- branches ----------------------------------------------------------------
+
+    # Your branches, most recently worked on first. Answers "what was I doing
+    # last week" without opening a tracker.
+    recent = branch --sort=-committerdate --format='%(HEAD) %(color:yellow)%(refname:short)%(color:reset) - %(color:dim)%(committerdate:relative)%(color:reset)'
+
+    # What your current branch adds that the trunk does not — the review set.
+    ahead = log main..HEAD --oneline
+
+    # Everything queued for the next release, if you use a dev/main pair.
+    pending = log main..dev --oneline
+
+    # Delete every local branch already merged into main. The grep guards the
+    # branches you never want removed. Run it occasionally to stay tidy.
+    merged-clean = "!git branch --merged main | grep -v -E '^\\*|main|dev' | xargs -r git branch -d"
+
+
+# --- destructive, with a guard -----------------------------------------------
+
+    # Show exactly what a full reset would destroy, without destroying it.
+    # Run this first, every time.
+    nuke-preview = "!echo '── tracked changes that would be reset ──' && git diff --stat && echo '── untracked files that would be removed ──' && git clean -nd"
+
+    # Working tree back to HEAD, untracked files gone. Asks first, because
+    # neither half is recoverable: uncommitted work never entered the object
+    # database, so no reflog can return it.
+    nuke = "!f() { \
+        echo 'This discards ALL uncommitted changes AND untracked files.'; \
+        printf 'Are you sure? (y/N) '; \
+        read ans; \
+        if [ \"$ans\" = 'y' ] || [ \"$ans\" = 'Y' ]; then \
+            git reset --hard HEAD && git clean -fd && echo 'Done.'; \
+        else \
+            echo 'Aborted.'; \
+        fi \
+    }; f"
+
+
+# --- housekeeping ------------------------------------------------------------
+
+    # List these aliases again when you have forgotten what you named something.
+    aliases = config --get-regexp ^alias\\.
+
+
+# =============================================================================
+# SETTINGS
+# The aliases above save keystrokes. These change behaviour, and are where the
+# real gains are.
+# =============================================================================
+
+[init]
+    # Name the first branch of every new repository `main`.
+    defaultBranch = main
+
+[pull]
+    # Replay your local commits on top of what arrives, instead of building a
+    # merge commit for every pull. Keeps history readable on a shared trunk.
+    rebase = true
+
+[rebase]
+    # Start a rebase even with a dirty working tree: git stashes your changes,
+    # rebases, and puts them back. One less interruption.
+    autoStash = true
+
+    # Recognise `fixup!` and `squash!` markers automatically, so `git fixup`
+    # above needs no manual reordering in the todo list.
+    autoSquash = true
+
+[rerere]
+    # "Reuse recorded resolution" — remember how you resolved a conflict and
+    # replay it when the identical conflict returns. The difference between a
+    # painful and a painless fifth rebase onto a moving trunk. No downside.
+    enabled = true
+
+[fetch]
+    # Drop local references to remote branches that no longer exist. Without
+    # it, `git branch -r` fills with the ghosts of deleted branches.
+    prune = true
+
+[push]
+    # Pushing a new branch creates and links its upstream instead of failing
+    # with "no upstream branch". Removes the most common friction in a
+    # branch-per-task workflow. Needs git 2.37 or newer.
+    autoSetupRemote = true
+
+    # Refuse a force-push if the remote moved since your last fetch — even
+    # when someone typed plain `git push --force`.
+    useForceIfIncludes = true
+
+[diff]
+    # Handles moved and refactored code better than the default, so you see
+    # "this block moved" instead of "deleted here, added there".
+    algorithm = histogram
+
+[core]
+    # Machine noise — OS metadata, editor swap files — belongs in one global
+    # ignore file rather than in every project's .gitignore.
+    # Create it first:
+    #   printf '.DS_Store\n._*\n*.swp\n.idea/\n' >> ~/.gitignore_global
+    excludesFile = ~/.gitignore_global
+
+
+# =============================================================================
+# IF YOU USE SUBMODULES
+# Uncomment these. They prevent the three classic submodule failures: pulling
+# without updating them, committing a parent that points at a submodule commit
+# nobody else has, and a clean-looking status hiding dirty submodules.
+# =============================================================================
+
+# [submodule]
+#     recurse = true                  # checkout and pull update them too
+
+# [push]
+#     recurseSubmodules = check       # refuse to push a parent whose submodule
+#                                     # commits are not on their own remote
+
+# [status]
+#     submoduleSummary = true         # show submodules that have drifted
+
+# [diff]
+#     submodule = log                 # show what changed inside them

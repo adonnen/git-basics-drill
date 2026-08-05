@@ -1,0 +1,69 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 620 392" width="620" height="392" role="img" aria-label="Sketch of a lab step">
+  <title>Sketch of a lab step</title>
+  <defs>
+    <filter id="rough" x="-5%" y="-5%" width="110%" height="110%">
+      <feTurbulence type="fractalNoise" baseFrequency="0.035" numOctaves="3" seed="11" result="n"/>
+      <feDisplacementMap in="SourceGraphic" in2="n" scale="2.2" xChannelSelector="R" yChannelSelector="G"/>
+    </filter>
+  </defs>
+  <style>
+    .ink   { fill:none; stroke:#2f2a24; stroke-width:2; stroke-linecap:round; stroke-linejoin:round; }
+    .thin  { fill:none; stroke:#2f2a24; stroke-width:1.3; stroke-linecap:round; }
+    .fade  { fill:none; stroke:#9a9086; stroke-width:1.3; stroke-linecap:round; }
+    .fill  { fill:#f0ebe0; stroke:#2f2a24; stroke-width:2; }
+    .amber { fill:#e0a458; stroke:#2f2a24; stroke-width:1.5; }
+    .green { fill:#7fb069; stroke:#2f2a24; stroke-width:1.5; }
+    .rust  { fill:#c0674f; stroke:#2f2a24; stroke-width:1.5; }
+    .paper { fill:#fffdf7; stroke:#2f2a24; stroke-width:2.4; }
+    text   { font-family:'Comic Sans MS','Bradley Hand','Segoe Print','Chalkboard SE',cursive; fill:#2f2a24; }
+    .t     { font-size:13px; }
+    .s     { font-size:11px; fill:#6a6355; }
+    .lbl   { font-size:12px; fill:#a5641b; }
+    .mono  { font-family:ui-monospace,Menlo,Consolas,monospace; font-size:10.5px; fill:#6a6355; }
+    .head  { font-size:16px; }
+  </style>
+  <rect width="620" height="392" fill="#f5f2ea"/>
+  <g filter="url(#rough)">
+
+    <text class="head" x="30" y="34">The lab</text>
+    <text class="s" x="30" y="54">steps you run in a real terminal — solutions stay blurred until you ask</text>
+
+    <!-- act divider -->
+    <text class="lbl" x="30" y="88">IV — DIVERGENCE AND A REAL CONFLICT</text>
+    <line class="fade" x1="290" y1="84" x2="590" y2="84"/>
+
+    <!-- step card -->
+    <rect class="paper" x="30" y="104" width="560" height="200" rx="8"/>
+    <text class="lbl" x="50" y="132">17</text>
+    <text class="t" x="76" y="132">Trigger the conflict and read it</text>
+    <rect class="fill" x="500" y="120" width="14" height="14" rx="2"/>
+    <text class="s" x="522" y="132">done</text>
+
+    <line class="ink" x1="50" y1="156" x2="520" y2="156"/>
+    <line class="ink" x1="50" y1="174" x2="470" y2="174"/>
+    <line class="ink" x1="50" y1="192" x2="380" y2="192"/>
+
+    <rect class="fill" x="50" y="212" width="120" height="24" rx="3"/>
+    <text class="s" x="60" y="228">show solution</text>
+
+    <!-- blurred solution: soft, doubled strokes to read as out of focus -->
+    <rect class="fill" x="50" y="246" width="480" height="42" rx="5"/>
+    <g opacity="0.42">
+      <line class="ink" x1="66" y1="262" x2="290" y2="262"/>
+      <line class="ink" x1="67" y1="264" x2="291" y2="264"/>
+      <line class="ink" x1="66" y1="276" x2="356" y2="276"/>
+      <line class="ink" x1="67" y1="278" x2="357" y2="278"/>
+    </g>
+    <path class="fade" d="M566 268 C 552 268, 544 268, 534 268"/>
+    <text class="lbl" x="572" y="264">blurred</text>
+    <text class="lbl" x="572" y="280">until</text>
+    <text class="lbl" x="572" y="296">revealed</text>
+
+    <!-- optional act -->
+    <text class="s" x="30" y="342">VII — OPTIONAL: WORKING WITH A REMOTE</text>
+    <rect class="fill" x="290" y="328" width="66" height="18" rx="3"/>
+    <text class="s" x="298" y="341">OPTIONAL</text>
+    <line class="fade" x1="366" y1="338" x2="590" y2="338"/>
+    <text class="lbl" x="30" y="368">adds a remote — still on your own machine, using a bare repo as the "server"</text>
+  </g>
+</svg>

@@ -1,0 +1,9 @@
+# Progress files are personal — keep yours out of the shared repo,
+# or commit it deliberately under a different name.
+git-drill-progress.json
+
+.DS_Store
+._*
+Thumbs.db
+.vscode/
+.idea/

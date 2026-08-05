@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>git drill</title>
+<link rel="stylesheet" href="css/drill.css">
+</head>
+<body>
+
+<header>
+  <div class="topline">
+    <div class="prompt"><b>drill</b>:~$ <span class="cmd">git drill</span><span class="cursor" aria-hidden="true"></span></div>
+    <span class="seg" id="view" role="group" aria-label="View">
+      <button data-view="cards">cards</button>
+      <button data-view="lab">lab</button>
+    </span>
+  </div>
+
+  <p class="sub" id="blurb"></p>
+
+  <!-- Keyword filter. Terms are OR-ed: a card is kept if it contains any of
+       them. Composes with the stage chips below. -->
+  <div class="filterbar" id="filterbar">
+    <input type="text" id="search" autocomplete="off" spellcheck="false"
+           aria-label="Filter cards by keyword"
+           placeholder="filter by keyword — e.g. rebase stash reflog">
+    <button class="tbtn" id="searchClear" hidden>clear</button>
+    <span class="fcount" id="searchCount" role="status"></span>
+  </div>
+
+  <!-- Stage filter for the deck. Built once from the stage names in cards.js. -->
+  <div class="chips" id="chips" role="group" aria-label="Filter by stage"></div>
+
+  <!-- Shared by both views: progress files on the left, theme on the right.
+       "save as…" only appears once a file has been bound. -->
+  <div class="toolbar">
+    <button class="tbtn" id="pLoad">load progress…</button>
+    <button class="tbtn" id="pSave">save progress</button>
+    <button class="tbtn" id="pSaveAs" hidden>save as…</button>
+    <span class="tfile" id="pFile" hidden></span>
+    <span class="tstatus" id="pStatus" role="status"></span>
+    <input type="file" id="pInput" accept="application/json,.json" hidden>
+    <span class="seg" id="theme" role="group" aria-label="Colour theme">
+      <button data-theme="auto">auto</button>
+      <button data-theme="light">light</button>
+      <button data-theme="dark">dark</button>
+    </span>
+  </div>
+</header>
+
+<main>
+  <!-- Cards view: exactly one of #stage and #summary is visible. -->
+  <section id="stage">
+    <div class="pane" id="pane" role="button" tabindex="0" aria-label="Flashcard — activate to flip">
+      <div class="bar">
+        <span class="dots" aria-hidden="true"><i></i><i></i><i></i></span>
+        <span class="grow" id="cardPath"></span>
+        <span class="count" id="cardCount"></span>
+      </div>
+      <div class="face" id="face">
+        <div class="eyebrow" id="eyebrow">QUESTION</div>
+        <div class="prose q" id="cardText"></div>
+      </div>
+      <div class="footrow">
+        <span class="hint" id="hint">space — flip</span>
+        <button class="tbtn" id="detailsBtn" hidden>details ⌄</button>
+      </div>
+    </div>
+
+    <div class="controls">
+      <button class="ghost" id="prev" aria-label="Previous card">←</button>
+      <button class="rust"  id="again">again</button>
+      <button class="green" id="got">got it</button>
+      <button class="ghost" id="next" aria-label="Next card">→</button>
+    </div>
+
+    <div class="graph" id="graph" aria-label="Progress"></div>
+    <div class="keys">space flip · ← → move · <span style="color:var(--green)">g</span> got it · <span style="color:var(--rust)">a</span> again · <span style="color:var(--amber)">d</span> details · s shuffle · <span style="color:var(--amber)">/</span> search · t theme · ⌘/ctrl-s save</div>
+  </section>
+
+  <section class="summary" id="summary" hidden></section>
+
+  <!-- Lab view: filled in by buildLab(). -->
+  <section id="lab" hidden></section>
+</main>
+
+<!-- Details overlay. Populated on open, hidden rather than rebuilt. -->
+<div class="backdrop" id="backdrop" hidden>
+  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="mTitle">
+    <div class="bar">
+      <span class="dots" aria-hidden="true"><i></i><i></i><i></i></span>
+      <span class="grow" id="mStage"></span>
+      <button class="tbtn" id="mClose">esc</button>
+    </div>
+    <div class="mbody">
+      <h3 id="mTitle"></h3>
+      <div class="prose" id="mText"></div>
+      <pre class="figure" id="mFigure" hidden></pre>
+      <div class="links">
+        <a class="link" id="mLink1" target="_blank" rel="noopener noreferrer"></a>
+        <a class="link secondary" id="mLink2" target="_blank" rel="noopener noreferrer" hidden></a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Content first, engine last. These are plain scripts rather than ES
+     modules on purpose: modules are blocked by CORS when a page is opened
+     straight from disk, and this should work by double-clicking index.html. -->
+<script src="data/references.js"></script>
+<script src="data/cards.js"></script>
+<script src="data/lab.js"></script>
+<script src="js/drill.js"></script>
+</body>
+</html>

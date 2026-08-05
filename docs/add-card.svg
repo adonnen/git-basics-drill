@@ -1,0 +1,65 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 620 598" width="620" height="598" role="img" aria-label="Sketch of the file layout and card format">
+  <title>Sketch of the file layout and card format</title>
+  <defs>
+    <filter id="rough" x="-5%" y="-5%" width="110%" height="110%">
+      <feTurbulence type="fractalNoise" baseFrequency="0.035" numOctaves="3" seed="13" result="n"/>
+      <feDisplacementMap in="SourceGraphic" in2="n" scale="2.2" xChannelSelector="R" yChannelSelector="G"/>
+    </filter>
+  </defs>
+  <style>
+    .ink   { fill:none; stroke:#2f2a24; stroke-width:2; stroke-linecap:round; stroke-linejoin:round; }
+    .thin  { fill:none; stroke:#2f2a24; stroke-width:1.3; stroke-linecap:round; }
+    .fade  { fill:none; stroke:#9a9086; stroke-width:1.3; stroke-linecap:round; }
+    .fill  { fill:#f0ebe0; stroke:#2f2a24; stroke-width:2; }
+    .amber { fill:#e0a458; stroke:#2f2a24; stroke-width:1.5; }
+    .green { fill:#7fb069; stroke:#2f2a24; stroke-width:1.5; }
+    .rust  { fill:#c0674f; stroke:#2f2a24; stroke-width:1.5; }
+    .paper { fill:#fffdf7; stroke:#2f2a24; stroke-width:2.4; }
+    text   { font-family:'Comic Sans MS','Bradley Hand','Segoe Print','Chalkboard SE',cursive; fill:#2f2a24; }
+    .t     { font-size:13px; }
+    .s     { font-size:11px; fill:#6a6355; }
+    .lbl   { font-size:12px; fill:#a5641b; }
+    .mono  { font-family:ui-monospace,Menlo,Consolas,monospace; font-size:10.5px; fill:#6a6355; }
+    .head  { font-size:16px; }
+  </style>
+  <rect width="620" height="598" fill="#f5f2ea"/>
+  <g filter="url(#rough)">
+
+    <text class="head" x="30" y="34">Adding a card</text>
+    <text class="s" x="30" y="54">edit one file, reload the page — no build step, no HTML</text>
+
+    <rect class="paper" x="30" y="74" width="230" height="196" rx="6"/>
+    <text class="mono" x="48" y="100">git-drill/</text>
+    <text class="mono" x="62" y="122">├── index.html</text>
+    <text class="mono" x="62" y="144">├── css/drill.css</text>
+    <text class="mono" x="62" y="166">├── js/drill.js</text>
+    <text class="mono" x="62" y="188">└── data/</text>
+    <text class="mono" x="76" y="210">├── references.js</text>
+    <text class="mono" x="76" y="232">├── cards.js</text>
+    <text class="mono" x="76" y="254">└── lab.js</text>
+    <rect class="amber" x="70" y="218" width="112" height="20" rx="3" opacity="0.5"/>
+    <path class="fade" d="M294 230 C 264 230, 240 230, 190 230"/>
+    <text class="lbl" x="300" y="226">add cards here</text>
+    <text class="lbl" x="300" y="242">(lab steps in lab.js)</text>
+
+    <rect class="paper" x="30" y="292" width="560" height="252" rx="6"/>
+    <text class="mono" x="48" y="318">{</text>
+    <text class="mono" x="48" y="338">  stage:    "02 branching",</text>
+    <text class="mono" x="48" y="358">  question: "How do you rename the branch you are on?",</text>
+    <text class="mono" x="48" y="378">  answer: [</text>
+    <text class="mono" x="48" y="398">    "Renames your local label only.",</text>
+    <text class="mono" x="48" y="418">    "$ git branch -m new-name"</text>
+    <text class="mono" x="48" y="438">  ],</text>
+    <text class="mono" x="48" y="458">  detail: [ "the longer note in the pop-up" ],</text>
+    <text class="mono" x="48" y="478">  figure: [ "a drawing, kept exactly as typed" ],</text>
+    <text class="mono" x="48" y="498">  proGit:   "Git-Branching-Branch-Management"</text>
+    <text class="mono" x="48" y="518">}</text>
+
+    <text class="lbl" x="404" y="338">← reuse or invent</text>
+    <text class="lbl" x="404" y="418">← "$" = a command</text>
+    <text class="lbl" x="404" y="498">← required book key</text>
+
+    <text class="s" x="30" y="576">`code`   *italic*   **bold**   $ command</text>
+    <text class="lbl" x="290" y="576">— the only four marks there are</text>
+  </g>
+</svg>
