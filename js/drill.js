@@ -432,8 +432,8 @@ function showSummary(){
     : again + ' card' + (again > 1 ? 's' : '') + ' need a second pass.');
 
   const body = make('p', null, clean
-    ? 'The concepts held. Come back in a week — spaced repetition beats one clean pass, and the deck keeps no grudges.'
-    : 'Rebase your memory: run just the missed ones until the answer surfaces before the flip does.');
+    ? 'Spaced repetition holds better than one clean pass. Run the deck again in a week.'
+    : 'Run the missed cards until the answer surfaces before the flip does.');
 
   const row = make('div', 'row');
   const button = (label, cls, fn) => {
@@ -474,14 +474,6 @@ function restart(withShuffle){
 /* == B9. lab ============================================================== */
 
 /** How many steps sit under an act marked optional — counted, never hardcoded. */
-function countOptionalSteps(){
-  let optional = false, n = 0;
-  for(const entry of LAB){
-    if(entry.act) optional = !!entry.optional;
-    else if(optional) n++;
-  }
-  return n;
-}
 
 function labProgressText(){
   return '<b>' + labDone.size + '</b> of ' + LAB_STEPS.length + ' steps done';
@@ -489,16 +481,18 @@ function labProgressText(){
 
 function buildIntro(){
   const intro = make('div', 'lab-intro prose');
-  const localSteps = LAB_STEPS.length - countOptionalSteps();
+  const acts = LAB.filter(entry => entry.act);
+  const optionalActs = acts.filter(entry => entry.optional).length;
   intro.innerHTML =
     '<h2>Lab — build a repository from nothing</h2>' +
     '<p>' + LAB_STEPS.length + ' steps in a real terminal, against a real directory on ' +
-    'your machine. The first ' + localSteps + ' are entirely local: no remote, no clone, ' +
-    'no push. Read the task, do it in your shell, and only then reveal the solution to ' +
+    'your machine. Read the task, do it in your shell, then reveal the solution to ' +
     'check yourself.</p>' +
-    '<p>The final act is optional and adds a remote — still on your own machine, using a ' +
-    'bare repository as the “server”, so no account anywhere is needed. You need git and ' +
-    'a shell: Terminal on macOS or Linux, Git Bash on Windows.</p>' +
+    '<p>' + optionalActs + ' of the ' + acts.length + ' acts are marked optional and can ' +
+    'be skipped. The last act adds a remote, still on your own machine, using a bare ' +
+    'repository as the “server”, so no account is needed anywhere. Everything before it ' +
+    'is local: no remote, no clone, no push. You need git and a shell: Terminal on macOS ' +
+    'or Linux, Git Bash on Windows.</p>' +
     '<p>The whole exercise is disposable; the last step of each act tells you how to ' +
     'delete it. Tick steps off as you go and they are kept in your progress file.</p>' +
     '<div class="lab-count" id="labCount">' + labProgressText() + '</div>';

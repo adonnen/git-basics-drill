@@ -245,9 +245,8 @@ const CARDS = [
   stage:    "01 foundations",
   question: "`git add -p` offers you five hunks in one file. What is a hunk?",
   answer: [
-    "A contiguous run of changed lines *plus* the unchanged lines around it —",
-    "three on each side by default. Not a whole file, and not purely the changed",
-    "lines either."
+    "A contiguous run of changed lines *plus* the unchanged lines around it,",
+    "three on each side by default. One file can hold several."
   ],
   detail: [
     "The context is what decides where one hunk ends and the next begins. Change",
@@ -3080,9 +3079,9 @@ const CARDS = [
   ],
   detail: [
     "Treat every tree-changing operation — checkout, switch, rebase, merge,",
-    "reset, pull — as invalidating open buffers until proven otherwise. The",
-    "danger is not the stale view but saving it: that writes the pre-operation",
-    "content back over what git just produced."
+    "reset, pull — as invalidating open buffers until proven otherwise. Saving",
+    "from a stale buffer writes the pre-operation content back over what git",
+    "just produced."
   ],
   figure: [
     "confirm the disk is right:",

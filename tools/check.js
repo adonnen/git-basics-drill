@@ -6,7 +6,7 @@
  *
  * There is no test framework and no dependency to install. This boots the real
  * engine against a small stand-in for the browser, so a change can be checked
- * from a terminal or by an agent. It reports:
+ * from a terminal, or in CI, without a browser anywhere. It reports:
  *
  *   - syntax errors in any data file or in the engine
  *   - everything validateData() finds (missing fields, unknown reference keys,

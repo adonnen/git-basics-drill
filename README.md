@@ -6,7 +6,7 @@ account anywhere.
 
 - **A deck of flashcards**, grouped into stages that run from your first `init`
   to force-push discipline
-- **A multi-step lab** you actually run in a terminal, against a real repository
+- **A multi-step lab** you run in a terminal, against a real repository
 - Every card links into the exact section of *Pro Git* and, where it goes
   deeper, of Wiegley's *Git from the Bottom Up*
 
@@ -15,8 +15,8 @@ account anywhere.
 ## Start in thirty seconds
 
 ```bash
-git clone <this-repo-url>
-cd git-drill
+git clone https://github.com/adonnen/git-basics-drill.git
+cd git-basics-drill
 ```
 
 Then open `index.html` — double-click it, or drag it into a browser window.
@@ -28,9 +28,9 @@ it. Either way you need the whole folder: `index.html` loads the stylesheet and
 the three data files from the directories beside it, so that one file on its
 own shows a blank page.
 
-To give the whole team a link instead, turn on GitHub Pages for this repository
-(*Settings → Pages → deploy from the `main` branch*) and share the URL. Nobody
-downloads anything.
+The page is static, so GitHub Pages will serve it as it stands. Fork the
+repository and enable Pages under *Settings → Pages → deploy from the `main`
+branch*. The resulting URL needs no download at the other end.
 
 Works in Chrome, Edge and Firefox. Safari works too, with one small caveat
 noted under [Saving progress](#saving-progress).
@@ -58,7 +58,7 @@ box tells you how many cards survived.
 
 The row of dots at the bottom is one node per card — green for solid, rust for
 revisit, amber ring for where you are. It follows the filters, so it always
-shows the set you are actually working through. Click any dot to jump there.
+shows the set you are working through. Click any dot to jump there.
 
 **Keyboard**
 
@@ -93,11 +93,13 @@ you have to know the tool to get there. The solution sits underneath, blurred an
 unselectable, until you press **show solution** — or click the blurred block
 itself.
 
-Acts I–VI build a repository from nothing and stay entirely local: no remote,
-no clone, no push. Act VII is **optional** and adds a remote, but still on your
-own machine — it has you create a bare repository next door to act as the
-"server", so you can practise `push`, `pull`, tracking branches,
-`--force-with-lease` and pruning without an account anywhere.
+Acts I–VII build a repository from nothing and stay entirely local: no remote,
+no clone, no push. Two acts are marked **optional** and can be skipped without
+stranding the ones after them — VI puts a file into the repository's root
+commit, and VIII adds a remote, still on your own machine, by having you create
+a bare repository next door to act as the "server", so you can practise `push`,
+`pull`, tracking branches, `--force-with-lease` and pruning without an account
+anywhere.
 
 Everything the lab creates lives in two or three directories you delete at the
 end. The last step of each act tells you how.
@@ -121,7 +123,7 @@ your theme choice.
 
 In Chrome and Edge, saving overwrites the same file every time. Firefox and
 Safari do not yet support the browser API that allows that, so they download a
-fresh copy instead — the result is the same file, you just choose where it
+fresh copy instead; the result is the same file, and you choose where it
 lands.
 
 The file is keyed by the *content* of each card and step, not by their
@@ -133,8 +135,6 @@ that no longer matches is reported as unmatched rather than dropped silently.
 Three settings: **auto**, **light**, **dark**. Auto follows your operating
 system, so a machine that switches at sunset switches the page with it. Press
 `t` to cycle. The choice travels in your progress file.
-
----
 
 ---
 
@@ -177,7 +177,7 @@ The whole point of the layout is that adding content never means touching the
 engine.
 
 ```
-git-drill/
+git-basics-drill/
 ├── index.html          the page — markup only
 ├── css/drill.css       every style, in ten commented sections
 ├── js/drill.js         the engine — you should not need to edit this
@@ -288,7 +288,7 @@ gives the act its OPTIONAL badge:
 
 ```js
 { act: "IV — divergence and a real conflict" },
-{ act: "VII — optional: working with a remote", optional: true },
+{ act: "VIII — optional: working with a remote", optional: true },
 ```
 
 Steps are numbered automatically, so inserting one renumbers the rest. One thing
@@ -314,11 +314,11 @@ Worth keeping consistent, since a deck that reads in two voices is harder to
 drill:
 
 - Ask one thing per card. If the answer needs "and", it is two cards.
-- Phrase questions as tasks or as failures you actually meet — "you rebased and
+- Phrase questions as tasks, or as failures met in practice: "you rebased and
   push is rejected, why" beats "what does `--force-with-lease` do".
 - The answer is the short version; the pop-up is where the nuance goes.
-- Figures earn their place by showing a shape — a graph, a before-and-after, a
-  table of what each flag touches. Not by restating the answer.
+- Figures earn their place by showing a shape: a graph, a before-and-after, a
+  table of what each flag touches. A figure that restates the answer is cut.
 
 Write cards in your own words. Cards *link* to Pro Git and to Git from the
 Bottom Up, and linking carries no obligation, but copying does. Pro Git
@@ -343,14 +343,13 @@ That is also why there is no bundler, no `package.json` and no build step at
 all: what is in the repository is what runs in the browser. Edit a file, reload
 the page.
 
-If you would rather serve it — for a team-wide link, say — anything static will
-do:
+If you would rather serve it than open it from disk, anything static will do:
 
 ```bash
 python3 -m http.server 8000     # then open http://localhost:8000
 ```
 
-`js/drill.js` is organised into eleven commented sections; the header block
+`js/drill.js` is organised into twelve commented sections; the header block
 lists them. Content and presentation are fully separated, so the engine has no
 knowledge of any particular card, stage or step.
 
@@ -365,7 +364,7 @@ your time:
 - **Git from the Bottom Up**, John Wiegley — <https://jwiegley.github.io/git-from-the-bottom-up/>
 
 The deck is not a substitute for either. It is a way of finding out which parts
-you have actually retained. Cards link to a section of one or both books; that
+you have retained. Cards link to a section of one or both books; that
 is a bibliography, and no text or figure from either is reproduced here.
 
 ---
