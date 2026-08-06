@@ -4,9 +4,9 @@
  *
  *     node tools/check.js
  *
- * There is no test framework and no dependency to install. This boots the real
- * engine against a small stand-in for the browser, so a change can be checked
- * from a terminal, or in CI, without a browser anywhere. It reports:
+ * The whole thing runs on a stock node install. It boots the real engine
+ * against a small stand-in for the browser, so a change can be checked from a
+ * terminal or in CI. It reports:
  *
  *   - syntax errors in any data file or in the engine
  *   - everything validateData() finds (missing fields, unknown reference keys,
@@ -40,7 +40,7 @@ const check = (condition, message) => condition ? pass(message) : fail(message);
 
 /* ------------------------------------------------- a stand-in for the DOM
    Only what the engine touches: enough to build elements, set classes and
-   read them back. Nothing is rendered; this is about behaviour, not pixels. */
+   read them back. Nothing is rendered; this checks behaviour only. */
 
 function makeElement(tag = 'div') {
   const classes = new Set();

@@ -26,7 +26,7 @@
   <g filter="url(#rough)">
 
     <text class="head" x="30" y="34">Adding a card</text>
-    <text class="s" x="30" y="54">edit one file, reload the page — no build step, no HTML</text>
+    <text class="s" x="30" y="54">edit one file, reload the page — the format is plain text</text>
 
     <rect class="paper" x="30" y="74" width="230" height="196" rx="6"/>
     <text class="mono" x="48" y="100">git-drill/</text>

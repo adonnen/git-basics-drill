@@ -1,8 +1,8 @@
 # git drill
 
 A flashcard deck and a hands-on lab for learning git, in one page that runs
-straight from your file system. No install, no build step, no server, no
-account anywhere.
+straight from your file system. The repository holds everything it needs, and
+it works offline and signed out.
 
 - **A deck of flashcards**, grouped into stages that run from your first `init`
   to force-push discipline
@@ -20,8 +20,8 @@ cd git-basics-drill
 ```
 
 Then open `index.html` — double-click it, or drag it into a browser window.
-That is the whole setup. No install, no build, no server. Nothing is written to
-your machine unless you explicitly save your progress to a file.
+That is the whole setup. The page writes to your machine only when you save
+your progress to a file.
 
 If you would rather not clone, use **Code → Download ZIP** on GitHub and unzip
 it. Either way you need the whole folder: `index.html` loads the stylesheet and
@@ -93,13 +93,12 @@ you have to know the tool to get there. The solution sits underneath, blurred an
 unselectable, until you press **show solution** — or click the blurred block
 itself.
 
-Acts I–VII build a repository from nothing and stay entirely local: no remote,
-no clone, no push. Two acts are marked **optional** and can be skipped without
-stranding the ones after them — VI puts a file into the repository's root
-commit, and VIII adds a remote, still on your own machine, by having you create
-a bare repository next door to act as the "server", so you can practise `push`,
-`pull`, tracking branches, `--force-with-lease` and pruning without an account
-anywhere.
+Acts I–VII build a repository from nothing and stay on your own machine. Two
+acts are marked **optional** and can be skipped without stranding the ones after
+them: VI puts a file into the repository's root commit, and VIII adds a remote.
+That last one has you create a bare repository next door to act as the "server",
+so `push`, `pull`, tracking branches, `--force-with-lease` and pruning are all
+practised locally, with no account anywhere.
 
 Everything the lab creates lives in two or three directories you delete at the
 end. The last step of each act tells you how.
@@ -110,7 +109,7 @@ You need git and a shell: Terminal on macOS or Linux, **Git Bash** on Windows.
 
 ## Saving progress
 
-![The progress toolbar](docs/ui-progress.svg)
+![The control block and the progress file](docs/ui-progress.svg)
 
 Nothing is stored in your browser. Progress lives in a single JSON file that
 you keep wherever you like — a folder, a USB stick, or committed next to your
@@ -339,8 +338,8 @@ The data files are `.js` rather than `.json` for one reason: browsers refuse to
 `fetch` a file from your own disk, so a JSON version would only work behind a
 web server. Keeping them as scripts means double-clicking `index.html` works.
 The contents are still just lists of text — no programming involved.
-That is also why there is no bundler, no `package.json` and no build step at
-all: what is in the repository is what runs in the browser. Edit a file, reload
+That is also why the repository carries no build tooling of any kind: what is
+committed here is what runs in the browser. Edit a file, reload
 the page.
 
 If you would rather serve it than open it from disk, anything static will do:

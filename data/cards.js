@@ -2473,8 +2473,8 @@ const CARDS = [
   question: "Create a push-ready repository on the server — and why does it have to be this kind?",
   answer: [
     "$ git init --bare taskrunner.git",
-    "Bare = no working tree, nothing checked out that a push could yank away. Git",
-    "refuses pushes to a checked-out branch on a normal repo."
+    "Bare means the repository has no working tree. Git refuses a push to a",
+    "branch that is checked out, and a bare repository has nothing checked out."
   ],
   detail: [
     "The command creates the directory itself, so no `mkdir` is needed — but run",
@@ -2487,7 +2487,7 @@ const CARDS = [
     "├── HEAD",
     "├── config",
     "├── objects/",
-    "└── refs/          ← no src/, no working tree",
+    "└── refs/          ← no working tree",
     "",
     "normal repo = working tree + .git/",
     "bare repo   = the contents of .git/, and nothing else"
@@ -2792,7 +2792,7 @@ const CARDS = [
   ],
   detail: [
     "SSH is the lower-maintenance answer for personal repositories: one key",
-    "setup, no expiry, nothing to rotate. Tokens make sense when a network policy",
+    "setup that then lasts. Tokens make sense when a network policy",
     "forces HTTPS — and then they expire on whatever schedule you chose, which is",
     "the ritual SSH avoids."
   ],

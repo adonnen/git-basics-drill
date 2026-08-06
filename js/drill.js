@@ -489,10 +489,10 @@ function buildIntro(){
     'your machine. Read the task, do it in your shell, then reveal the solution to ' +
     'check yourself.</p>' +
     '<p>' + optionalActs + ' of the ' + acts.length + ' acts are marked optional and can ' +
-    'be skipped. The last act adds a remote, still on your own machine, using a bare ' +
-    'repository as the “server”, so no account is needed anywhere. Everything before it ' +
-    'is local: no remote, no clone, no push. You need git and a shell: Terminal on macOS ' +
-    'or Linux, Git Bash on Windows.</p>' +
+    'be skipped. Everything up to the last act runs on your own machine; the last act ' +
+    'adds a remote, using a bare repository next door as the “server”, so no account is ' +
+    'needed anywhere. You need git and a shell: Terminal on macOS or Linux, Git Bash on ' +
+    'Windows.</p>' +
     '<p>The whole exercise is disposable; the last step of each act tells you how to ' +
     'delete it. Tick steps off as you go and they are kept in your progress file.</p>' +
     '<div class="lab-count" id="labCount">' + labProgressText() + '</div>';

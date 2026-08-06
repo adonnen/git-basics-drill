@@ -1,5 +1,5 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 620 376" width="620" height="376" role="img" aria-label="Sketch of the progress toolbar">
-  <title>Sketch of the progress toolbar</title>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 620 462" width="620" height="462" role="img" aria-label="Sketch of the control block and the progress file">
+  <title>Sketch of the control block and the progress file</title>
   <defs>
     <filter id="rough" x="-5%" y="-5%" width="110%" height="110%">
       <feTurbulence type="fractalNoise" baseFrequency="0.035" numOctaves="3" seed="5" result="n"/>
@@ -12,61 +12,74 @@
     .fade  { fill:none; stroke:#9a9086; stroke-width:1.3; stroke-linecap:round; }
     .fill  { fill:#f0ebe0; stroke:#2f2a24; stroke-width:2; }
     .amber { fill:#e0a458; stroke:#2f2a24; stroke-width:1.5; }
+    .gbtn  { fill:#eaf1e4; stroke:#3d6a2b; stroke-width:2; }
     .green { fill:#7fb069; stroke:#2f2a24; stroke-width:1.5; }
-    .rust  { fill:#c0674f; stroke:#2f2a24; stroke-width:1.5; }
     .paper { fill:#fffdf7; stroke:#2f2a24; stroke-width:2.4; }
     text   { font-family:'Comic Sans MS','Bradley Hand','Segoe Print','Chalkboard SE',cursive; fill:#2f2a24; }
     .t     { font-size:13px; }
     .s     { font-size:11px; fill:#6a6355; }
+    .g     { font-size:11px; fill:#3d6a2b; }
     .lbl   { font-size:12px; fill:#a5641b; }
-    .mono  { font-family:ui-monospace,Menlo,Consolas,monospace; font-size:10.5px; fill:#6a6355; }
+    .glbl  { font-size:12px; fill:#3d6a2b; }
     .head  { font-size:16px; }
   </style>
-  <rect width="620" height="376" fill="#f5f2ea"/>
+  <rect width="620" height="462" fill="#f5f2ea"/>
   <g filter="url(#rough)">
 
     <text class="head" x="30" y="34">Saving progress, and the theme</text>
 
-    <rect class="fill" x="30" y="58" width="112" height="26" rx="3"/>
-    <text class="s" x="40" y="75">load progress…</text>
-    <rect class="fill" x="150" y="58" width="106" height="26" rx="3"/>
-    <text class="s" x="160" y="75">save progress</text>
-    <rect class="fill" x="264" y="58" width="72" height="26" rx="3"/>
-    <text class="s" x="274" y="75">save as…</text>
-    <text class="lbl" x="348" y="75">· git-drill-progress.json</text>
+    <text class="s" x="30" y="80">every control sits in one column</text>
+    <text class="s" x="30" y="102">at the top right of the page</text>
+    <path class="fade" d="M212 94 C 260 94, 300 94, 336 94"/>
+    <path class="fade" d="M330 88 L 338 94 L 330 100"/>
 
-    <rect class="fill" x="444" y="58" width="146" height="26" rx="4"/>
-    <line class="thin" x1="492" y1="58" x2="492" y2="84"/>
-    <line class="thin" x1="540" y1="58" x2="540" y2="84"/>
-    <rect class="amber" x="444" y="58" width="48" height="26" rx="4"/>
-    <text class="s" x="456" y="75">auto</text>
-    <text class="s" x="500" y="75">light</text>
-    <text class="s" x="550" y="75">dark</text>
-    <path class="fade" d="M516 106 C 516 96, 516 92, 516 86"/>
-    <text class="lbl" x="440" y="122">auto follows your system</text>
+    <!-- the two switches, one rectangle, nothing between them -->
+    <rect class="fill" x="430" y="52" width="160" height="52" rx="4"/>
+    <rect class="amber" x="430" y="52" width="80" height="26" rx="4"/>
+    <rect class="amber" x="430" y="78" width="53" height="26" rx="4"/>
+    <line class="thin" x1="430" y1="78" x2="590" y2="78"/>
+    <line class="thin" x1="510" y1="52" x2="510" y2="78"/>
+    <line class="thin" x1="483" y1="78" x2="483" y2="104"/>
+    <line class="thin" x1="537" y1="78" x2="537" y2="104"/>
+    <text class="t" x="452" y="71">cards</text>
+    <text class="t" x="534" y="71">lab</text>
+    <text class="s" x="440" y="96">auto</text>
+    <text class="s" x="496" y="96">light</text>
+    <text class="s" x="550" y="96">dark</text>
+    <text class="lbl" x="590" y="128" text-anchor="end">views and theme share one border</text>
+
+    <!-- progress files, directly underneath and in a different colour -->
+    <rect class="gbtn" x="268" y="146" width="106" height="26" rx="3"/>
+    <text class="g" x="278" y="163">load progress…</text>
+    <rect class="gbtn" x="380" y="146" width="104" height="26" rx="3"/>
+    <text class="g" x="390" y="163">save progress</text>
+    <rect class="gbtn" x="490" y="146" width="100" height="26" rx="3"/>
+    <text class="g" x="500" y="163">save as…</text>
+    <text class="glbl" x="590" y="192" text-anchor="end">green; the switches above are amber</text>
+    <text class="lbl" x="590" y="212" text-anchor="end">· git-drill-progress.json</text>
 
     <!-- what the file holds -->
-    <rect class="paper" x="30" y="146" width="250" height="150" rx="6"/>
-    <text class="t" x="46" y="172">one file holds</text>
-    <circle class="green" cx="54" cy="196" r="5"/>
-    <text class="s" x="70" y="200">every card you graded</text>
-    <circle class="green" cx="54" cy="222" r="5"/>
-    <text class="s" x="70" y="226">every lab step you ticked</text>
-    <circle class="green" cx="54" cy="248" r="5"/>
-    <text class="s" x="70" y="252">your theme choice</text>
-    <text class="s" x="46" y="280">nothing is stored in the browser</text>
+    <rect class="paper" x="30" y="240" width="250" height="150" rx="6"/>
+    <text class="t" x="46" y="266">one file holds</text>
+    <circle class="green" cx="54" cy="290" r="5"/>
+    <text class="s" x="70" y="294">every card you graded</text>
+    <circle class="green" cx="54" cy="316" r="5"/>
+    <text class="s" x="70" y="320">every lab step you ticked</text>
+    <circle class="green" cx="54" cy="342" r="5"/>
+    <text class="s" x="70" y="346">your theme choice</text>
+    <text class="s" x="46" y="374">nothing is stored in the browser</text>
 
-    <path class="fade" d="M300 220 C 316 220, 326 220, 340 220"/>
-    <path class="fade" d="M334 214 L 342 220 L 334 226"/>
+    <path class="fade" d="M300 314 C 316 314, 326 314, 340 314"/>
+    <path class="fade" d="M334 308 L 342 314 L 334 320"/>
 
-    <rect class="paper" x="356" y="146" width="234" height="150" rx="6"/>
-    <text class="t" x="372" y="172">keep it wherever</text>
-    <text class="s" x="372" y="198">a folder, a USB stick,</text>
-    <text class="s" x="372" y="220">or committed next to</text>
-    <text class="s" x="372" y="242">your notes</text>
-    <text class="s" x="372" y="272">load it again on any machine</text>
+    <rect class="paper" x="356" y="240" width="234" height="150" rx="6"/>
+    <text class="t" x="372" y="266">keep it wherever</text>
+    <text class="s" x="372" y="292">a folder, a USB stick,</text>
+    <text class="s" x="372" y="314">or committed next to</text>
+    <text class="s" x="372" y="336">your notes</text>
+    <text class="s" x="372" y="366">load it again on any machine</text>
 
-    <text class="lbl" x="30" y="330">Chrome and Edge let you overwrite the same file each time.</text>
-    <text class="lbl" x="30" y="352">Firefox downloads a fresh copy instead — same file, same result.</text>
+    <text class="lbl" x="30" y="418">Chrome and Edge overwrite the same file each time. Firefox</text>
+    <text class="lbl" x="30" y="440">downloads a fresh copy instead — same file, same result.</text>
   </g>
 </svg>
