@@ -1,5 +1,5 @@
 /* =============================================================================
-   references.js — the two books a card can link to.
+   references.js — the two books a card can link to, and the aliases.
 
    A card names a section with a short key instead of a full URL, so the same
    section can be reused by many cards and fixed in one place if it moves.
@@ -7,6 +7,10 @@
    To add a section, put a new line in the right "sections" list, then use its
    key as a card's `proGit` or `bottomUp` field. If a card names a key that is
    not here, the browser console says so on the next reload.
+
+   ALIASES, at the foot of this file, is what makes `git lg` in a card's text
+   into something you can click. Its expansions are copied from
+   examples/gitconfig and `tools/check.js` fails if the two ever disagree.
    ============================================================================= */
 
 const REFERENCES = {
@@ -61,6 +65,63 @@ const REFERENCES = {
       "the-beauty-of-commits": { title: "The beauty of commits", path: "1-Repository/5-the-beauty-of-commits.html" },
       "to-reset-or-not-to-reset": { title: "To reset, or not to reset", path: "3-Reset/1-to-reset-or-not-to-reset.html" }
     }
+  }
+
+};
+
+
+/* -----------------------------------------------------------------------------
+   The aliases the cards mention.
+
+   Write `git lg` in a card, between backticks, and it becomes a chip that opens
+   what the alias expands to. Nothing else is needed: no field on the card, no
+   second mark to remember. A name that is not listed here stays plain code, so
+   `git status` is left alone.
+
+   To add one: copy its definition out of examples/gitconfig, exactly as it
+   stands there, and write a sentence saying what it buys you. The check script
+   compares the two and fails on drift.
+   -------------------------------------------------------------------------- */
+
+const ALIASES = {
+
+  lg: {
+    expands: "log --all --oneline --graph --decorate",
+    note: "The shape of the whole repository in one screen — every branch, every " +
+          "tag, drawn as a graph. The one alias to learn first."
+  },
+
+  s: {
+    expands: "status -sb",
+    note: "Status without the tutorial: one line per file, plus a branch line at " +
+          "the top saying how far ahead or behind you are."
+  },
+
+  fixit: {
+    expands: "commit --amend --no-edit",
+    note: "Folds whatever you have staged into the last commit and keeps its " +
+          "message, so a forgotten file costs no “fix typo” commit."
+  },
+
+  recent: {
+    expands: "branch --sort=-committerdate --format='%(HEAD) %(color:yellow)%(refname:short)%(color:reset) - %(color:dim)%(committerdate:relative)%(color:reset)'",
+    note: "Your branches in the order you last touched them, each with how long " +
+          "ago that was. Answers “what was I working on last week”."
+  },
+
+  "nuke-preview": {
+    expands: "!echo '── tracked changes that would be reset ──' && git diff --stat && echo '── untracked files that would be removed ──' && git clean -nd",
+    note: "Shows exactly what a full reset would destroy, and destroys nothing. " +
+          "Run it before the real thing, every time."
+  },
+
+  nuke: {
+    expands: "!f() { echo 'This discards ALL uncommitted changes AND untracked files.'; " +
+             "printf 'Are you sure? (y/N) '; read ans; if [ \"$ans\" = 'y' ] || [ \"$ans\" = 'Y' ]; " +
+             "then git reset --hard HEAD && git clean -fd && echo 'Done.'; else echo 'Aborted.'; fi }; f",
+    note: "Working tree back to HEAD and untracked files gone, after asking. It " +
+          "asks because neither half is recoverable — no reflog returns work that " +
+          "was never committed."
   }
 
 };

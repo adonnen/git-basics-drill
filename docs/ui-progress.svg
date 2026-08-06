@@ -58,22 +58,22 @@
     <text class="glbl" x="590" y="192" text-anchor="end">green; the switches above are amber</text>
     <text class="lbl" x="590" y="212" text-anchor="end">· git-drill-progress.json</text>
 
-    <!-- what the file holds -->
+    <!-- what a session holds, in either store -->
     <rect class="paper" x="30" y="240" width="250" height="150" rx="6"/>
-    <text class="t" x="46" y="266">one file holds</text>
+    <text class="t" x="46" y="266">a session holds</text>
     <circle class="green" cx="54" cy="290" r="5"/>
     <text class="s" x="70" y="294">every card you graded</text>
     <circle class="green" cx="54" cy="316" r="5"/>
     <text class="s" x="70" y="320">every lab step you ticked</text>
     <circle class="green" cx="54" cy="342" r="5"/>
     <text class="s" x="70" y="346">your theme choice</text>
-    <text class="s" x="46" y="374">nothing is stored in the browser</text>
+    <text class="s" x="46" y="374">the browser keeps it as you go</text>
 
     <path class="fade" d="M300 314 C 316 314, 326 314, 340 314"/>
     <path class="fade" d="M334 308 L 342 314 L 334 320"/>
 
     <rect class="paper" x="356" y="240" width="234" height="150" rx="6"/>
-    <text class="t" x="372" y="266">keep it wherever</text>
+    <text class="t" x="372" y="266">the file carries it</text>
     <text class="s" x="372" y="292">a folder, a USB stick,</text>
     <text class="s" x="372" y="314">or committed next to</text>
     <text class="s" x="372" y="336">your notes</text>

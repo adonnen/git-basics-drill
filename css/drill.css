@@ -121,6 +121,20 @@ header{margin-bottom:26px}
   background:var(--amber-wash);border:1px solid var(--amber-line);
   border-radius:3px;padding:1px 6px;white-space:nowrap;
 }
+/* An alias chip: a code span that turned out to name something in
+   examples/gitconfig. It reads as code with an underline, so that it is
+   recognisably clickable without becoming a second kind of button. */
+.prose .alias{
+  font-family:var(--mono);font-size:.82em;color:var(--green);
+  background:var(--green-wash);border:1px solid var(--green-edge);
+  border-radius:3px;padding:1px 6px;white-space:nowrap;cursor:pointer;
+  text-decoration:underline dotted;text-underline-offset:3px;
+  transition:border-color .15s,background .15s;
+}
+.prose .alias:hover,.prose .alias:focus-visible{
+  border-color:var(--green);background:color-mix(in srgb,var(--green) 16%,transparent);
+}
+
 /* A small figure inside a card answer, written as "|" lines in the data. */
 .prose .drawing{
   display:block;font-family:var(--mono);font-size:12px;line-height:1.6;color:var(--fog);
@@ -215,8 +229,21 @@ header{margin-bottom:26px}
 .pbtn{color:var(--green);border-color:var(--green-edge)}
 .pbtn:hover{color:var(--green);border-color:var(--green);background:var(--green-wash)}
 
-/* Progress readouts: bound filename, transient status message. */
-.tfile{font-size:11.5px;color:var(--green);opacity:.8}
+/* Progress readouts: bound filename, transient status message. The buttons
+   above are the only thing allowed to decide how wide this column is, so the
+   readouts are taken out of its intrinsic width by `width:0` and given the
+   width back by a percentage minimum, which intrinsic sizing ignores. Without
+   this a long filename stretches the column, and the switches stretch with it.
+   The row keeps its height whether or not anything is in it, so a message
+   arriving moves nothing. */
+.readout{
+  display:flex;flex-wrap:wrap;justify-content:flex-end;align-items:baseline;
+  gap:2px 7px;width:0;min-width:100%;min-height:14px;line-height:1.2;
+}
+.tfile{
+  font-size:11.5px;color:var(--green);opacity:.8;
+  max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+}
 .tstatus{font-size:11.5px;color:var(--fog);opacity:0;transition:opacity .2s}
 .tstatus.show{opacity:.85}
 .tstatus.err{color:var(--rust)}
@@ -263,12 +290,12 @@ header{margin-bottom:26px}
 
 /* == 5. controls ========================================================== */
 .controls{display:flex;justify-content:center;gap:12px;margin-top:22px;flex-wrap:wrap}
-.controls button,.summary button{
+.controls button,.summary button,.gate-actions button{
   font-family:var(--mono);font-size:14px;border-radius:4px;padding:9px 18px;
   cursor:pointer;border:1px solid var(--edge);background:transparent;color:var(--ink);
   transition:border-color .15s,color .15s,background .15s;
 }
-.controls button:hover,.summary button:hover{border-color:var(--fog)}
+.controls button:hover,.summary button:hover,.gate-actions button:hover{border-color:var(--fog)}
 .ghost{color:var(--fog);min-width:52px}
 .ghost:hover{color:var(--ink)}
 .green{border-color:var(--green-edge);color:var(--green)}
@@ -325,6 +352,27 @@ header{margin-bottom:26px}
 .mbody{padding:26px 28px 28px;overflow-y:auto;display:flex;flex-direction:column;gap:18px}
 .mbody h3{font-family:var(--serif);font-size:19px;font-weight:600;line-height:1.4;max-width:52ch}
 .mbody .prose{font-size:16.5px;line-height:1.62;max-width:58ch}
+
+/* The session gate. Same overlay as the details modal, one step heavier: the
+   page behind it is blurred as well as dimmed, since it is not a thing you can
+   dismiss by clicking away from it. */
+.gate{z-index:60;backdrop-filter:blur(2px)}
+.gatebox{max-width:520px}
+.gatebox .mbody{gap:14px}
+.gate-actions{display:flex;gap:12px;flex-wrap:wrap;margin-top:4px}
+body.gated{overflow:hidden}
+
+/* The alias pop-up. Above the details modal, because a chip can be sitting in
+   the modal's own prose. Narrower than the details panel: it holds one
+   definition, not a card's whole fine print. */
+.apop{z-index:55}
+.aliasbox{max-width:560px}
+.aliasbox .mbody{gap:14px}
+.aliasbox h3{font-family:var(--mono);font-size:16px;color:var(--green)}
+.aliasbox .figure{color:var(--ink);white-space:pre-wrap;word-break:break-word}
+.aliasbox .prose.small{font-size:14.5px;color:var(--fog)}
+.aliasbox .prose.small code{font-size:.86em}
+.aliasbox .cmdline{margin-bottom:11px}
 
 /* Pre-rendered ASCII figure. */
 .figure{
@@ -405,7 +453,7 @@ header{margin-bottom:26px}
   body{padding:26px 14px 48px}
   /* The control block gets the full width rather than crowding one edge. */
   .console{width:100%;margin-left:0}
-  .progress{justify-content:flex-start}
+  .progress,.readout{justify-content:flex-start}
   .face{padding:22px 20px 12px}
   .footrow{padding:0 20px 14px;flex-wrap:wrap}
   .prose.q{font-size:17.5px}

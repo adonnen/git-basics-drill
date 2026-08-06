@@ -28,33 +28,37 @@
     <text class="head" x="30" y="34">The details pop-up</text>
     <text class="s" x="30" y="54">press d, or the "details" button, once the answer is showing</text>
 
-    <rect class="paper" x="30" y="72" width="500" height="290" rx="8"/>
-    <line class="thin" x1="30" y1="100" x2="530" y2="100"/>
+    <!-- The panel stops at 440 so that the annotations down the right have a
+         margin of their own. Nothing is allowed to sit on the outline. -->
+    <rect class="paper" x="30" y="72" width="410" height="290" rx="8"/>
+    <line class="thin" x1="30" y1="100" x2="440" y2="100"/>
     <circle class="thin" cx="46" cy="86" r="4"/>
     <circle class="thin" cx="60" cy="86" r="4"/>
     <circle class="thin" cx="74" cy="86" r="4"/>
     <text class="mono" x="94" y="90">02 branching</text>
-    <rect class="fill" x="486" y="76" width="34" height="20" rx="3"/>
-    <text class="s" x="494" y="90">esc</text>
+    <rect class="fill" x="396" y="76" width="34" height="20" rx="3"/>
+    <text class="s" x="404" y="90">esc</text>
 
-    <line class="ink" x1="52" y1="124" x2="380" y2="124"/>
-    <text class="s" x="52" y="146">the fine print — caveats and the reason behind the rule</text>
-    <line class="thin" x1="52" y1="164" x2="470" y2="164"/>
-    <line class="thin" x1="52" y1="180" x2="440" y2="180"/>
+    <line class="ink" x1="52" y1="124" x2="330" y2="124"/>
+    <text class="s" x="52" y="146">the fine print — caveats and</text>
+    <text class="s" x="52" y="162">the reason behind the rule</text>
+    <line class="thin" x1="52" y1="180" x2="400" y2="180"/>
+    <line class="thin" x1="52" y1="194" x2="360" y2="194"/>
 
-    <rect class="fill" x="52" y="198" width="440" height="76" rx="5"/>
-    <text class="mono" x="66" y="220">before:  A---B---C (main)---D---E (feature)</text>
-    <text class="mono" x="66" y="240">after :  A---B---C---D---E</text>
-    <text class="mono" x="66" y="258">                         ^ main, feature</text>
-    <path class="fade" d="M520 234 C 508 234, 500 234, 494 234"/>
-    <text class="lbl" x="526" y="238">an ASCII figure</text>
+    <rect class="fill" x="52" y="210" width="366" height="72" rx="5"/>
+    <text class="mono" x="66" y="232">before: A---B---C (main)---D---E</text>
+    <text class="mono" x="66" y="250">after : A---B---C---D---E</text>
+    <text class="mono" x="66" y="268">                  ^ main, feature</text>
+    <path class="fade" d="M474 244 C 460 244, 448 244, 440 244"/>
+    <text class="lbl" x="480" y="248">an ASCII figure</text>
 
-    <rect class="fill" x="52" y="288" width="210" height="26" rx="4"/>
-    <text class="s" x="62" y="305">Pro Git 3.1 — Branches… ↗</text>
-    <rect class="fill" x="52" y="322" width="270" height="26" rx="4"/>
-    <text class="s" x="62" y="339">Git from the Bottom Up — commits ↗</text>
-    <path class="fade" d="M400 320 C 380 320, 350 320, 330 328"/>
-    <text class="lbl" x="406" y="316">deep links into the exact</text>
-    <text class="lbl" x="406" y="332">section of each book</text>
+    <rect class="fill" x="52" y="296" width="210" height="26" rx="4"/>
+    <text class="s" x="62" y="313">Pro Git 3.1 — Branches… ↗</text>
+    <rect class="fill" x="52" y="330" width="270" height="26" rx="4"/>
+    <text class="s" x="62" y="347">Git from the Bottom Up — commits ↗</text>
+    <path class="fade" d="M474 330 C 440 330, 400 330, 332 340"/>
+    <text class="lbl" x="480" y="322">deep links into</text>
+    <text class="lbl" x="480" y="338">the exact section</text>
+    <text class="lbl" x="480" y="354">of each book</text>
   </g>
 </svg>

@@ -14,7 +14,7 @@
      B2  text rendering    B7  deck: details modal
      B3  helpers           B8  deck: summary
      B4  state             B9  lab
-     B5  theme and views   B10 progress files
+     B5  theme and views   B10 progress: this browser, and files
                            B11 validation, wiring and boot
    ============================================================================= */
 
@@ -30,6 +30,9 @@ const el = {
   // progress files
   pLoad:$('pLoad'), pSave:$('pSave'), pSaveAs:$('pSaveAs'),
   pFile:$('pFile'), pStatus:$('pStatus'), pInput:$('pInput'),
+  // the session gate, shown when this browser remembers a session
+  gate:$('gate'), gSummary:$('gSummary'), gResume:$('gResume'), gFresh:$('gFresh'),
+  head:$('pageHead'), body:$('pageBody'),   // made inert while the gate is up
   // cards view
   stage:$('stage'), summary:$('summary'), graph:$('graph'),
   pane:$('pane'), face:$('face'), eyebrow:$('eyebrow'), text:$('cardText'),
@@ -37,6 +40,9 @@ const el = {
   // details modal
   backdrop:$('backdrop'), mStage:$('mStage'), mTitle:$('mTitle'), mText:$('mText'),
   mFigure:$('mFigure'), mLink1:$('mLink1'), mLink2:$('mLink2'), mClose:$('mClose'),
+  // alias pop-up
+  aliasPop:$('aliasPop'), aTitle:$('aTitle'), aNote:$('aNote'),
+  aExpands:$('aExpands'), aHow:$('aHow'), aClose:$('aClose'),
   // lab view
   lab:$('lab')
 };
@@ -60,10 +66,22 @@ const el = {
 const escapeHtml = text => String(text)
   .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 
-/** Apply the inline marks to one run of prose. Bold before italic, since
- *  ** would otherwise be read as two italic markers. */
+/**
+ * Apply the inline marks to one run of prose. Bold before italic, since ** would
+ * otherwise be read as two italic markers.
+ *
+ * A code span naming an alias — `git lg`, and nothing else in the sentence has
+ * to change — becomes a chip that opens what it expands to. Names not in
+ * ALIASES stay ordinary code, so `git status` is left as it was written.
+ */
 const renderInline = text => escapeHtml(text)
-  .replace(/`([^`]+)`/g, '<code>$1</code>')
+  .replace(/`([^`]+)`/g, (_, code) => {
+    const name = code.startsWith('git ') ? code.slice(4) : '';
+    return Object.hasOwn(ALIASES, name)
+      ? '<button class="alias" type="button" data-alias="' + name +
+        '" title="an alias — click to see what it expands to">' + code + '</button>'
+      : '<code>' + code + '</code>';
+  })
   .replace(/\*\*([^*]+)\*\*/g, '<b>$1</b>')
   .replace(/\*([^*]+)\*/g, '<em>$1</em>');
 
@@ -198,6 +216,7 @@ function applyTheme(next){
   theme = ['auto','light','dark'].includes(next) ? next : 'auto';
   document.documentElement.dataset.theme = theme;
   for(const b of el.theme.children) b.classList.toggle('on', b.dataset.theme === theme);
+  remember();
 }
 
 /** auto -> light -> dark -> auto, for the keyboard shortcut. */
@@ -351,6 +370,7 @@ function grade(value){
   const list = visible();
   if(!list.length) return;
   grades.set(list[pos], value);
+  remember();
 
   const firstUngraded = list.findIndex(i => !grades.has(i));
   if(firstUngraded === -1){ showSummary(); return; }
@@ -414,6 +434,48 @@ function closeDetails(){
 }
 
 
+/* -------------------------------------------------------- the alias pop-up
+   A card can say `git lg` in passing and mean a shorthand the reader has never
+   set up. This is what that chip opens: the expansion, why it is worth having,
+   and the one command that installs it. It sits above the details modal,
+   because a chip inside that modal has to be able to open it. */
+
+const aliasOpen = () => !el.aliasPop.hidden;
+
+/** Quote an expansion for the shell, so the install line can be pasted as-is. */
+const shellQuote = text => text.includes("'")
+  ? '"' + text.replace(/(["\\$`])/g, '\\$1') + '"'
+  : "'" + text + "'";
+
+function openAlias(name){
+  const alias = ALIASES[name];
+  if(!alias) return;
+
+  el.aTitle.textContent   = 'git ' + name;
+  el.aNote.innerHTML      = renderInline(alias.note);
+  el.aExpands.textContent = name + ' = ' + alias.expands;
+
+  // Shell aliases are long and full of quoting; sending someone to the file is
+  // kinder than a paste that a stray quote can break.
+  el.aHow.innerHTML = alias.expands.startsWith('!')
+    ? 'A shell alias — the <code>!</code> makes git run it as a command rather ' +
+      'than as a git subcommand. Copy this one out of <code>examples/gitconfig</code>, ' +
+      'where it is written across several lines.'
+    : 'Aliases live under <code>[alias]</code> in your git config. To add this one:' +
+      '<span class="cmdline">git config --global alias.' + name + ' ' +
+      escapeHtml(shellQuote(alias.expands)) + '</span>' +
+      'Or paste the block from <code>examples/gitconfig</code> in this repository.';
+
+  el.aliasPop.hidden = false;
+  el.aClose.focus();
+}
+
+function closeAlias(){
+  el.aliasPop.hidden = true;
+  (modalOpen() ? el.mClose : el.pane).focus();
+}
+
+
 /* == B8. deck: summary ==================================================== */
 
 function showSummary(){
@@ -462,6 +524,7 @@ function reviewMissed(){
 
 function restart(withShuffle){
   grades.clear();
+  remember();
   order = DECK.map((_, i) => i);
   filter = 'all'; sequential = true;
   clearSearch();
@@ -509,6 +572,7 @@ function buildStep(entry, number){
     box.checked ? labDone.add(entry.key) : labDone.delete(entry.key);
     step.classList.toggle('done', box.checked);
     syncLabCount();
+    remember();
   };
   entry.box = box;   // so a loaded progress file can tick it
 
@@ -570,30 +634,44 @@ function syncLab(){
 }
 
 
-/* == B10. progress files ==================================================
-   One JSON file holds card grades, lab ticks and the theme. The File System
-   Access API is what allows overwriting a file the reader picks; where it is
-   missing (Firefox, sandboxed frames) this falls back to a download and a
-   plain file input.
+/* == B10. progress: this browser, and files ===============================
+   One shape of data, two places to keep it. The browser holds the session so
+   that closing the tab costs nothing; the JSON file carries it to another
+   browser or machine, and is the only store where the page is opened from disk
+   in a browser that refuses storage on file:// URLs.
+
+   The browser is written to on every change and never read without asking:
+   finding a session on the way in raises the gate, and nothing behind it is
+   touched until the reader has chosen to resume or to start over.
+
+   The File System Access API is what allows overwriting a file the reader
+   picks; where it is missing (Firefox, sandboxed frames) this falls back to a
+   download and a plain file input.
    ========================================================================== */
 
 const PICKER_TYPES = [{ description:'git drill progress', accept:{ 'application/json':['.json'] } }];
+const STORE_KEY    = 'gitDrill.progress.v1';
 
 let fileHandle  = null;   // bound file, once picked
 let statusTimer = null;
+let booted      = false;  // suppress writes while the page is still assembling
 
+/**
+ * Say what just happened, under the buttons. A success fades; a failure stays
+ * until something replaces it, because a message that vanishes while you are
+ * looking elsewhere is a message that did not happen.
+ */
 function status(message, isError){
   el.pStatus.textContent = message;
   el.pStatus.className = 'tstatus show' + (isError ? ' err' : '');
   clearTimeout(statusTimer);
-  statusTimer = setTimeout(() => { el.pStatus.className = 'tstatus'; }, 4000);
+  if(!isError) statusTimer = setTimeout(() => { el.pStatus.className = 'tstatus'; }, 4000);
 }
 
 function bindFile(handle){
   fileHandle = handle;
   el.pFile.textContent = '· ' + handle.name;
   el.pFile.hidden = false;
-  el.pSaveAs.hidden = false;
 }
 
 function serialize(){
@@ -616,24 +694,39 @@ function deserialize(text){
   catch { return status('not valid JSON', true); }
   if(!data || data.app !== 'git-drill' || !data.marks) return status('not a drill progress file', true);
 
+  // Card grades, matched by key so reordering the deck is harmless. Nothing is
+  // committed until the tally is in: a file whose keys are hashes of questions
+  // that have since been reworded matches nothing, and must not be allowed to
+  // wipe the session that is already on screen.
+  const byKey = new Map(DECK.map((card, i) => [card.key, i]));
+  const next  = new Map();
+  let unmatched = 0;
+  for(const [key, value] of Object.entries(data.marks)){
+    if(byKey.has(key) && (value === 'got' || value === 'again')) next.set(byKey.get(key), value);
+    else unmatched++;
+  }
+
+  // Files written before the lab existed have no `lab` key, so leave whatever
+  // is on screen rather than clearing it.
+  const labKeys = Array.isArray(data.lab) ? data.lab : null;
+  const restored = next.size;
+  const restoredLab = labKeys ? labKeys.filter(key => LAB_STEPS.some(s => s.key === key)).length : 0;
+
+  if(restored === 0 && restoredLab === 0 && unmatched){
+    return status('nothing matched · ' + unmatched + ' mark' + (unmatched === 1 ? '' : 's') +
+                  ' from an older deck', true);
+  }
+
   if(data.theme) applyTheme(data.theme);
 
-  // Lab ticks. Files written before the lab existed have no `lab` key, so
-  // leave whatever is on screen rather than clearing it.
-  if(Array.isArray(data.lab)){
+  if(labKeys){
     labDone.clear();
-    data.lab.forEach(key => labDone.add(key));
+    labKeys.forEach(key => labDone.add(key));
     syncLab();
   }
 
-  // Card grades, matched by key so reordering the deck is harmless.
   grades.clear();
-  const byKey = new Map(DECK.map((card, i) => [card.key, i]));
-  let restored = 0, unmatched = 0;
-  for(const [key, value] of Object.entries(data.marks)){
-    if(byKey.has(key) && (value === 'got' || value === 'again')){ grades.set(byKey.get(key), value); restored++; }
-    else unmatched++;
-  }
+  for(const [index, value] of next) grades.set(index, value);
 
   order = DECK.map((_, i) => i);
   filter = 'all'; sequential = true; flipped = false;
@@ -644,12 +737,129 @@ function deserialize(text){
   deckPanel = 'stage';
   render();
   applyView(view);            // stay in whichever view the reader was using
+  remember();                 // what was loaded is now the live session
 
   const parts = [restored + ' card' + (restored === 1 ? '' : 's')];
   if(labDone.size) parts.push(labDone.size + ' lab step' + (labDone.size === 1 ? '' : 's'));
   if(unmatched)    parts.push(unmatched + ' unmatched');
   status('restored ' + parts.join(' · '));
 }
+
+/* ------------------------------------------------------- the browser's copy
+   Safari refuses localStorage on file:// URLs and throws on the first touch
+   rather than returning nothing, so this asks once and remembers the answer.
+   Where the answer is no, the file buttons are the whole of the story. */
+
+const store = (() => {
+  try{
+    const probe = STORE_KEY + '.probe';
+    localStorage.setItem(probe, '1');
+    localStorage.removeItem(probe);
+    return localStorage;
+  } catch { return null; }
+})();
+
+/**
+ * Write the session to the browser. Called after anything that changes it, and
+ * silent while the page is assembling or while the gate is up — until the
+ * reader has chosen, the stored session is theirs and not to be written over.
+ */
+function remember(){
+  if(!store || !booted || gateOpen()) return;
+  try { store.setItem(STORE_KEY, serialize()); } catch { /* full, or private mode */ }
+}
+
+/** The stored session, parsed and sanity-checked, or null if there is none. */
+function recall(){
+  if(!store) return null;
+  try{
+    const data = JSON.parse(store.getItem(STORE_KEY));
+    return (data && data.app === 'git-drill' && data.marks) ? data : null;
+  } catch { return null; }
+}
+
+function forget(){
+  if(!store) return;
+  try { store.removeItem(STORE_KEY); } catch { /* nothing to be done about it */ }
+}
+
+/** How much of a stored session this deck can still take back. */
+function storedCounts(data){
+  const cardKeys = new Set(DECK.map(card => card.key));
+  const labKeys  = new Set(LAB_STEPS.map(step => step.key));
+  const marks    = Object.keys(data.marks || {});
+  return {
+    cards:     marks.filter(key => cardKeys.has(key)).length,
+    unmatched: marks.filter(key => !cardKeys.has(key)).length,
+    lab:       (data.lab || []).filter(key => labKeys.has(key)).length
+  };
+}
+
+/** "4 minutes ago", roughly. Precision past the hour is of no use here. */
+function ago(iso){
+  const then = Date.parse(iso);
+  if(!then) return 'earlier';
+  const minutes = Math.floor((Date.now() - then) / 60000);
+  if(minutes < 1)    return 'a moment ago';
+  if(minutes < 60)   return minutes + (minutes === 1 ? ' minute ago' : ' minutes ago');
+  const hours = Math.floor(minutes / 60);
+  if(hours < 24)     return hours + (hours === 1 ? ' hour ago' : ' hours ago');
+  const days = Math.floor(hours / 24);
+  return days + (days === 1 ? ' day ago' : ' days ago');
+}
+
+
+/* ---------------------------------------------------------------- the gate
+   The one moment the page asks a question. Everything behind it is dimmed and
+   made inert, because a half-restored session is worse than either choice. */
+
+const gateOpen = () => !el.gate.hidden;
+
+let gateData = null;   // what the gate is holding, so resume needs no re-read
+
+function openGate(data){
+  gateData = data;
+  const count = storedCounts(data);
+  const parts = [count.cards + (count.cards === 1 ? ' card graded' : ' cards graded')];
+  if(count.lab) parts.push(count.lab + (count.lab === 1 ? ' lab step done' : ' lab steps done'));
+
+  el.gSummary.innerHTML =
+    'This browser kept a session from ' + ago(data.saved) + ': <b>' + parts.join('</b>, <b>') + '</b>.' +
+    (count.unmatched ? ' ' + count.unmatched + ' further mark' + (count.unmatched === 1 ? '' : 's') +
+      ' belonged to cards that have been reworded since, and cannot come back.' : '') +
+    ' Starting a new session discards it.';
+
+  el.gate.hidden = false;
+  document.body.classList.add('gated');
+  el.head.inert = el.body.inert = true;   // no tabbing into what is behind it
+  el.gResume.focus();
+}
+
+function closeGate(){
+  el.gate.hidden = true;
+  document.body.classList.remove('gated');
+  el.head.inert = el.body.inert = false;
+}
+
+/** Take the stored session back, and carry on from the first ungraded card. */
+function resumeSession(){
+  const data = gateData || recall();
+  closeGate();
+  if(data) deserialize(JSON.stringify(data));
+}
+
+/** Drop it and start clean. The store goes with it, so a reload does not ask. */
+function newSession(){
+  closeGate();
+  forget();
+  labDone.clear();
+  syncLab();
+  applyView('cards');
+  restart(false);
+  status('new session');
+  remember();
+}
+
 
 /** Offer the file as a download — the fallback when no picker is available. */
 function downloadFile(text){
@@ -767,7 +977,10 @@ function validateData(){
 
 // card
 el.pane.onclick    = flip;
-el.pane.onkeydown  = e => { if(e.key === 'Enter'){ e.preventDefault(); flip(); } };
+el.pane.onkeydown  = e => {
+  if(e.target.tagName === 'BUTTON') return;   // the chips and "details" answer for themselves
+  if(e.key === 'Enter'){ e.preventDefault(); flip(); }
+};
 el.details.onclick = e => { e.stopPropagation(); openDetails(); };   // don't also flip
 $('prev').onclick  = () => move(-1);
 $('next').onclick  = () => move(1);
@@ -778,6 +991,19 @@ $('again').onclick = () => grade('again');
 el.mClose.onclick   = closeDetails;
 el.backdrop.onclick = e => { if(e.target === el.backdrop) closeDetails(); };
 
+// alias chips, wherever they are. Caught on the way down, so a chip inside the
+// card opens the pop-up instead of flipping the card underneath it.
+document.addEventListener('click', e => {
+  const chip = e.target.closest?.('[data-alias]');
+  if(!chip) return;
+  e.preventDefault();
+  e.stopPropagation();
+  openAlias(chip.dataset.alias);
+}, true);
+
+el.aClose.onclick   = closeAlias;
+el.aliasPop.onclick = e => { if(e.target === el.aliasPop) closeAlias(); };
+
 // keyword filter
 el.search.oninput      = () => applySearch(el.search.value);
 el.searchClear.onclick = () => { clearSearch(); applySearch(''); el.search.focus(); };
@@ -785,6 +1011,10 @@ el.searchClear.onclick = () => { clearSearch(); applySearch(''); el.search.focus
 // switches
 for(const b of el.view.children)  b.onclick = () => applyView(b.dataset.view);
 for(const b of el.theme.children) b.onclick = () => applyTheme(b.dataset.theme);
+
+// the session gate
+el.gResume.onclick = resumeSession;
+el.gFresh.onclick  = newSession;
 
 // progress files
 el.pLoad.onclick   = () => loadProgress();
@@ -797,10 +1027,20 @@ el.pInput.onchange = async () => {
 };
 
 document.addEventListener('keydown', e => {
+  // The gate answers to Enter and nothing else. Escape is not offered: both
+  // ways out of it are a decision, and one of them throws work away.
+  if(gateOpen()){
+    if(e.key === 'Enter'){ e.preventDefault(); resumeSession(); }
+    return;
+  }
+
   // Save works everywhere, including with the modal open.
   if((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 's'){
     e.preventDefault(); saveProgress(false); return;
   }
+  // Innermost overlay first: the alias pop-up can be open on top of the details
+  // modal, and Escape should peel one layer at a time.
+  if(aliasOpen()){ if(e.key === 'Escape') closeAlias(); return; }
   if(modalOpen()){ if(e.key === 'Escape') closeDetails(); return; }
 
   // While typing in the search box, only Escape is ours: it clears and leaves.
@@ -833,9 +1073,24 @@ el.blurb.innerHTML =
   '<i>Git from the Bottom Up</i>.';
 
 validateData();
-applyTheme('auto');
+
+// The stored session is read before anything is drawn, so that the theme it
+// carries is the first one painted. Its marks wait behind the gate.
+const stored = recall();
+applyTheme(stored?.theme || 'auto');
 buildChips();
 buildLab();
 render();
 applyView('cards');
+booted = true;
+
+if(stored){
+  const count = storedCounts(stored);
+  if(count.cards || count.lab) openGate(stored);
+  // A session whose every mark predates a rewording has nothing left to offer.
+  // Say so once, quietly, and let the first grade overwrite it.
+  else if(count.unmatched) status('the session in this browser is from an older deck', true);
+} else if(!store){
+  status('this browser keeps nothing · save to a file');
+}
 

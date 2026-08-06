@@ -24,6 +24,7 @@ const fs = require('fs');
 const path = require('path');
 
 const ROOT = path.resolve(__dirname, '..');
+const GITCONFIG = path.join(ROOT, 'examples', 'gitconfig');
 const SOURCES = [
   'data/references.js',
   'data/cards.js',
@@ -80,6 +81,7 @@ function makeElement(tag = 'div') {
 const registry = {};
 global.document = {
   documentElement: { dataset: {} },
+  body: makeElement('body'),
   createElement: makeElement,
   createTextNode: text => ({ textContent: text }),
   getElementById: id => (registry[id] ||= makeElement(id === 'pInput' ? 'input' : 'div')),
@@ -87,8 +89,21 @@ global.document = {
 };
 global.window = { scrollTo() {} };
 global.matchMedia = () => ({ matches: false });
+
+// Enough of localStorage for the session store: the engine probes it once at
+// boot and falls back to files alone if it throws.
+const cells = new Map();
+global.localStorage = {
+  getItem: key => (cells.has(key) ? cells.get(key) : null),
+  setItem: (key, value) => cells.set(key, String(value)),
+  removeItem: key => cells.delete(key)
+};
 global.URL = { createObjectURL: () => 'blob:', revokeObjectURL() {} };
 global.Blob = class {};
+
+// The overlays carry `hidden` in the markup; elements here start visible.
+document.getElementById('gate').hidden = true;
+document.getElementById('aliasPop').hidden = true;
 
 // The two segmented switches need their buttons to exist before boot.
 for (const [id, key, values] of [
@@ -132,7 +147,9 @@ const probe = `
 globalThis.api = {
   DECK, CARDS, LAB, LAB_STEPS, STAGES, REFERENCES, el, grades, labDone,
   visible, applySearch, applyView, showSummary, restart,
-  serialize, deserialize, applyTheme, renderLines,
+  serialize, deserialize, applyTheme, renderLines, renderInline,
+  remember, recall, forget, openGate, resumeSession, newSession, gateOpen, STORE_KEY,
+  ALIASES, openAlias, closeAlias, aliasOpen,
   get filter(){ return filter; }, set filter(v){ filter = v; },
   get theme(){ return theme; }
 };`;
@@ -167,6 +184,99 @@ check(keys.size === api.DECK.length, 'every card has a distinct progress key');
 
 const labKeys = new Set(api.LAB_STEPS.map(s => s.key));
 check(labKeys.size === api.LAB_STEPS.length, 'every lab step has a distinct progress key');
+
+/* --------------------------------------------------------------- aliases
+   The pop-up quotes examples/gitconfig from a copy in references.js, because a
+   page opened from disk cannot read the file itself. This is what stops the two
+   from drifting: the definitions are parsed back out of the gitconfig and
+   compared. Continuation lines are joined and runs of whitespace collapsed, so
+   only the substance has to match, not the indentation. */
+
+console.log('\naliases');
+
+function parseGitconfigAliases(text) {
+  const found = {};
+  let inAliases = false, name = null, value = '';
+
+  // git's own unquoting: a value wrapped in double quotes loses them, and the
+  // backslashes that protected quotes inside it go with them.
+  const commit = () => {
+    if (name) {
+      let text = value.replace(/\s+/g, ' ').trim();
+      if (/^".*"$/.test(text)) text = text.slice(1, -1).replace(/\\(["\\])/g, '$1');
+      found[name] = text;
+    }
+    name = null; value = '';
+  };
+
+  for (const raw of text.split('\n')) {
+    const line = raw.replace(/\s+$/, '');
+    if (/^\s*\[/.test(line)) { commit(); inAliases = /^\s*\[alias\]/.test(line); continue; }
+    if (!inAliases) continue;
+
+    if (name) {                                   // still inside a continued value
+      value += ' ' + line.replace(/\\$/, '').trim();
+      if (!/\\$/.test(line)) commit();
+      continue;
+    }
+    if (/^\s*#/.test(line) || !line.trim()) continue;
+
+    const match = line.match(/^\s*([\w-]+)\s*=\s*(.*)$/);
+    if (!match) continue;
+    name = match[1];
+    value = match[2].replace(/\\$/, '');
+    if (!/\\$/.test(line)) commit();
+  }
+  commit();
+  return found;
+}
+
+const configured = parseGitconfigAliases(fs.readFileSync(GITCONFIG, 'utf8'));
+check(Object.keys(configured).length > 10,
+      Object.keys(configured).length + ' aliases read from examples/gitconfig');
+
+for (const [name, alias] of Object.entries(api.ALIASES)) {
+  const theirs = configured[name];
+  const mine   = alias.expands.replace(/\s+/g, ' ').trim();
+  if (theirs === undefined) { fail('references.js knows "' + name + '", examples/gitconfig does not'); continue; }
+  check(theirs === mine, '"' + name + '" matches examples/gitconfig' +
+    (theirs === mine ? '' : '\n        gitconfig: ' + theirs + '\n        references: ' + mine));
+  check(typeof alias.note === 'string' && alias.note.length > 20, '"' + name + '" says what it is for');
+}
+
+// The chip is what makes an alias mention clickable, and it must not fire on
+// ordinary commands that happen to be written the same way.
+check(api.renderInline('run `git lg` often').includes('data-alias="lg"'), 'a known alias becomes a chip');
+check(api.renderInline('run `git status` often').includes('<code>git status</code>'),
+      'an ordinary command stays plain code');
+check(!api.renderInline('`lg` alone').includes('data-alias'), 'a bare name is not a chip');
+
+const chips = api.DECK.filter(c => (c.question + c.answer + c.detail).includes('data-alias')).length;
+pass(chips + ' cards carry at least one alias chip');
+
+// The other direction: a card naming an alias that examples/gitconfig defines
+// but references.js has never heard of would quietly render as plain code, and
+// the reader would be left to guess what the name meant.
+const missed = new Set();
+const everyLine = [...api.CARDS, ...api.LAB].flatMap(entry => Object.values(entry).flat())
+  .filter(value => typeof value === 'string');
+for (const line of everyLine) {
+  for (const [, name] of line.matchAll(/`git ([\w-]+)`/g)) {
+    if (configured[name] && !api.ALIASES[name]) missed.add(name);
+  }
+}
+check(missed.size === 0, missed.size
+  ? 'named in a card but missing from ALIASES in references.js: ' + [...missed].join(', ')
+  : 'every alias a card names is in ALIASES, so every mention is clickable');
+
+api.openAlias('nuke');
+check(api.aliasOpen() && api.el.aTitle.textContent === 'git nuke', 'a chip opens the pop-up');
+check(api.el.aHow.innerHTML.includes('shell alias'), 'a "!" alias sends the reader to the file');
+api.openAlias('s');
+check(api.el.aHow.innerHTML.includes("git config --global alias.s 'status -sb'"),
+      'a plain alias comes with the command that installs it');
+api.closeAlias();
+check(!api.aliasOpen(), 'the pop-up closes');
 
 /* ---------------------------------------------------------------- render */
 
@@ -242,9 +352,54 @@ api.labDone.add(api.LAB_STEPS[2].key);
 api.deserialize(JSON.stringify(legacy));
 check(api.labDone.size === 1, 'a file without lab data leaves lab ticks alone');
 
+// A file whose keys belong to an older wording of the deck restores nothing.
+// It must say so in the error colour rather than report a cheerful zero.
+api.deserialize(JSON.stringify({
+  app: 'git-drill', version: 1, marks: { kgonestale: 'got', kalsogone: 'again' }, lab: []
+}));
+check(api.el.pStatus.className.includes('err') &&
+      api.el.pStatus.textContent.includes('older deck'),
+      'a file from an older deck reports a failure, not "restored 0 cards"');
+
 api.deserialize('not json at all');
 api.deserialize(JSON.stringify({ app: 'something-else' }));
 pass('malformed input is rejected without throwing');
+
+/* ------------------------------------------------------- the session store */
+
+console.log('\nthe browser session');
+
+// Everything that changes the session writes it; nothing needs an explicit save.
+api.grades.clear();
+api.labDone.clear();
+api.grades.set(3, 'got');
+api.applyTheme('dark');
+check(cells.has(api.STORE_KEY), 'a change writes the session to the browser');
+
+const kept = api.recall();
+check(kept && Object.keys(kept.marks).length === 1 && kept.theme === 'dark',
+      'the stored session holds the marks and the theme');
+
+// The gate stands between a stored session and the page behind it.
+api.grades.clear();
+api.applyTheme('auto');
+api.openGate(kept);
+check(api.gateOpen(), 'a stored session raises the gate');
+check(api.el.gSummary.innerHTML.includes('1 card graded'), 'the gate says what it is holding');
+
+api.resumeSession();
+check(!api.gateOpen() && api.grades.size === 1 && api.theme === 'dark',
+      'resume closes the gate and takes the session back');
+
+api.newSession();
+check(!api.gateOpen() && api.grades.size === 0 && api.recall() !== null,
+      'a new session starts clean and replaces what was stored');
+
+// A file that matches nothing must leave the live session where it is.
+api.grades.set(5, 'again');
+api.deserialize(JSON.stringify({ app: 'git-drill', version: 1, marks: { kgonestale: 'got' }, lab: [] }));
+check(api.grades.size === 1 && api.el.pStatus.className.includes('err'),
+      'a load that matches nothing leaves the session alone');
 
 /* ------------------------------------------------------------------- end */
 

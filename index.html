@@ -8,7 +8,7 @@
 </head>
 <body>
 
-<header>
+<header id="pageHead">
   <!-- Every control sits in one column at the top right. The two segmented
        switches share a single border so they read as one block; the progress
        buttons hang below it, coloured green so they are never mistaken for a
@@ -29,13 +29,21 @@
         </span>
       </div>
 
+      <!-- All three buttons are here from the first paint. Revealing one later
+           would widen this column, and the switches above share its width. -->
       <div class="progress">
-        <span class="tfile" id="pFile" hidden></span>
-        <span class="tstatus" id="pStatus" role="status"></span>
         <button class="tbtn pbtn" id="pLoad">load progress…</button>
         <button class="tbtn pbtn" id="pSave">save progress</button>
-        <button class="tbtn pbtn" id="pSaveAs" hidden>save as…</button>
+        <button class="tbtn pbtn" id="pSaveAs">save as…</button>
         <input type="file" id="pInput" accept="application/json,.json" hidden>
+      </div>
+
+      <!-- The readouts get a line of their own, kept out of the column's width
+           by the rule in the stylesheet: a filename or a long message must not
+           be able to stretch the controls above it. -->
+      <div class="readout">
+        <span class="tfile" id="pFile" hidden></span>
+        <span class="tstatus" id="pStatus" role="status"></span>
       </div>
     </div>
   </div>
@@ -59,7 +67,7 @@
   </div>
 </header>
 
-<main>
+<main id="pageBody">
   <!-- Cards view: exactly one of #stage and #summary is visible. -->
   <section id="stage">
     <div class="pane" id="pane" role="button" tabindex="0" aria-label="Flashcard — activate to flip">
@@ -99,6 +107,26 @@
   <section id="lab" hidden></section>
 </main>
 
+<!-- The session gate. Raised only when this browser has a session from last
+     time, and it offers exactly two ways out: everything behind it is dimmed
+     and inert until one of them is taken. -->
+<div class="backdrop gate" id="gate" hidden>
+  <div class="modal gatebox" role="dialog" aria-modal="true" aria-labelledby="gTitle">
+    <div class="bar">
+      <span class="dots" aria-hidden="true"><i></i><i></i><i></i></span>
+      <span class="grow">session</span>
+    </div>
+    <div class="mbody">
+      <h3 id="gTitle">Carry on where you left off?</h3>
+      <p class="prose" id="gSummary"></p>
+      <div class="gate-actions">
+        <button class="green" id="gResume">resume</button>
+        <button class="ghost" id="gFresh">new session</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 <!-- Details overlay. Populated on open, hidden rather than rebuilt. -->
 <div class="backdrop" id="backdrop" hidden>
   <div class="modal" role="dialog" aria-modal="true" aria-labelledby="mTitle">
@@ -115,6 +143,24 @@
         <a class="link" id="mLink1" target="_blank" rel="noopener noreferrer"></a>
         <a class="link secondary" id="mLink2" target="_blank" rel="noopener noreferrer" hidden></a>
       </div>
+    </div>
+  </div>
+</div>
+
+<!-- The alias pop-up, opened by a chip like `git lg` in any card or lab step.
+     Above the details modal in the stack, since a chip can appear inside it. -->
+<div class="backdrop apop" id="aliasPop" hidden>
+  <div class="modal aliasbox" role="dialog" aria-modal="true" aria-labelledby="aTitle">
+    <div class="bar">
+      <span class="dots" aria-hidden="true"><i></i><i></i><i></i></span>
+      <span class="grow">alias</span>
+      <button class="tbtn" id="aClose">esc</button>
+    </div>
+    <div class="mbody">
+      <h3 id="aTitle"></h3>
+      <div class="prose" id="aNote"></div>
+      <pre class="figure" id="aExpands"></pre>
+      <div class="prose small" id="aHow"></div>
     </div>
   </div>
 </div>

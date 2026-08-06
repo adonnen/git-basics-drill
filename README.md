@@ -20,8 +20,8 @@ cd git-basics-drill
 ```
 
 Then open `index.html` — double-click it, or drag it into a browser window.
-That is the whole setup. The page writes to your machine only when you save
-your progress to a file.
+That is the whole setup. The page keeps your session in the browser and writes
+to your machine only when you save your progress to a file.
 
 If you would rather not clone, use **Code → Download ZIP** on GitHub and unzip
 it. Either way you need the whole folder: `index.html` loads the stylesheet and
@@ -111,38 +111,65 @@ You need git and a shell: Terminal on macOS or Linux, **Git Bash** on Windows.
 
 ![The control block and the progress file](docs/ui-progress.svg)
 
-Nothing is stored in your browser. Progress lives in a single JSON file that
-you keep wherever you like — a folder, a USB stick, or committed next to your
-own notes. One file holds every card you graded, every lab step you ticked, and
-your theme choice.
+Your browser keeps the session as you go. Grade a card, tick a lab step or
+change the theme and it is written straight away, so closing the tab costs you
+nothing. Open the page again and it asks before touching any of it:
+
+![The session panel](docs/ui-session.svg)
+
+- **resume** — takes the session back and puts you at your first ungraded card
+- **new session** — starts clean, and discards what was kept
+
+Until you answer, everything behind that panel is dimmed and out of reach. The
+panel says how much it is holding, so the choice is made knowing what is at
+stake. `enter` resumes.
+
+That covers one browser on one machine. To carry progress between machines — or
+to keep it somewhere you can back up — save it to a JSON file: a folder, a USB
+stick, or committed next to your own notes. One file holds every card you
+graded, every lab step you ticked, and your theme choice.
 
 - **save progress** — writes to the file you last chose, or asks for one
-- **save as…** — appears once a file is bound, and picks a different one
-- **load progress…** — reads a file back and puts you at your first ungraded card
+- **save as…** — picks a different file, leaving the bound one alone
+- **load progress…** — reads a file back and makes it the live session
 
 In Chrome and Edge, saving overwrites the same file every time. Firefox and
 Safari do not yet support the browser API that allows that, so they download a
 fresh copy instead; the result is the same file, and you choose where it
 lands.
 
-The file is keyed by the *content* of each card and step, not by their
-positions, so it keeps working after the deck is edited or reordered. Anything
-that no longer matches is reported as unmatched rather than dropped silently.
+Both stores are keyed by the *content* of each card and step, not by their
+positions, so progress keeps working after the deck is edited or reordered.
+Anything that no longer matches is reported as unmatched rather than dropped
+silently, and a file that matches nothing at all — saved before the questions
+it refers to were reworded — is refused outright rather than allowed to wipe
+what you have on screen.
+
+Safari refuses browser storage to pages opened from disk, so there the session
+lasts as long as the tab and the file is the only store. Chrome pools every
+local file under one origin: two copies of this page on the same machine share
+one session.
 
 ## Themes
 
 Three settings: **auto**, **light**, **dark**. Auto follows your operating
 system, so a machine that switches at sunset switches the page with it. Press
-`t` to cycle. The choice travels in your progress file.
+`t` to cycle. The choice is kept with the session and travels in your progress
+file, so the page opens in the theme you left it in.
 
 ---
 
 ## Example aliases and settings
 
-`examples/gitconfig` collects the aliases and settings the cards keep pointing
-at, ready to paste. Open your own config with `git config --global --edit` and
-take whichever parts you want — every line is commented with what it does and
-why.
+[`examples/gitconfig`](examples/gitconfig) collects the aliases and settings the
+cards keep pointing at, ready to paste. Open your own config with
+`git config --global --edit` and take whichever parts you want — every line is
+commented with what it does and why.
+
+You do not have to go looking. Where a card mentions one of these shorthands —
+`git lg`, `git s`, `git nuke` — the name is a green chip: click it and a pop-up
+gives you what it expands to, why it earns its place, and the one command that
+installs it. Nothing in the deck assumes you have set any of them up.
 
 The handful worth having on day one:
 
@@ -181,7 +208,7 @@ git-basics-drill/
 ├── css/drill.css       every style, in ten commented sections
 ├── js/drill.js         the engine — you should not need to edit this
 ├── data/
-│   ├── references.js   the two books, and the sections cards can link to
+│   ├── references.js   the books' sections and the aliases cards link to
 │   ├── cards.js        the flashcards        ← add cards here
 │   └── lab.js          the lab steps         ← add steps here
 │                       all three are plain lists of text, see below
@@ -194,8 +221,8 @@ git-basics-drill/
 
 ![Adding a card](docs/add-card.svg)
 
-Open `data/cards.js`, find the stage you want, and copy an existing card. No web
-development needed — a card is a block of plain text:
+Open [`data/cards.js`](data/cards.js), find the stage you want, and copy an
+existing card. No web development needed — a card is a block of plain text:
 
 ```js
 {
@@ -239,6 +266,14 @@ A `|` drawing appears on the card itself; the separate `figure` field appears in
 the details pop-up. Use the first for the shape of the thing, the second for the
 fuller version.
 
+One thing happens by itself: write `` `git lg` `` — any name from the alias
+table at the foot of [`data/references.js`](data/references.js) — and it becomes
+the green chip that opens what that alias expands to. Names outside that table,
+`git status` among them, stay ordinary code. To make a new alias clickable, add
+it there with its definition copied from
+[`examples/gitconfig`](examples/gitconfig); [`tools/check.js`](tools/check.js)
+compares the two and fails if they ever disagree.
+
 Reuse an existing `stage` to add to that stage. Write a new one and a new stage
 appears by itself, with its own filter chip and its own gap in the progress
 graph — nothing to register anywhere.
@@ -262,7 +297,7 @@ line.
 
 ### Adding a lab step
 
-Same shape, in `data/lab.js`:
+Same shape, in [`data/lab.js`](data/lab.js):
 
 ```js
 {

@@ -399,7 +399,7 @@ const CARDS = [
     "follows, so any flag you would type on the command line works there too —",
     "and flags you add at the call site are appended to the expansion. An alias",
     "beginning with `!` runs a shell command instead of a git subcommand, which",
-    "is how the guarded `nuke` alias got its confirmation prompt."
+    "is how the guarded `git nuke` got its confirmation prompt."
   ],
   figure: [
     "[alias]",
@@ -469,8 +469,8 @@ const CARDS = [
   ],
   detail: [
     "On a repository with hundreds of branches the raw list is unusable. Sorting",
-    "by recency turns it into an answer to “what was I working on last week” —",
-    "and is worth wrapping in an alias."
+    "by recency turns it into an answer to “what was I working on last week”,",
+    "which is what `git recent` does."
   ],
   figure: [
     "git branch                              local",
@@ -2250,8 +2250,9 @@ const CARDS = [
     "Together: the working tree exactly as HEAD has it, nothing else present."
   ],
   detail: [
-    "This pair is worth wrapping in an alias with a confirmation prompt, since",
-    "nothing it removes is recoverable. The non-destructive alternative when",
+    "This pair is worth wrapping in an alias that asks first, since nothing it",
+    "removes is recoverable — `git nuke` does the asking, and `git nuke-preview`",
+    "shows what it would take. The non-destructive alternative when",
     "“discard” really means “get this out of my way” is `git stash -u` — same",
     "clean tree, work still retrievable."
   ],
