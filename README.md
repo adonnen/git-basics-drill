@@ -1,8 +1,9 @@
 # git drill
 
-A flashcard deck and a hands-on lab for learning git, in one page that runs
-straight from your file system. The repository holds everything it needs, and
-it works offline and signed out.
+A flashcard deck and a hands-on lab for learning git, in one page, served at
+[adonnen.github.io/git-basics-drill](https://adonnen.github.io/git-basics-drill/).
+The same page runs straight from your file system if you would rather clone it:
+the repository holds everything it needs, and it works offline and signed out.
 
 - **A deck of flashcards**, grouped into stages that run from your first `init`
   to force-push discipline
@@ -14,23 +15,31 @@ it works offline and signed out.
 
 ## Start in thirty seconds
 
+Open [adonnen.github.io/git-basics-drill](https://adonnen.github.io/git-basics-drill/).
+There is nothing to install and nothing to sign into, and the page keeps your
+session in the browser, writing to your machine only when you save your
+progress to a file.
+
+Clone it instead when you want the deck offline, or when you are ready for the
+lab, whose steps you run in a terminal against a repository on your own
+machine:
+
 ```bash
 git clone https://github.com/adonnen/git-basics-drill.git
 cd git-basics-drill
 ```
 
 Then open `index.html` — double-click it, or drag it into a browser window.
-That is the whole setup. The page keeps your session in the browser and writes
-to your machine only when you save your progress to a file.
+That is the whole setup.
 
 If you would rather not clone, use **Code → Download ZIP** on GitHub and unzip
 it. Either way you need the whole folder: `index.html` loads the stylesheet and
 the three data files from the directories beside it, so that one file on its
 own shows a blank page.
 
-The page is static, so GitHub Pages will serve it as it stands. Fork the
-repository and enable Pages under *Settings → Pages → deploy from the `main`
-branch*. The resulting URL needs no download at the other end.
+The page is static, so any host will serve it as it stands — the URL above is
+this repository's `main` branch published through GitHub Pages, and a fork of it
+can do the same under *Settings → Pages → deploy from the `main` branch*.
 
 Works in Chrome, Edge and Firefox. Safari works too, with one small caveat
 noted under [Saving progress](#saving-progress).
@@ -146,9 +155,11 @@ it refers to were reworded — is refused outright rather than allowed to wipe
 what you have on screen.
 
 Safari refuses browser storage to pages opened from disk, so there the session
-lasts as long as the tab and the file is the only store. Chrome pools every
-local file under one origin: two copies of this page on the same machine share
-one session.
+lasts as long as the tab and the file is the only store; on the hosted page it
+keeps a session like any other browser, though Safari clears storage for a site
+you have not visited in about a week, which the progress file covers. Chrome
+pools every local file under one origin: two copies of this page on the same
+machine share one session.
 
 ## Themes
 
