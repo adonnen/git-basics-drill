@@ -4,6 +4,9 @@
 # Nothing here is required to use git drill. It is the config the cards keep
 # pointing at, collected in one place so you can try it rather than retype it.
 #
+# Every line carries its own explanation. Read the comment before you paste the
+# line: a config you cannot account for is a config that will surprise you.
+#
 # HOW TO USE
 #   Open your own config and paste in the parts you want:
 #
@@ -16,13 +19,35 @@
 #
 #       git config --global alias.lg "log --all --oneline --graph --decorate"
 #
-#   To see where a setting came from later:
+#   To read back everything that is currently set, and from which file:
 #
-#       git config --list --show-origin
+#       git config --list --show-origin      # the file each setting came from
+#       git config --list --show-scope       # system / global / local instead
+#       git config --global --list           # only your own, ignoring the repo
+#
+#   Note that git lower-cases key names when it reads them back, so a setting
+#   you wrote as `excludesFile` prints as `excludesfile`. Both spellings work
+#   on the way in; the mixed case is for you, not for git.
 #
 # Take what you like and leave the rest. Anything you regret is one line to
 # delete — none of this changes your repositories, only how git talks to you.
 # =============================================================================
+
+
+[user]
+
+    # The name and address stamped into every commit you make. Git will not
+    # commit without them, and both are permanent and public the moment you
+    # push, so choose an address you are willing to have scraped.
+    name  = Your Name
+    email = you@example.com
+
+    # If you want a different address on work repositories, leave the global
+    # one alone and override it inside that repository:
+    #     git -C ~/work/project config user.email you@employer.example
+    # Or set no global address at all and let git refuse to commit until you
+    # have chosen per repository:
+    #     git config --global user.useConfigOnly true
 
 
 [alias]
@@ -31,52 +56,103 @@
 
     # The graph, decorated, across every branch. The one to learn first: you
     # debug history far faster when you can see its shape.
+    #   --all       every branch and tag, not just the one you are on
+    #   --oneline   one line per commit: short hash and subject
+    #   --graph     the ASCII rails on the left showing branch and merge
+    #   --decorate  the (HEAD -> main, origin/main) labels on the tips
     lg  = log --all --oneline --graph --decorate
 
     # The same, but only your current branch. Unmerged work on other branches
     # is invisible here — that is the --all flag's doing, not a filter.
     lgb = log --oneline --graph --decorate
 
+    # A richer variant, if you would rather spell the format out than accept
+    # what --oneline gives you. The placeholders, in the order they appear:
+    #   %C(auto)   colour what follows the way git colours it by default
+    #   %h         abbreviated commit hash
+    #   %d         ref names on this commit — (HEAD -> main, tag: v1.0)
+    #   %s         the subject line of the message
+    #   %C(dim)    dim everything after this point
+    #   %cr        committer date, relative — "3 days ago"
+    #   %an        author name
+    #   %C(reset)  back to the terminal's normal colour
+    # Everything else inside the quotes — the space, the parentheses, the
+    # angle brackets — is printed literally.
+    lgv = log --graph --all --pretty=format:'%C(auto)%h%d %s %C(dim)(%cr) <%an>%C(reset)'
+
+    # The same format with the date and author dropped, for when the terminal
+    # is narrow or the graph is wide.
+    lgs = log --graph --all --pretty=format:'%C(auto)%h%d %s'
+
+    # The same format restricted to the branches you care about. Naming refs
+    # explicitly is the middle ground between one branch and all of them; add
+    # or remove names to match how your repositories are laid out.
+    lgw = log --graph --pretty=format:'%C(auto)%h%d %s %C(dim)(%cr) <%an>%C(reset)' main dev HEAD
+
     # Branch tips and tags only, interiors dropped. On a repository with
     # thousands of commits this is the "shape of the project" view.
+    #   --simplify-by-decoration  keep a commit only if a ref points at it
     skel = log --graph --simplify-by-decoration --oneline --all
 
     # A busy trunk read as a list of what landed, one entry per merge.
     # Replace `main` with whichever branch you integrate into.
+    #   --first-parent  at each merge follow only the branch being merged
+    #                   into, so the feature's internal commits stay hidden
     landed = log --first-parent main --oneline
 
-    # Status without the tutorial. -s short, -b with the branch line.
+    # Status without the tutorial.
+    #   -s  short format: two columns of status letters, one line per path
+    #   -b  keep the branch and tracking line at the top, which -s drops
     s = status -sb
 
     # The last commit, with which files it touched.
+    #   -1     stop after one commit
+    #   HEAD   start from where you are
+    #   --stat a per-file summary of insertions and deletions
     last = log -1 HEAD --stat
 
-    # Word-level diff instead of line-level. Better for prose and docs.
+    # Word-level diff instead of line-level. Better for prose and docs, where
+    # a one-word change otherwise reports the whole paragraph as rewritten.
     wdiff = diff --word-diff=color
 
     # The full history of one line in one file.
     #   git blame-line 42 src/runner.py
+    # The `!` makes this a shell command rather than a git subcommand, and the
+    # function wrapper exists because git appends your arguments to the end of
+    # an alias — a function is the only way to use them in the middle.
+    #   -L <start>,<end>:<file>   trace that line range through history
     blame-line = "!f() { git log -L $1,$1:$2; }; f"
 
 
 # --- staging and committing --------------------------------------------------
 
-    # What you are about to commit, and what you would still leave behind.
-    # Reading `git staged` before every commit is the cheapest good habit there
-    # is for keeping commits coherent.
+    # What you are about to commit: the difference between the index and the
+    # last commit. Reading `git staged` before every commit is the cheapest
+    # good habit there is for keeping commits coherent.
     staged   = diff --cached
+
+    # What you would still leave behind: the difference between the working
+    # tree and the index. Plain `git diff` with a name that says which of the
+    # two halves you are looking at.
     unstaged = diff
 
     # Fold a forgotten file into the last commit, keeping its message.
     # Stage the file, run this, done — no "fix typo" commit.
+    #   --amend    replace the last commit instead of adding one
+    #   --no-edit  reuse its message rather than opening the editor
+    # Only for commits you have not pushed: it rewrites history.
     fixit = commit --amend --no-edit
 
     # Mark a fix for an OLDER commit now; fold it in later with `cleanup`.
     #   git fixup <sha-of-the-commit-it-belongs-to>
+    # This writes a commit whose subject is `fixup! <that commit's subject>`,
+    # which is the marker the rebase below looks for.
     fixup = commit --fixup
 
     # Consume those markers: git reorders and squashes them for you.
     # Change `main` to whichever branch you branched from.
+    #   -i           interactive rebase, so you see the todo list first
+    #   --autosquash move each fixup! next to its target and mark it squashed
     cleanup = rebase -i --autosquash main
 
 
@@ -84,28 +160,88 @@
 
     # Your branches, most recently worked on first. Answers "what was I doing
     # last week" without opening a tracker.
+    #   --sort=-committerdate   newest commit first; the minus reverses it
+    #   %(HEAD)                 an asterisk on the branch you are on
+    #   %(refname:short)        the branch name without refs/heads/
+    #   %(committerdate:relative)  "4 days ago" rather than a timestamp
+    #   %(color:...)/%(color:reset) open and close a colour; close every one
     recent = branch --sort=-committerdate --format='%(HEAD) %(color:yellow)%(refname:short)%(color:reset) - %(color:dim)%(committerdate:relative)%(color:reset)'
 
     # What your current branch adds that the trunk does not — the review set.
+    # `main..HEAD` means "reachable from HEAD, not reachable from main".
     ahead = log main..HEAD --oneline
 
     # Everything queued for the next release, if you use a dev/main pair.
     pending = log main..dev --oneline
 
-    # Delete every local branch already merged into main. The grep guards the
-    # branches you never want removed. Run it occasionally to stay tidy.
+    # Delete every local branch already merged into main.
+    #   --merged main   list only branches whose tip is an ancestor of main
+    #   grep -v -E      drop the lines you never want to feed to the delete:
+    #                   `^\*` is the branch you are on, then main and dev
+    #   xargs -r        run the delete once with the surviving names; -r
+    #                   suppresses the run entirely when nothing survived
+    #   branch -d       refuse to delete anything not actually merged, so the
+    #                   grep is a convenience and not the safety net
+    # Run it occasionally to stay tidy.
     merged-clean = "!git branch --merged main | grep -v -E '^\\*|main|dev' | xargs -r git branch -d"
+
+    # Force your local trunk branches to match the remote, discarding whatever
+    # local commits they carried. Useful when main and dev are read-only to
+    # you and drift only through pulls; dangerous everywhere else.
+    #   fetch --all --prune  update every remote, drop deleted branch refs
+    #   branch -f <a> <b>    move branch <a> to point at <b>, no questions
+    # Two things to know before you paste this:
+    #   - `branch -f` refuses to move the branch you currently have checked
+    #     out, so run it from a feature branch, not from main.
+    #   - any commit on local main or dev that you have not pushed is gone,
+    #     recoverable only through the reflog.
+    sync = "!git fetch --all --prune && git branch -f main origin/main && git branch -f dev origin/dev"
+
+    # Force-push that checks its footing first. Refuses if the remote branch
+    # moved since your last fetch, which is what plain --force will not do.
+    # Prefer this to --force always; see push.useForceIfIncludes below for the
+    # second half of the guard.
+    pushf = push --force-with-lease
+
+
+# --- submodules --------------------------------------------------------------
+
+    # Clone or update every submodule to the commit the parent records.
+    #   --init       set up submodules that have never been checked out
+    #   --recursive  do the same inside submodules of submodules
+    # The command to run after a fresh clone that lacked --recurse-submodules.
+    sub-sync = submodule update --init --recursive
+
+    # A short status inside each submodule, so you can see which of them you
+    # have left dirty. `foreach` runs the command once per submodule, from
+    # that submodule's own root.
+    sub-status = submodule foreach --recursive 'git status -sb'
+
+    # Pull each submodule's own default branch. Note this moves them off the
+    # commit the parent records, which is a change the parent must then commit
+    # — that is the intent here, not a side effect.
+    sub-pull = submodule foreach --recursive 'git pull'
+
+    # Run any command in every submodule:
+    #   git sub-each 'git log -1 --oneline'
+    # Same function trick as blame-line above: git appends arguments to the
+    # end of an alias, and "$1" needs to sit inside the quotes.
+    sub-each = "!f() { git submodule foreach --recursive \"$1\"; }; f"
 
 
 # --- destructive, with a guard -----------------------------------------------
 
     # Show exactly what a full reset would destroy, without destroying it.
     # Run this first, every time.
+    #   diff --stat  tracked files with uncommitted changes
+    #   clean -nd    -n dry run, -d include directories: what would be removed
     nuke-preview = "!echo '── tracked changes that would be reset ──' && git diff --stat && echo '── untracked files that would be removed ──' && git clean -nd"
 
     # Working tree back to HEAD, untracked files gone. Asks first, because
     # neither half is recoverable: uncommitted work never entered the object
     # database, so no reflog can return it.
+    #   reset --hard HEAD  discard changes to tracked files
+    #   clean -fd          -f actually delete, -d directories too
     nuke = "!f() { \
         echo 'This discards ALL uncommitted changes AND untracked files.'; \
         printf 'Are you sure? (y/N) '; \
@@ -120,7 +256,8 @@
 
 # --- housekeeping ------------------------------------------------------------
 
-    # List these aliases again when you have forgotten what you named something.
+    # List these aliases again when you have forgotten what you named
+    # something. The regexp anchors at `alias.` so nothing else matches.
     aliases = config --get-regexp ^alias\\.
 
 
@@ -131,7 +268,8 @@
 # =============================================================================
 
 [init]
-    # Name the first branch of every new repository `main`.
+    # Name the first branch of every new repository `main`. Affects only
+    # repositories created from now on; existing ones keep whatever they have.
     defaultBranch = main
 
 [pull]
@@ -169,14 +307,37 @@
     #     git push -u origin HEAD          # same thing, no name to retype
     autoSetupRemote = true
 
-    # Refuse a force-push if the remote moved since your last fetch — even
-    # when someone typed plain `git push --force`.
+    # Strengthen --force-with-lease: refuse the push unless the remote tip you
+    # are about to overwrite is one you have actually seen, meaning it appears
+    # in your local branch's reflog. This closes the hole where a background
+    # fetch — an editor's, a prompt's — silently updates your remote-tracking
+    # ref and makes the lease look satisfied for a commit you never read.
+    #
+    # It does nothing at all for plain `git push --force`, and nothing for
+    # `--force-with-lease=<ref>:<expect>` where you named the expected value
+    # yourself. Git documents it as a no-op in both of those cases. Guard the
+    # habit as well as the config: push with the `pushf` alias above.
     useForceIfIncludes = true
 
 [diff]
-    # Handles moved and refactored code better than the default, so you see
-    # "this block moved" instead of "deleted here, added there".
+    # A different diff algorithm: patience, extended to cope with common lines
+    # that occur only a few times. It tends to line hunks up on the boundaries
+    # a human would have chosen, rather than on whichever alignment happens to
+    # be shortest, which is where the default (myers) produces diffs that
+    # interleave the end of one function with the start of the next.
     algorithm = histogram
+
+    # Colour lines that moved rather than showing them as a deletion here and
+    # an addition there. This is the setting that detects moved code; the
+    # algorithm above does not. Off by default, so uncomment to try it:
+    #   colorMoved = zebra
+
+[color]
+    # Colour when the output is a terminal, and no colour when it is piped
+    # into a file or another program. `auto` has been the default since git
+    # 1.8.4 — set it explicitly if you want to be sure, or if you inherited a
+    # config that turned it off.
+    ui = auto
 
 [core]
     # Machine noise — OS metadata, editor swap files — belongs in one global
@@ -191,17 +352,46 @@
 # Uncomment these. They prevent the three classic submodule failures: pulling
 # without updating them, committing a parent that points at a submodule commit
 # nobody else has, and a clean-looking status hiding dirty submodules.
+# The aliases under "submodules" above cover the manual half of the same job.
 # =============================================================================
 
 # [submodule]
-#     recurse = true                  # checkout and pull update them too
+#     # Make --recurse-submodules the default for the commands that accept it,
+#     # so checkout and pull move your submodules to the commit the parent
+#     # records instead of leaving them where they were.
+#     recurse = true
 
 # [push]
-#     recurseSubmodules = check       # refuse to push a parent whose submodule
-#                                     # commits are not on their own remote
+#     # Refuse to push a parent whose recorded submodule commits are not on the
+#     # submodule's own remote. Without it you can push a parent that nobody
+#     # else can check out. `on-demand` pushes them for you instead of
+#     # refusing; `check` is the conservative choice.
+#     recurseSubmodules = check
 
 # [status]
-#     submoduleSummary = true         # show submodules that have drifted
+#     # Add a line to `git status` for each submodule that has drifted from the
+#     # commit the parent records, which the default output leaves out.
+#     submoduleSummary = true
 
 # [diff]
-#     submodule = log                 # show what changed inside them
+#     # Show a submodule's change as the list of commits between the old and
+#     # new pointer, rather than as two opaque hashes.
+#     submodule = log
+
+
+# =============================================================================
+# WRITTEN BY OTHER PROGRAMS
+# Some tools append their own sections. Recognise them so you do not mistake
+# them for something you chose, and do not hand-write them — run the tool.
+# =============================================================================
+
+# [filter "lfs"]
+#     # Git Large File Storage, added by `git lfs install`. The four lines
+#     # hook LFS into git's clean/smudge filter so that large files are
+#     # replaced by pointers on the way into the object database and fetched
+#     # back on checkout. `required = true` makes a failure in the filter an
+#     # error rather than a silent pass-through of the pointer text.
+#     required = true
+#     clean    = git-lfs clean -- %f
+#     smudge   = git-lfs smudge -- %f
+#     process  = git-lfs filter-process
