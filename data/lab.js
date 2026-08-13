@@ -244,6 +244,179 @@ const LAB = [
   ]
 },
 
+{
+  title: "Stage a directory, then take one file back out",
+  task: [
+    "Write a second module `src/timer.py` with the content below, and append a",
+    "`MAX_WAIT = 60` line to `src/runner.py`. Stage both with a single command",
+    "that names neither file. Then change your mind about the runner edit and",
+    "take it back out of the index without losing it, so that the commit you",
+    "make contains the new module alone."
+  ],
+  solution: [
+    "cat > src/timer.py <<'EOF'",
+    "class Timer:",
+    "    \"\"\"Wall-clock timing for one run of the queue.\"\"\"",
+    "",
+    "    def __init__(self):",
+    "        self.started = None",
+    "EOF",
+    "",
+    "echo \"MAX_WAIT = 60\" >> src/runner.py",
+    "",
+    "git add src/            # a directory means everything under it, new files too",
+    "git status -sb",
+    "# M  src/runner.py",
+    "# A  src/timer.py",
+    "",
+    "git restore --staged src/runner.py",
+    "git status -sb",
+    "#  M src/runner.py     ← out of the index, edit still in the file",
+    "# A  src/timer.py      ← still staged",
+    "",
+    "git diff                # the MAX_WAIT line, untouched by the unstaging",
+    "git commit -m \"Add Timer skeleton\""
+  ]
+},
+
+{
+  title: "Stage the tracked changes only",
+  task: [
+    "Timing turns out to belong in the runner rather than in a module of its",
+    "own, so delete `src/timer.py` from the working tree. Then create an",
+    "untracked `src/scratch.py`, standing in for the debris a real afternoon",
+    "leaves behind. With the `MAX_WAIT` edit still unstaged you now have three",
+    "kinds of change at once — record the edit and the deletion with one command",
+    "that cannot touch the scratch file, commit, and clear the scratch file away",
+    "yourself."
+  ],
+  solution: [
+    "rm src/timer.py",
+    "echo \"print('debug')\" > src/scratch.py",
+    "",
+    "git status -sb",
+    "#  M src/runner.py",
+    "#  D src/timer.py",
+    "# ?? src/scratch.py",
+    "",
+    "git add -u              # tracked files only: the edit and the deletion",
+    "git status -sb",
+    "# M  src/runner.py",
+    "# D  src/timer.py      ← the removal is staged, not merely done on disk",
+    "# ?? src/scratch.py    ← -u never stages a file git has not seen before",
+    "",
+    "git commit -m \"Add MAX_WAIT and drop the Timer skeleton\"",
+    "",
+    "rm src/scratch.py",
+    "# rm + git add -u is what git rm does in one step",
+    "# git add -A would have swept the scratch file in, and so would",
+    "# git add . — but only from the directory you are standing in downwards"
+  ]
+},
+
+{
+  title: "Rename a file in a way git records",
+  task: [
+    "Add `src/util.py` with the helper below and commit it. Then decide the name",
+    "should have been plural: rename the file with the command that stages the",
+    "move, and commit that. Confirm afterwards that the file's history reaches",
+    "back past the rename."
+  ],
+  solution: [
+    "cat > src/util.py <<'EOF'",
+    "def clamp(value, lowest, highest):",
+    "    return max(lowest, min(value, highest))",
+    "EOF",
+    "git add src/util.py && git commit -m \"Add a clamp helper\"",
+    "",
+    "git mv src/util.py src/utils.py",
+    "git status -sb",
+    "# R  src/util.py -> src/utils.py     ← one line, both halves staged",
+    "",
+    "git commit -m \"Rename util to utils\"",
+    "",
+    "git log --follow --oneline -- src/utils.py",
+    "# both commits: --follow is what carries a file's history across a rename",
+    "#",
+    "# mv src/util.py src/utils.py && git add -A does exactly the same thing:",
+    "# git stores no rename, it infers one when the diff is displayed"
+  ]
+},
+
+{
+  title: "Untrack a file without deleting it",
+  task: [
+    "Commit a `debug.log` you should never have committed. Now take it out of",
+    "git's hands while leaving it where it is on disk, and add a rule so that",
+    "nothing like it comes back. Note which of the two `git rm` forms leaves the",
+    "file alone."
+  ],
+  solution: [
+    "echo \"started at 09:12\" > debug.log",
+    "git add debug.log && git commit -m \"Add debug log\"    # the mistake",
+    "",
+    "git rm --cached debug.log",
+    "git status -sb",
+    "# D  debug.log      ← the removal from the repository, staged",
+    "# ?? debug.log      ← the file itself, untouched and now untracked",
+    "",
+    "printf '*.log\\n' >> .gitignore",
+    "git status -sb",
+    "#  M .gitignore",
+    "# D  debug.log      ← the ?? line is gone: the new rule covers it",
+    "",
+    "git commit -am \"Stop tracking debug.log and ignore log files\"",
+    "",
+    "ls debug.log        # still there, which was the whole point",
+    "# git rm debug.log, without --cached, would have deleted it as well"
+  ]
+},
+
+{
+  title: "Stage whole files from a menu",
+  task: [
+    "Append a `RETRY_DELAY = 2` line to `src/runner.py`, a `noop()` helper to",
+    "`src/utils.py`, and create an untracked `src/tmp.py`. Now stage the two",
+    "tracked files by number rather than by path, without leaving the tool.",
+    "Notice which of the three it never offers you, and why."
+  ],
+  solution: [
+    "echo \"RETRY_DELAY = 2\" >> src/runner.py",
+    "cat >> src/utils.py <<'EOF'",
+    "",
+    "",
+    "def noop():",
+    "    return None",
+    "EOF",
+    "echo \"print('temp')\" > src/tmp.py",
+    "",
+    "git add -i",
+    "#            staged     unstaged path",
+    "#   1:    unchanged        +1/-0 src/runner.py",
+    "#   2:    unchanged        +4/-0 src/utils.py",
+    "#",
+    "# *** Commands ***",
+    "#   1: [s]tatus   2: [u]pdate   3: [r]evert   4: [a]dd untracked",
+    "#   5: [p]atch    6: [d]iff     7: [q]uit     8: [h]elp",
+    "#",
+    "# What now> u        ← update",
+    "# Update>> 1-2       ← a range; 1,2 and single numbers work too",
+    "# Update>>           ← blank line ends it: \"updated 2 paths\"",
+    "# What now> q",
+    "#",
+    "# src/tmp.py was never in that list: update offers tracked files only,",
+    "# and [a]dd untracked is the item that would have offered it",
+    "",
+    "git status -sb",
+    "# M  src/runner.py",
+    "# M  src/utils.py",
+    "# ?? src/tmp.py",
+    "",
+    "git commit -m \"Add a retry delay and a noop helper\"",
+    "rm src/tmp.py"
+  ]
+},
+
 { act: "III — branching, stashing and a fast-forward merge" },
 
 {
@@ -347,16 +520,19 @@ const LAB = [
 {
   title: "Change one line on a branch",
   task: [
-    "Create and switch to a branch `feature/retry`. In `src/runner.py`, change",
-    "`QUEUE_DEPTH = 8` to `16`. Commit it — staging and committing tracked",
-    "changes in a single command."
+    "Create and switch to a branch `feature/retry`. Make two changes to",
+    "`src/runner.py`: `QUEUE_DEPTH = 8` becomes `16`, and the overflow error",
+    "further down becomes `raise RuntimeError(\"queue full, try again\")`. Commit",
+    "both — staging and committing tracked changes in a single command."
   ],
   solution: [
     "git switch -c feature/retry",
     "",
-    "# edit src/runner.py:  QUEUE_DEPTH = 16",
+    "# edit src/runner.py, two places:",
+    "#   QUEUE_DEPTH = 16",
+    "#   raise RuntimeError(\"queue full, try again\")",
     "",
-    "git commit -am \"Raise default queue depth to 16\"",
+    "git commit -am \"Raise the queue depth and soften the overflow error\"",
     "# -a stages every tracked file that changed; new files still need git add"
   ]
 },
@@ -364,16 +540,20 @@ const LAB = [
 {
   title: "Change the same line differently on main",
   task: [
-    "Go back to `main` and change that same `QUEUE_DEPTH` line — this time to",
-    "`32`. Commit it. The two branches now disagree about one line, which is",
-    "exactly what a conflict needs."
+    "Go back to `main` and change those same two places differently:",
+    "`QUEUE_DEPTH = 32`, and the error message becomes the f-string `f\"queue",
+    "full at {self.depth}\"`. Commit it. The branches now disagree in two spots,",
+    "far enough apart in the file that git will report them as two separate",
+    "conflicts."
   ],
   solution: [
     "git switch main",
     "",
-    "# edit src/runner.py:  QUEUE_DEPTH = 32",
+    "# edit src/runner.py, the same two places:",
+    "#   QUEUE_DEPTH = 32",
+    "#   raise RuntimeError(f\"queue full at {self.depth}\")",
     "",
-    "git commit -am \"Raise default queue depth to 32\"",
+    "git commit -am \"Raise the queue depth and name the limit in the error\"",
     "",
     "git log --oneline --graph --all -6",
     "# two lines of development, diverged"
@@ -384,8 +564,8 @@ const LAB = [
   title: "Trigger the conflict and read it",
   task: [
     "Merge `feature/retry` into `main`. It will stop. Find out which file is",
-    "unmerged, then open it and identify the three conflict markers and which",
-    "side each belongs to."
+    "unmerged, then open it and identify the conflict markers, how many separate",
+    "conflicts there are, and which side each block belongs to."
   ],
   solution: [
     "git merge feature/retry",
@@ -394,28 +574,91 @@ const LAB = [
     "git status",
     "# \"Unmerged paths:  both modified:  src/runner.py\"",
     "",
+    "grep -c '^<<<<<<<' src/runner.py    # 2 — two conflicts, one file",
+    "",
     "cat src/runner.py",
     "# <<<<<<< HEAD              ← main's version   (32)",
     "# QUEUE_DEPTH = 32",
     "# =======",
     "# QUEUE_DEPTH = 16",
-    "# >>>>>>> feature/retry     ← the branch's     (16)"
+    "# >>>>>>> feature/retry     ← the branch's     (16)",
+    "#   …",
+    "# <<<<<<< HEAD",
+    "#             raise RuntimeError(f\"queue full at {self.depth}\")",
+    "# =======",
+    "#             raise RuntimeError(\"queue full, try again\")",
+    "# >>>>>>> feature/retry",
+    "#",
+    "# everything between the two conflicts merged cleanly and is already staged"
+  ]
+},
+
+{
+  title: "See what both sides started from",
+  task: [
+    "Two versions of a line do not tell you which side moved. Redraw the same",
+    "conflict with the common ancestor included, read what it tells you about",
+    "each of the two disagreements, and set that style for the rest of the lab."
+  ],
+  solution: [
+    "git checkout --conflict=zdiff3 src/runner.py",
+    "# the file is rebuilt from the three versions git is holding in the index,",
+    "# so any editing you had already done to it is thrown away",
+    "",
+    "cat src/runner.py",
+    "# <<<<<<< ours",
+    "# QUEUE_DEPTH = 32",
+    "# ||||||| base",
+    "# QUEUE_DEPTH = 8          ← both sides raised it: a genuine choice",
+    "# =======",
+    "# QUEUE_DEPTH = 16",
+    "# >>>>>>> theirs",
+    "",
+    "git config merge.conflictStyle zdiff3   # this repo; --global for every one"
+  ]
+},
+
+{
+  title: "Take one whole side, and see what it costs",
+  task: [
+    "Settle the second conflict — the error message — by taking `main`'s version",
+    "of it wholesale, without opening the file. Then look at what that did to the",
+    "first conflict, and put both conflicts back the way git wrote them."
+  ],
+  solution: [
+    "git checkout --ours src/runner.py     # ours = main, the branch you are on",
+    "",
+    "grep -n QUEUE_DEPTH src/runner.py",
+    "# QUEUE_DEPTH = 32 — the first conflict was decided too, silently:",
+    "# --ours takes the whole FILE, never the one hunk you were looking at",
+    "",
+    "git diff",
+    "# during a conflict this is a combined diff: only lines matching neither",
+    "# side. Nothing but a header here — no line in the file is your own work",
+    "",
+    "git checkout --merge src/runner.py",
+    "# both conflicts back, ancestor and all — the setting from the last step"
   ]
 },
 
 {
   title: "Resolve, finish, and inspect the merge commit",
   task: [
-    "Settle on `QUEUE_DEPTH = 16`. Edit the file so it contains that line and no",
-    "markers at all, check for stray markers, then tell git the conflict is",
-    "resolved and complete the merge. Finally, prove the commit you just made has",
-    "two parents — the thing that makes it a merge."
+    "Resolve both conflicts by hand this time: keep the branch's `QUEUE_DEPTH =",
+    "16`, and write an error message neither side has — `f\"queue full at",
+    "{self.depth}, try again\"`. Delete every marker line, check that what is left",
+    "of your own is exactly that one message, then finish the merge and prove the",
+    "commit you made has two parents."
   ],
   solution: [
-    "# edit src/runner.py: keep QUEUE_DEPTH = 16,",
-    "# delete all three marker lines",
+    "# edit src/runner.py: QUEUE_DEPTH = 16, the combined error message,",
+    "# and not one marker line left in either conflict",
     "",
-    "grep -rn \"<<<<<<<\" src/     # should print nothing",
+    "grep -rn \"<<<<<<<\\|>>>>>>>\" src/    # should print nothing",
+    "",
+    "git diff",
+    "# the error message line, and nothing else: the depth line agrees with",
+    "# one side, so the combined diff has nothing to report about it",
     "",
     "git add src/runner.py",
     "git merge --continue        # or: git commit",

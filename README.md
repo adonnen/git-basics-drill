@@ -194,6 +194,8 @@ The handful worth having on day one:
 
 [pull]
     rebase = true          # replay your commits instead of a merge commit
+[merge]
+    conflictStyle = zdiff3 # show the ancestor inside a conflict (git 2.35+)
 [rerere]
     enabled = true         # remember how you resolved a conflict, replay it
 [fetch]
@@ -258,7 +260,7 @@ existing card. No web development needed — a card is a block of plain text:
 },
 ```
 
-Every line goes in `"double quotes"`, separated by commas. Four marks work in
+Every line goes in `"double quotes"`, separated by commas. Five marks work in
 `question`, `answer`, `detail` and lab tasks:
 
 | you write | you get |
@@ -348,8 +350,9 @@ node tools/check.js
 ```
 
 No framework and nothing to install. It boots the engine against a stand-in for
-the browser and checks the data files, the four text marks, both filters, view
-switching and the save/load round trip. Exit code 1 if anything fails.
+the browser and checks the data files, the five text marks, the alias chips
+against `examples/gitconfig`, both filters, view switching, the save/load round
+trip and the session the browser keeps. Exit code 1 if anything fails.
 
 For anything visual — layout, themes, the blur on lab solutions — open the page.
 

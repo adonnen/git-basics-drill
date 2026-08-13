@@ -15,7 +15,8 @@
      B3  helpers           B8  deck: summary
      B4  state             B9  lab
      B5  theme and views   B10 progress: this browser, and files
-                           B11 validation, wiring and boot
+                           B11 validation
+                           B12 wiring and boot
    ============================================================================= */
 
 /* == B1. elements ========================================================= */
@@ -910,7 +911,7 @@ async function loadProgress(){
 }
 
 
-/* == B11. validation, wiring and boot =====================================
+/* == B11. validation ======================================================
    The check below runs on every load and reports malformed content in the
    browser console. It is here so that someone adding a card gets told what is
    wrong instead of meeting a blank screen.
@@ -1070,7 +1071,10 @@ el.blurb.innerHTML =
   DECK.length + ' cards in ' + STAGES.length + ' stages, plus a ' + LAB_STEPS.length +
   '-step lab you run in a real terminal. Flip a card, then hit <b>details</b> for a figure, ' +
   'the fine print, and links into the exact section of <i>Pro Git</i> and Wiegley’s ' +
-  '<i>Git from the Bottom Up</i>.';
+  '<i>Git from the Bottom Up</i>. The ' +
+  '<a href="https://github.com/adonnen/git-basics-drill#readme" target="_blank" ' +
+  'rel="noopener noreferrer">readme</a> says what this is, how to run it offline, ' +
+  'and how to add a card of your own.';
 
 validateData();
 

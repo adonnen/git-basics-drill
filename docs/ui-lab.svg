@@ -35,7 +35,7 @@
 
     <!-- step card. It stops at 470 to leave the annotations a margin. -->
     <rect class="paper" x="30" y="104" width="440" height="200" rx="8"/>
-    <text class="lbl" x="50" y="132">17</text>
+    <text class="lbl" x="50" y="132">22</text>
     <text class="t" x="76" y="132">Trigger the conflict and read it</text>
     <rect class="fill" x="392" y="120" width="14" height="14" rx="2"/>
     <text class="s" x="414" y="132">done</text>
@@ -61,7 +61,7 @@
     <text class="lbl" x="508" y="296">revealed</text>
 
     <!-- optional act -->
-    <text class="s" x="30" y="342">VII — WORKING WITH A REMOTE</text>
+    <text class="s" x="30" y="342">VIII — WORKING WITH A REMOTE</text>
     <rect class="fill" x="250" y="328" width="66" height="18" rx="3"/>
     <text class="s" x="258" y="341">OPTIONAL</text>
     <line class="fade" x1="330" y1="338" x2="590" y2="338"/>

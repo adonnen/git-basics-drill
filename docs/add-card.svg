@@ -59,7 +59,7 @@
     <text class="lbl" x="404" y="418">← "$" = a command</text>
     <text class="lbl" x="404" y="498">← required book key</text>
 
-    <text class="s" x="30" y="576">`code`   *italic*   **bold**   $ command</text>
-    <text class="lbl" x="290" y="576">— the only four marks there are</text>
+    <text class="s" x="30" y="576">`code`  *italic*  **bold**  $ command  | drawing</text>
+    <text class="lbl" x="300" y="576">— the five marks there are</text>
   </g>
 </svg>

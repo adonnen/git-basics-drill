@@ -43,7 +43,7 @@
     <rect class="fill" x="182" y="76" width="86" height="22" rx="3"/>
     <text class="s" x="190" y="91">02 branching</text>
     <rect class="fill" x="276" y="76" width="70" height="22" rx="3"/>
-    <text class="s" x="284" y="91">03 merging</text>
+    <text class="s" x="284" y="91">03 stashing</text>
     <text class="s" x="356" y="91">…</text>
     <text class="lbl" x="380" y="91">drill one stage at a time</text>
 

@@ -286,6 +286,28 @@
     # above needs no manual reordering in the todo list.
     autoSquash = true
 
+[merge]
+    # Write the common ancestor into every conflict, between ||||||| and
+    # =======, instead of showing only the two sides. Two versions of a line
+    # do not tell you which side moved; the ancestor does, and that is the
+    # difference between choosing between two edits and silently reverting
+    # somebody's fix. It also lifts the parts both sides changed identically
+    # out of the conflicted region, so what is left between the markers is the
+    # actual disagreement. Needs git 2.35 or newer; older versions understand
+    # `diff3`, which is the same idea without the tidying.
+    conflictStyle = zdiff3
+
+    # Which program `git mergetool` opens. Ask your own machine what it has —
+    # `git mergetool --tool-help` — since the list depends on what is
+    # installed. Left commented because the answer is personal:
+    #   tool = vscode
+    #   tool = opendiff        # FileMerge, ships with Xcode
+    #   tool = vimdiff
+
+[mergetool]
+    # Do not leave a `.orig` copy of every file the merge tool touched.
+    keepBackup = false
+
 [rerere]
     # "Reuse recorded resolution" — remember how you resolved a conflict and
     # replay it when the identical conflict returns. The difference between a

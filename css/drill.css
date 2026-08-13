@@ -161,6 +161,10 @@ header{margin-bottom:26px}
 @keyframes blink{50%{opacity:0}}
 .sub{margin-top:10px;color:var(--fog);font-size:13.5px}
 .sub code{color:var(--amber);font-size:.92em}
+/* Prose link, not a button: the blurb reads as a sentence and the pill shape
+   of .link would break the line. */
+.sub a{color:var(--amber);text-decoration:none;border-bottom:1px solid var(--amber-edge)}
+.sub a:hover{border-bottom-color:var(--amber)}
 
 /* A panel groups one cluster of interface into a rectangle of its own — the
    two filters, or the deck's grading row, graph and legend. Quieter than the

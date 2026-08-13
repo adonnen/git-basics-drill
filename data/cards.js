@@ -165,11 +165,122 @@ const CARDS = [
   ],
   figure: [
     "git add <file>     one file",
-    "git add .          everything under the current directory",
-    "git add -A         everything in the repo, including deletions"
+    "git add <dir>/     that directory, everything under it",
+    "git add .          the directory you are standing in",
+    "git add -A         the whole repo, wherever you are standing"
   ],
   proGit:   "Git-Basics-Recording-Changes-to-the-Repository",
   bottomUp: "meet-the-middle-man"
+},
+
+{
+  stage:    "01 foundations",
+  question: "Stage every change under `src/` and leave the rest of the tree alone?",
+  answer: [
+    "$ git add src/",
+    "A path may name a directory as well as a file, and a directory means every",
+    "file beneath it, however deep the nesting goes."
+  ],
+  detail: [
+    "`git add .` is the same rule pointed at whichever directory you happen to",
+    "be standing in. Naming the subtree runs from anywhere and holds a commit to one",
+    "area of the codebase. A path picks up new files and removals as well as",
+    "edits, so `-A` differs from it only in reach: the whole repository rather",
+    "than one branch of it."
+  ],
+  figure: [
+    "$ git add src/api/",
+    "",
+    "  src/api/routes.py      staged   ← edited",
+    "  src/api/models/db.py   staged   ← nested deeper",
+    "  src/api/queue.py       staged   ← untracked until now",
+    "  src/api/legacy.py      staged   ← deleted, removal recorded",
+    "",
+    "  src/cli.py             left alone — outside the path",
+    "  tests/test_api.py      left alone"
+  ],
+  proGit:   "Git-Basics-Recording-Changes-to-the-Repository",
+  bottomUp: "meet-the-middle-man"
+},
+
+{
+  stage:    "01 foundations",
+  question: "You edited three tracked files and deleted a fourth, and there is scratch output lying about that you have not ignored yet. Stage the real work only?",
+  answer: [
+    "$ git add -u",
+    "`-u` for update: every tracked file that changed, edits and deletions",
+    "alike, and nothing git has not already seen."
+  ],
+  detail: [
+    "It refuses new files, which makes it the one form of `add` that cannot",
+    "commit a stray log or a credentials file you forgot to ignore. Its scope is",
+    "the asymmetry to remember: with no path it",
+    "covers the whole repository rather than where you are standing, as does",
+    "`-A`, while `.` means the directory you are in. So `-A` is `-u` plus the",
+    "untracked, and a path narrows either."
+  ],
+  figure: [
+    "                edits   deletions   new files   from a subdirectory",
+    "git add -u        ✓         ✓           ·       still the whole repo",
+    "git add -A        ✓         ✓           ✓       still the whole repo",
+    "git add .         ✓         ✓           ✓       only below you"
+  ],
+  proGit:   "Git-Basics-Recording-Changes-to-the-Repository",
+  bottomUp: "meet-the-middle-man"
+},
+
+{
+  stage:    "01 foundations",
+  question: "Drop a file from the project — deleted from your tree and the deletion recorded, in one move?",
+  answer: [
+    "$ git rm src/legacy.py",
+    "The file goes, and the removal is staged. A commit still has to follow.",
+    "Plain `rm` plus `git add -u` does the same work in two."
+  ],
+  detail: [
+    "It refuses while the file holds anything uncommitted, a safety catch `-f`",
+    "overrides. `--cached` unstages the file from git and leaves it on disk, and",
+    "a directory needs `-r`. Nothing is lost",
+    "until you commit — a staged deletion comes back with `git restore --staged",
+    "--worktree <file>`, content and all."
+  ],
+  figure: [
+    "git rm src/legacy.py           remove, and stage the removal",
+    "git rm -r src/experiments/     a whole directory",
+    "git rm -f src/legacy.py        override the refusal on uncommitted edits",
+    "git rm --cached secrets.env    untrack it, leave the file on disk",
+    "",
+    "git restore --staged --worktree src/legacy.py   ← undo, before the commit"
+  ],
+  proGit:   "Git-Basics-Recording-Changes-to-the-Repository"
+},
+
+{
+  stage:    "01 foundations",
+  question: "Rename a tracked file so git stages a rename rather than a deletion and an addition?",
+  answer: [
+    "$ git mv src/util.py src/utils.py",
+    "The file moves and both halves are staged, which `git status` reports as",
+    "`renamed:` on one line."
+  ],
+  detail: [
+    "Git stores no rename anywhere. `mv` followed by `git add -A` produces a",
+    "byte-identical result, and the `R` you see is inferred when the diff is",
+    "displayed, by comparing content — which is why a rename carrying heavy",
+    "edits appears as a delete and an add instead. On macOS and Windows the",
+    "filesystem treats `Readme.md` and `README.md` as one name, so a plain `mv`",
+    "leaves git with nothing to see and `git mv` is the only way to record a",
+    "case-only rename."
+  ],
+  figure: [
+    "$ git mv src/util.py src/utils.py",
+    "$ git status -sb",
+    "R  src/util.py -> src/utils.py",
+    "",
+    "git log --follow -- src/utils.py    ← history across the rename",
+    "git mv Readme.md README.md          ← the rename a plain mv hides"
+  ],
+  proGit:   "Git-Basics-Recording-Changes-to-the-Repository"
 },
 
 {
@@ -313,6 +424,37 @@ const CARDS = [
     "git stash push -p   stash only part of your work",
     "git checkout -p     take selected hunks from another commit",
     "git reset -p        unstage selected hunks"
+  ],
+  proGit:   "Git-Tools-Interactive-Staging",
+  bottomUp: "meet-the-middle-man"
+},
+
+{
+  stage:    "01 foundations",
+  question: "Eight files changed and five belong in this commit. Pick them from a numbered list instead of typing paths?",
+  answer: [
+    "$ git add -i",
+    "`u` for update, then the numbers — `1-3` for a range, `1,4` for a",
+    "selection, and a blank line to finish."
+  ],
+  detail: [
+    "`-p` is item 5 of this menu and the half of it anyone reaches for by name,",
+    "but the list is the faster route when the unit of choice is a whole file:",
+    "`r` unstages the same way, `d` shows the diff of what you have picked so",
+    "far, and `a` is the only item that offers untracked files — `u` lists what",
+    "git already tracks and nothing else. None of it does anything a path on the",
+    "command line could not; it saves the typing and the misremembered filename."
+  ],
+  figure: [
+    "           staged     unstaged path",
+    "  1:    unchanged        +1/-0 src/runner.py",
+    "  2:    unchanged        +4/-0 src/utils.py",
+    "",
+    "*** Commands ***",
+    "  1: [s]tatus   2: [u]pdate   3: [r]evert   4: [a]dd untracked",
+    "  5: [p]atch    6: [d]iff     7: [q]uit     8: [h]elp",
+    "What now> u",
+    "Update>> 1-2       ← then a blank line: “updated 2 paths”"
   ],
   proGit:   "Git-Tools-Interactive-Staging",
   bottomUp: "meet-the-middle-man"
@@ -799,7 +941,7 @@ const CARDS = [
   detail: [
     "Wiegley’s alternative is to expire the stash reflog by age instead —",
     "`git reflog expire --expire=30.days refs/stash` — which prunes what is",
-    "genuinely stale and leaves recent work alone. Same tidiness, no cliff edge."
+    "long stale and leaves recent work alone. Same tidiness, no cliff edge."
   ],
   figure: [
     "git stash drop stash@{1}                      one entry",
@@ -928,7 +1070,7 @@ const CARDS = [
   ],
   detail: [
     "The failure is the feature. If `--ff-only` refuses, the two branches have",
-    "genuinely diverged and a merge commit is the only way forward — which you",
+    "diverged for real and a merge commit is the only way forward — which you",
     "may well want, but as a decision rather than a side effect. The same flag",
     "applies to `pull` once remotes enter the picture."
   ],
@@ -1021,7 +1163,7 @@ const CARDS = [
     "This is the command `init` plus `remote add` plus `pull` was trying to",
     "approximate — and the reason that sequence fails is that `init` leaves the",
     "branch unborn, so there is nothing for `pull` to merge into. Use `clone` for",
-    "anything that already exists, `init` only for something genuinely new."
+    "anything that already exists, `init` only for something that does not exist yet."
   ],
   figure: [
     "git clone <url>   does all of this at once:",
@@ -1355,6 +1497,38 @@ const CARDS = [
 
 {
   stage:    "06 conflicts",
+  question: "Both sides of a conflict look plausible and you cannot tell which one moved. Show the text they started from?",
+  answer: [
+    "$ git config --global merge.conflictStyle zdiff3",
+    "Conflicts then carry a third section, opened by `|||||||`, holding the",
+    "common ancestor of the two."
+  ],
+  detail: [
+    "Two versions of a line say nothing about intent: they might be two people",
+    "raising the same number, or one raising it and the other sitting still on a",
+    "value you are about to restore. The ancestor is what distinguishes those,",
+    "and picking wrongly reverts somebody's fix silently. `zdiff3` also lifts the",
+    "lines both sides changed identically out of the conflicted region, leaving",
+    "only the real disagreement between the markers. A conflict already on disk",
+    "can be redrawn in that style with `git checkout --conflict=zdiff3 <file>`."
+  ],
+  figure: [
+    "<<<<<<< HEAD",
+    "QUEUE_DEPTH = 32          ← ours",
+    "||||||| 21a8961",
+    "QUEUE_DEPTH = 8           ← what both sides started from",
+    "=======",
+    "QUEUE_DEPTH = 16          ← theirs",
+    ">>>>>>> feature/retry",
+    "",
+    "both raised it, so neither side is standing still: a real decision",
+    "without the middle section it could have been one of them reverting"
+  ],
+  proGit:   "Git-Tools-Advanced-Merging"
+},
+
+{
+  stage:    "06 conflicts",
   question: "Which side is “ours” and which is “theirs” — and why does the answer flip during a rebase?",
   answer: [
     "In a **merge**, ours is the branch you’re standing on. In a **rebase** it",
@@ -1397,6 +1571,122 @@ const CARDS = [
     "--theirs  keep the other side's whole file",
     "",
     "then: git add <file>  and  --continue"
+  ],
+  proGit:   "Git-Tools-Advanced-Merging"
+},
+
+{
+  stage:    "06 conflicts",
+  question: "One branch should win wherever the two collide, across every file, without you opening any of them?",
+  answer: [
+    "$ git merge -X theirs feature/retry",
+    "Only the hunks that actually conflict are decided that way; everything that",
+    "merges cleanly still merges."
+  ],
+  detail: [
+    "`-X theirs` settles conflicting hunks in favour of the other side and keeps",
+    "the rest of both. `git checkout",
+    "--theirs <file>` takes one whole file after the merge has already stopped.",
+    "`-s ours` is the odd one out — it records a merge commit whose content is",
+    "entirely your side, marking the other branch merged while keeping none of",
+    "it. `-X` is the mild option and still blunt: it discards the losing hunks",
+    "without showing you one of them, which suits lockfiles and generated output",
+    "rather than code you would have wanted to read."
+  ],
+  figure: [
+    "-X theirs        per hunk, only where they conflict",
+    "checkout --theirs <file>   the whole file, after the stop",
+    "-s ours          the whole merge: their branch marked merged, nothing kept",
+    "",
+    "one conflicting hunk, one clean hunk from each side:",
+    "  -X theirs  →  their hunk, plus both clean changes",
+    "  -s ours    →  your file exactly as it was"
+  ],
+  proGit:   "Git-Tools-Advanced-Merging"
+},
+
+{
+  stage:    "06 conflicts",
+  question: "Resolve a conflicted file in a three-pane editor instead of by hand?",
+  answer: [
+    "$ git mergetool",
+    "It opens each unmerged file in the tool you configured, showing your side,",
+    "theirs, and the merged result you are writing."
+  ],
+  detail: [
+    "`git mergetool --tool-help` lists what is actually installed — `vscode`,",
+    "`opendiff` and `vimdiff` are usually among them — and `merge.tool` makes",
+    "the choice stick. Save and exit and git stages that file for you — worth",
+    "remembering, since staging is what marks a conflict resolved, so a",
+    "half-finished pass through the tool still counts as done. Set",
+    "`mergetool.keepBackup false` unless you want a `.orig` copy of every file",
+    "left behind."
+  ],
+  figure: [
+    "git mergetool --tool-help          what this machine has",
+    "git config --global merge.tool vscode",
+    "git config --global mergetool.keepBackup false",
+    "",
+    "  LOCAL ── ours      BASE ── ancestor      REMOTE ── theirs",
+    "                  MERGED ── what you save"
+  ],
+  proGit:   "Git-Tools-Advanced-Merging"
+},
+
+{
+  stage:    "06 conflicts",
+  question: "Mid-resolution, which lines in the file are your own invention rather than either side’s?",
+  answer: [
+    "$ git diff",
+    "During a conflict `diff` shows a *combined* diff: only the lines that agree",
+    "with neither parent, which is exactly the text you wrote."
+  ],
+  detail: [
+    "Take one side wholesale and nothing is left but the diff's header, which is",
+    "the fastest confirmation that a resolution really was a straight choice",
+    "rather than an edit. Whatever does appear is",
+    "yours to defend, a leftover `<<<<<<<` included. `git diff --ours` and",
+    "`--theirs` compare against one side at a time when you want the fuller",
+    "picture, and `git log --merge -p <file>` prints the commits from either",
+    "branch that touched the file, which is usually what explains why they",
+    "disagree at all."
+  ],
+  figure: [
+    "$ git diff",
+    "diff --cc src/runner.py",
+    "@@@ -1,2 -1,2 +1,2 @@@",
+    "- QUEUE_DEPTH = 32     ← ours, dropped",
+    " -QUEUE_DEPTH = 16     ← theirs, dropped",
+    "++QUEUE_DEPTH = 24     ← neither: yours",
+    "  RETRIES = 1          ← agreed, so unmarked"
+  ],
+  proGit:   "Git-Tools-Advanced-Merging"
+},
+
+{
+  stage:    "06 conflicts",
+  question: "You hand-edited a conflicted file into a mess. Get the conflict back exactly as git wrote it?",
+  answer: [
+    "$ git checkout --merge src/runner.py",
+    "Or `git restore --merge src/runner.py`. Git re-runs the merge for that one",
+    "path and writes fresh markers over whatever you did to it."
+  ],
+  detail: [
+    "The index is holding all three versions of an unmerged file — base, ours,",
+    "theirs, numbered in that order — so the copy in your working tree is",
+    "disposable and the markers can always be rebuilt. Add",
+    "`--conflict=zdiff3` to get them back with the ancestor included. Nothing",
+    "here is a substitute for `merge --abort`: this is one file, that is the",
+    "whole operation."
+  ],
+  figure: [
+    "$ git ls-files -u src/runner.py",
+    "100644 bc94f0e 1  src/runner.py    ← base",
+    "100644 54916db 2  src/runner.py    ← ours",
+    "100644 73ba2c8 3  src/runner.py    ← theirs",
+    "",
+    "git checkout --merge src/runner.py                ← markers, as before",
+    "git checkout --conflict=zdiff3 src/runner.py      ← with the base too"
   ],
   proGit:   "Git-Tools-Advanced-Merging"
 },
@@ -1478,7 +1768,7 @@ const CARDS = [
     "`git rebase --abort` rewinds the entire rebase to where you started."
   ],
   detail: [
-    "`--skip` is right when the commit has become genuinely redundant — its",
+    "`--skip` is right when the commit has become redundant — its",
     "change already arrived on the trunk by another route, so replaying it is a",
     "conflict with no content. Reach for it deliberately: skipping a commit whose",
     "work you still need loses it from the branch silently."
