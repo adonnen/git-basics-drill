@@ -22,8 +22,17 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
-  # Single deploy job since we're just deploying
+  # The gate: a deck that fails its own checks never reaches Pages.
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Run the check suite
+        run: node tools/check.js
+
   deploy:
+    needs: check
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
@@ -31,6 +40,14 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          # Full history so `git describe` can see the release tags.
+          fetch-depth: 0
+      - name: Stamp the version from the release tag
+        # Overwrites the committed "dev" placeholder in data/version.js, so
+        # the published site reports the tag it was built from. The tag is
+        # the single source of the version; nothing is bumped by hand.
+        run: echo "const VERSION = \"$(git describe --tags --always)\";" > data/version.js
       - name: Setup Pages
         uses: actions/configure-pages@v5
       - name: Upload artifact

@@ -99,7 +99,29 @@ const LAB = [
   title: "Add the first real source file",
   task: [
     "Create `src/runner.py` with the content below, then stage and commit it in",
-    "one step each. Keep this file — most later steps edit it."
+    "one step each. Keep this file — most later steps edit it. A file of your",
+    "own works too, if it keeps the two anchors those steps rely on: a constant",
+    "near the top, and an error raised a good way further down.",
+    "| QUEUE_DEPTH = 8",
+    "|",
+    "|",
+    "| class TaskRunner:",
+    "|     \"\"\"Runs queued tasks one at a time.\"\"\"",
+    "|",
+    "|     def __init__(self, depth=QUEUE_DEPTH):",
+    "|         self.depth = depth",
+    "|         self.pending = []",
+    "|",
+    "|     def submit(self, task):",
+    "|         if len(self.pending) >= self.depth:",
+    "|             raise RuntimeError(\"queue full\")",
+    "|         self.pending.append(task)",
+    "|",
+    "|     def run_all(self):",
+    "|         results = []",
+    "|         while self.pending:",
+    "|             results.append(self.pending.pop(0)())",
+    "|         return results"
   ],
   solution: [
     "mkdir src",
@@ -127,7 +149,11 @@ const LAB = [
     "EOF",
     "",
     "git add src/runner.py",
-    "git commit -m \"Add TaskRunner skeleton\""
+    "git commit -m \"Add TaskRunner skeleton\"",
+    "",
+    "# the shape is deliberate: QUEUE_DEPTH and the \"queue full\" error are the",
+    "# two lines act IV will put in conflict, and the distance between them is",
+    "# what will make git report two conflicts rather than one"
   ]
 },
 
@@ -174,8 +200,9 @@ const LAB = [
   task: [
     "Open `src/runner.py` and make two *unrelated* changes: add a line",
     "`self.retries = 3` just below `self.pending = []`, and append a `stop()`",
-    "method at the end of the class. Do not stage anything yet — just confirm git",
-    "sees one modified file."
+    "method at the end of the class. Whatever the file, keep at least a handful",
+    "of unchanged lines between the two edits. Do not stage anything yet — just",
+    "confirm git sees one modified file."
   ],
   solution: [
     "# edit src/runner.py so that __init__ ends with:",
@@ -187,7 +214,11 @@ const LAB = [
     "#     def stop(self):",
     "#         self.pending.clear()",
     "",
-    "git status -sb          # \" M src/runner.py\"  — one file, two changes"
+    "git status -sb          # \" M src/runner.py\"  — one file, two changes",
+    "",
+    "# the separation is the point: a hunk is a run of changed lines plus three",
+    "# lines of context either side, and two edits whose context overlaps fuse",
+    "# into one hunk — the next step needs git to offer them separately"
   ]
 },
 
@@ -251,7 +282,12 @@ const LAB = [
     "`MAX_WAIT = 60` line to `src/runner.py`. Stage both with a single command",
     "that names neither file. Then change your mind about the runner edit and",
     "take it back out of the index without losing it, so that the commit you",
-    "make contains the new module alone."
+    "make contains the new module alone.",
+    "| class Timer:",
+    "|     \"\"\"Wall-clock timing for one run of the queue.\"\"\"",
+    "|",
+    "|     def __init__(self):",
+    "|         self.started = None"
   ],
   solution: [
     "cat > src/timer.py <<'EOF'",
@@ -320,7 +356,9 @@ const LAB = [
     "Add `src/util.py` with the helper below and commit it. Then decide the name",
     "should have been plural: rename the file with the command that stages the",
     "move, and commit that. Confirm afterwards that the file's history reaches",
-    "back past the rename."
+    "back past the rename.",
+    "| def clamp(value, lowest, highest):",
+    "|     return max(lowest, min(value, highest))"
   ],
   solution: [
     "cat > src/util.py <<'EOF'",
@@ -522,8 +560,10 @@ const LAB = [
   task: [
     "Create and switch to a branch `feature/retry`. Make two changes to",
     "`src/runner.py`: `QUEUE_DEPTH = 8` becomes `16`, and the overflow error",
-    "further down becomes `raise RuntimeError(\"queue full, try again\")`. Commit",
-    "both — staging and committing tracked changes in a single command."
+    "further down becomes `raise RuntimeError(\"queue full, try again\")`. With a",
+    "file of your own, any two lines with ten-odd unchanged lines between them",
+    "do the job — note which two, because the next step edits the same pair.",
+    "Commit both — staging and committing tracked changes in a single command."
   ],
   solution: [
     "git switch -c feature/retry",
@@ -556,7 +596,11 @@ const LAB = [
     "git commit -am \"Raise the queue depth and name the limit in the error\"",
     "",
     "git log --oneline --graph --all -6",
-    "# two lines of development, diverged"
+    "# two lines of development, diverged",
+    "",
+    "# \"far enough apart\" matters: conflicting regions, like hunks, carry",
+    "# surrounding context, and two disagreements too close together fuse into",
+    "# a single conflict block — the next step wants to count two"
   ]
 },
 
@@ -699,8 +743,9 @@ const LAB = [
 {
   title: "Let the trunk move underneath you",
   task: [
-    "Switch to `main`, expand the README with a description line, and commit it.",
-    "Then go back to your branch. The branch is now behind the trunk."
+    "Switch to `main`, expand the README with a description line, and commit it",
+    "— any edit works, provided it touches a file your branch does not. Then go",
+    "back to your branch. The branch is now behind the trunk."
   ],
   solution: [
     "git switch main",
@@ -711,7 +756,10 @@ const LAB = [
     "git switch feature/logging",
     "",
     "git log --oneline --graph --all -8",
-    "# your branch hangs off an older point on main"
+    "# your branch hangs off an older point on main",
+    "",
+    "# a file the branch never edits, on purpose: this act is about the",
+    "# mechanics of replay, and a conflict here would be act IV's lesson again"
   ]
 },
 
@@ -1109,8 +1157,8 @@ const LAB = [
   title: "Collide on the trunk, then recover",
   task: [
     "In the clone, commit to `main` and push. In `taskrunner`, commit to `main`",
-    "too — without pulling first — and try to push. Read the rejection, then",
-    "integrate and push properly."
+    "too — without pulling first, and touching a different file than the clone",
+    "did. Try to push. Read the rejection, then integrate and push properly."
   ],
   solution: [
     "cd ../colleague",
@@ -1128,7 +1176,10 @@ const LAB = [
     "#   the remote has commits you do not",
     "",
     "git pull --rebase              # replay your commit on top of theirs",
-    "git push"
+    "git push",
+    "",
+    "# different files on the two sides, on purpose: the rejection is about",
+    "# diverged history, not content — content conflicts were act IV's business"
   ]
 },
 

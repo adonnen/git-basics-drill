@@ -141,7 +141,7 @@ const CARDS = [
   ],
   figure: [
     "$ git status -sb",
-    "## feature/task-queue...origin/feature/task-queue [ahead 1]",
+    "## main",
     "M  src/states.py      ← staged",
     " M src/queue.py  ← modified, not staged",
     "?? src/scratch.py      ← untracked"
@@ -270,7 +270,11 @@ const CARDS = [
     "edits appears as a delete and an add instead. On macOS and Windows the",
     "filesystem treats `Readme.md` and `README.md` as one name, so a plain `mv`",
     "leaves git with nothing to see and `git mv` is the only way to record a",
-    "case-only rename."
+    "case-only rename. Two things in the figure's log command are new: the bare",
+    "`--` is a separator saying everything after it is a *path* rather than a",
+    "branch — git needs the distinction because the two can share a name — and",
+    "`--follow` carries the file's history through the rename by the same",
+    "content comparison. Stage 13 returns to both."
   ],
   figure: [
     "$ git mv src/util.py src/utils.py",
@@ -413,7 +417,9 @@ const CARDS = [
     "$ git -c diff.context=1 add -p src/runner.py"
   ],
   detail: [
-    "Worth trying before reaching for the editor, since it often turns one",
+    "`-c key=value` sets any config value for that one invocation and persists",
+    "nothing — here it narrows the diff context git uses to build hunks. Worth",
+    "trying before reaching for the editor, since it often turns one",
     "stubborn block into two you can simply accept and reject. And the same `-p`",
     "interface runs across the whole family, which is where it stops being a",
     "staging trick and becomes a way of working."
@@ -458,6 +464,33 @@ const CARDS = [
   ],
   proGit:   "Git-Tools-Interactive-Staging",
   bottomUp: "meet-the-middle-man"
+},
+
+{
+  stage:    "01 foundations",
+  question: "What is `HEAD`?",
+  answer: [
+    "The pointer to *where you are*. Normally it points at the branch you’re on,",
+    "which points at a commit. New commits move the branch; HEAD rides along."
+  ],
+  detail: [
+    "`.git/HEAD` is a one-line file. Normally it holds a symbolic reference —",
+    "`ref: refs/heads/main` — meaning “I am on main.” In a detached state it",
+    "holds a raw commit hash (a *SHA*, the forty-character name every commit",
+    "carries) instead, which is why commits made there belong to no branch and",
+    "survive only in the reflog — git’s local journal of everywhere HEAD has",
+    "been, covered in stage 10."
+  ],
+  figure: [
+    "attached:",
+    "HEAD ──▶ refs/heads/main ──▶ c7d8e9f ──▶ b4e5f6g ──▶ a1b2c3d",
+    "",
+    "detached:",
+    "HEAD ────────────────────▶ b4e5f6g",
+    "        (no branch label — new commits have no home)"
+  ],
+  proGit:   "Git-Internals-Git-References",
+  bottomUp: "introduction"
 },
 
 {
@@ -554,31 +587,6 @@ const CARDS = [
 },
 
 {
-  stage:    "01 foundations",
-  question: "What is `HEAD`?",
-  answer: [
-    "The pointer to *where you are*. Normally it points at the branch you’re on,",
-    "which points at a commit. New commits move the branch; HEAD rides along."
-  ],
-  detail: [
-    "`.git/HEAD` is a one-line file. Normally it holds a symbolic reference —",
-    "`ref: refs/heads/main` — meaning “I am on main.” In a detached state it",
-    "holds a raw SHA instead, which is why commits made there belong to no branch",
-    "and survive only in the reflog."
-  ],
-  figure: [
-    "attached:",
-    "HEAD ──▶ refs/heads/main ──▶ c7d8e9f ──▶ b4e5f6g ──▶ a1b2c3d",
-    "",
-    "detached:",
-    "HEAD ────────────────────▶ b4e5f6g",
-    "        (no branch label — new commits have no home)"
-  ],
-  proGit:   "Git-Internals-Git-References",
-  bottomUp: "introduction"
-},
-
-{
   stage:    "02 branching",
   question: "Create a new branch and switch to it — one command, modern syntax.",
   answer: [
@@ -606,8 +614,9 @@ const CARDS = [
   stage:    "02 branching",
   question: "List your local branches; list remote-tracking ones too?",
   answer: [
-    "`git branch` for local, `-r` for remote-tracking, `-a` for both. The `*`",
-    "marks where you are."
+    "`git branch` for local, `-r` for the remote-tracking ones — your local",
+    "`origin/…` copies of a remote’s branches, stage 05’s subject — and `-a` for",
+    "both. The `*` marks where you are."
   ],
   detail: [
     "On a repository with hundreds of branches the raw list is unusable. Sorting",
@@ -632,9 +641,11 @@ const CARDS = [
     "`-v` alone shows the tip commit; the second `v` adds tracking information."
   ],
   detail: [
-    "The ahead/behind numbers are measured against your *cached* view of the",
-    "remote, so they are only as fresh as your last fetch. A branch reported as",
-    "up to date may simply not have been fetched today."
+    "An *upstream* is the remote branch yours is wired to; stage 05 covers the",
+    "wiring. The ahead/behind numbers are measured against your *cached* view of",
+    "the remote, refreshed only when you ask the server (`git fetch`, also stage",
+    "05) — so a branch reported as up to date may simply not have been fetched",
+    "today."
   ],
   figure: [
     "$ git branch -vv",
@@ -678,7 +689,9 @@ const CARDS = [
   figure: [
     "git branch -m feature/better-name",
     "git push origin --delete feature/old-name",
-    "git push -u origin feature/better-name"
+    "git push -u origin feature/better-name",
+    "",
+    "(the push commands are stage 05 material — here, just the shape)"
   ],
   proGit:   "Git-Branching-Branch-Management"
 },
@@ -1140,8 +1153,10 @@ const CARDS = [
   detail: [
     "A second case is pragmatic rather than principled: a long-lived branch that",
     "has been rebased many times against a fast-moving trunk, replaying the same",
-    "painful conflict every round. `rerere` absorbs most of that, but when it",
-    "does not, eating one merge commit costs less than a fifth manual resolution."
+    "painful conflict every round. `rerere` — git’s cache of recorded conflict",
+    "resolutions, which stage 06 closes on — absorbs most of that, but when it",
+    "does not, eating one merge commit costs less than a fifth manual",
+    "resolution."
   ],
   figure: [
     "branch is yours alone      ──▶ rebase (clean, linear)",
@@ -1234,9 +1249,11 @@ const CARDS = [
   ],
   detail: [
     "The two-step is worth the extra command when the trunk has moved a lot:",
-    "fetch, read `git log HEAD..origin/main` to see exactly what is arriving,",
-    "then integrate deliberately. Nothing you fetch can surprise you until you",
-    "choose to integrate it."
+    "fetch, then read `git log HEAD..origin/main` to see exactly what is",
+    "arriving, then integrate deliberately. The two-dot form is a *range* — the",
+    "commits `origin/main` has that `HEAD` does not; stage 13 treats the syntax",
+    "fully. Nothing you fetch can surprise you until you choose to integrate",
+    "it."
   ],
   figure: [
     "fetch:  remote ──▶ origin/main                (branch untouched)",
@@ -1285,7 +1302,9 @@ const CARDS = [
     "This is the ordinary case and it needs no force at all — a colleague pushed",
     "while you were working. Force-pushing here would delete their commits. Reach",
     "for `--force-with-lease` only when *you* deliberately rewrote history and",
-    "the rejection is the expected consequence."
+    "the rejection is the expected consequence. It is the guarded force,",
+    "overwriting only while the remote still matches your last-fetched view of",
+    "it; stage 13 sets it against plain `--force`."
   ],
   figure: [
     "rejected, you did NOT rewrite  →  git pull, then push",
@@ -1725,8 +1744,9 @@ const CARDS = [
     "It restores the working tree and index to where they were before the merge",
     "started, which is why merging with uncommitted changes is risky — git may",
     "not be able to reconstruct that state cleanly. If `--abort` ever refuses,",
-    "`ORIG_HEAD` still records the pre-merge commit and",
-    "`git reset --hard ORIG_HEAD` is the fallback."
+    "`ORIG_HEAD` still records the pre-merge commit, and",
+    "`git reset --hard ORIG_HEAD` — a wholesale move of branch, index and",
+    "working tree back to that commit, dissected in stage 10 — is the fallback."
   ],
   figure: [
     "git merge --abort              ← the normal way out",
@@ -2387,8 +2407,9 @@ const CARDS = [
     "|      B^..E picks B, C, D, E  (B included)"
   ],
   detail: [
-    "To include the first commit as well, use three dots on the left —",
-    "`a1b2c3d^..h7i8j9k` — where `^` means “the parent of.” Ranges replay in",
+    "To include the first commit as well, start the range one commit earlier by",
+    "suffixing it with `^` — `a1b2c3d^..h7i8j9k` — where `^` means “the parent",
+    "of.” Ranges replay in",
     "order and can conflict partway; the same `--continue` / `--skip` / `--abort`",
     "trio applies."
   ],
@@ -2533,31 +2554,6 @@ const CARDS = [
 
 {
   stage:    "10 undo · reflog",
-  question: "“Reset everything” in full — tracked *and* untracked — as two commands?",
-  answer: [
-    "$ git reset --hard HEAD",
-    "$ git clean -fd",
-    "Together: the working tree exactly as HEAD has it, nothing else present."
-  ],
-  detail: [
-    "This pair is worth wrapping in an alias that asks first, since nothing it",
-    "removes is recoverable — `git nuke` does the asking, and `git nuke-preview`",
-    "shows what it would take. The non-destructive alternative when",
-    "“discard” really means “get this out of my way” is `git stash -u` — same",
-    "clean tree, work still retrievable."
-  ],
-  figure: [
-    "git reset --hard HEAD   tracked files back to HEAD",
-    "git clean -fd           untracked files and dirs removed",
-    "",
-    "reversible alternative:  git stash -u"
-  ],
-  proGit:   "Git-Tools-Reset-Demystified",
-  bottomUp: "doing-a-hard-reset"
-},
-
-{
-  stage:    "10 undo · reflog",
   question: "`reset --soft` vs the default (`--mixed`) vs `--hard`?",
   answer: [
     "**soft**: move the branch pointer, keep index and working tree. **mixed**:",
@@ -2585,6 +2581,31 @@ const CARDS = [
   ],
   proGit:   "Git-Tools-Reset-Demystified",
   bottomUp: "to-reset-or-not-to-reset"
+},
+
+{
+  stage:    "10 undo · reflog",
+  question: "“Reset everything” in full — tracked *and* untracked — as two commands?",
+  answer: [
+    "$ git reset --hard HEAD",
+    "$ git clean -fd",
+    "Together: the working tree exactly as HEAD has it, nothing else present."
+  ],
+  detail: [
+    "This pair is worth wrapping in an alias that asks first, since nothing it",
+    "removes is recoverable — `git nuke` does the asking, and `git nuke-preview`",
+    "shows what it would take. The non-destructive alternative when",
+    "“discard” really means “get this out of my way” is `git stash -u` — same",
+    "clean tree, work still retrievable."
+  ],
+  figure: [
+    "git reset --hard HEAD   tracked files back to HEAD",
+    "git clean -fd           untracked files and dirs removed",
+    "",
+    "reversible alternative:  git stash -u"
+  ],
+  proGit:   "Git-Tools-Reset-Demystified",
+  bottomUp: "doing-a-hard-reset"
 },
 
 {
@@ -2800,8 +2821,8 @@ const CARDS = [
     "is only a conventional name; `git remote rename` changes it freely."
   ],
   figure: [
-    "git@server.local:repos/repo.git   absolute",
-    "git@server.local:repos/repo.git                 relative to ~",
+    "git@server.local:/srv/repos/repo.git   absolute",
+    "git@server.local:repos/repo.git        relative to ~",
     "",
     "with an ~/.ssh/config Host alias:",
     "server:repos/project.git"

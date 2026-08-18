@@ -552,6 +552,13 @@ function buildIntro(){
     '<p>' + LAB_STEPS.length + ' steps in a real terminal, against a real directory on ' +
     'your machine. Read the task, do it in your shell, then reveal the solution to ' +
     'check yourself.</p>' +
+    '<p>The steps grow a tiny Python module — a <code>TaskRunner</code> class that ' +
+    'queues work and runs it — but the code is a prop, not the subject: nothing ' +
+    'depends on it being Python, or on it ever running. Write your own files instead ' +
+    'if you prefer. Where an edit has to have a particular <em>shape</em> for the git ' +
+    'lesson to work — two changes far apart in one file, a line both branches will ' +
+    'fight over — the task names that property, and the solution says why it ' +
+    'matters.</p>' +
     '<p>' + optionalActs + ' of the ' + acts.length + ' acts are marked optional and can ' +
     'be skipped. Everything up to the last act runs on your own machine; the last act ' +
     'adds a remote, using a bare repository next door as the “server”, so no account is ' +
@@ -1075,6 +1082,20 @@ el.blurb.innerHTML =
   '<a href="https://github.com/adonnen/git-basics-drill#readme" target="_blank" ' +
   'rel="noopener noreferrer">readme</a> says what this is, how to run it offline, ' +
   'and how to add a card of your own.';
+
+// The version arrives from data/version.js: "dev" in a local copy, the output
+// of `git describe --tags` on the published site, where the deploy workflow
+// rewrites that file. The tag itself is the only thing anyone maintains.
+(function(){
+  if(typeof VERSION === 'undefined' || !VERSION) return;
+  const m = VERSION.match(/^rls_(\d+)_(\d+)_(\d+)(?:-(\d+)-g[0-9a-f]+)?$/);
+  // A trailing "+" marks a build past the tag: v0.0.3+ was built from commits
+  // newer than release 0.0.3 — the base it grew from, never the next number.
+  const label =
+    !m ? 'an untagged copy (' + escapeHtml(VERSION) + ')'
+       : 'release v' + m[1] + '.' + m[2] + '.' + m[3] + (m[4] ? '+' : '');
+  el.blurb.innerHTML += ' This copy is ' + label + '.';
+})();
 
 validateData();
 

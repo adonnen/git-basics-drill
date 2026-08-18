@@ -34,12 +34,16 @@ That is the whole setup.
 
 If you would rather not clone, use **Code → Download ZIP** on GitHub and unzip
 it. Either way you need the whole folder: `index.html` loads the stylesheet and
-the three data files from the directories beside it, so that one file on its
-own shows a blank page.
+the data files from the directories beside it, so that one file on its own
+shows a blank page.
 
-The page is static, so any host will serve it as it stands — the URL above is
-this repository's `main` branch published through GitHub Pages, and a fork of it
-can do the same under *Settings → Pages → deploy from the `main` branch*.
+The page is static, so any host will serve it as it stands. The URL above is
+this repository published through GitHub Pages by
+[`.github/workflows/static.yml`](.github/workflows/static.yml), which runs
+[`tools/check.js`](tools/check.js) first — a deck that fails its own checks
+never deploys — and then stamps the release tag into `data/version.js`, which
+is how the hosted page knows what version it is. A fork can do the same under
+*Settings → Pages → Source: GitHub Actions*.
 
 Works in Chrome, Edge and Firefox. Safari works too, with one small caveat
 noted under [Saving progress](#saving-progress).
@@ -108,6 +112,12 @@ them: VI puts a file into the repository's root commit, and VIII adds a remote.
 That last one has you create a bare repository next door to act as the "server",
 so `push`, `pull`, tracking branches, `--force-with-lease` and pruning are all
 practised locally, with no account anywhere.
+
+The steps grow a small Python module, but the code is a prop rather than the
+subject: files of your own work too, and where an edit must keep a particular
+shape for the git lesson to land — two changes far apart in one file, a line
+both branches will fight over — the task names that property and the solution
+says why.
 
 Everything the lab creates lives in two or three directories you delete at the
 end. The last step of each act tells you how.
@@ -223,11 +233,13 @@ git-basics-drill/
 ├── data/
 │   ├── references.js   the books' sections and the aliases cards link to
 │   ├── cards.js        the flashcards        ← add cards here
-│   └── lab.js          the lab steps         ← add steps here
-│                       all three are plain lists of text, see below
+│   ├── lab.js          the lab steps         ← add steps here
+│   │                   these three are plain lists of text, see below
+│   └── version.js      "dev" in the repo; the deploy stamps the release tag
 ├── examples/gitconfig  the aliases and settings the cards refer to
 ├── tools/check.js      verifies a change without opening a browser
-└── docs/               the sketches in this README
+├── docs/               the sketches in this README
+└── .github/            the Pages workflow: check first, then stamp and deploy
 ```
 
 ### Adding a card
@@ -354,6 +366,10 @@ the browser and checks the data files, the five text marks, the alias chips
 against `examples/gitconfig`, both filters, view switching, the save/load round
 trip and the session the browser keeps. Exit code 1 if anything fails.
 
+The deploy workflow runs the same script before publishing, so a change that
+fails it never reaches the hosted page — but running it locally is still the
+faster loop.
+
 For anything visual — layout, themes, the blur on lab solutions — open the page.
 
 ### House style for cards
@@ -389,7 +405,12 @@ web server. Keeping them as scripts means double-clicking `index.html` works.
 The contents are still just lists of text — no programming involved.
 That is also why the repository carries no build tooling of any kind: what is
 committed here is what runs in the browser. Edit a file, reload
-the page.
+the page. The one exception is [`data/version.js`](data/version.js): the
+repository commits a `dev` placeholder, and the deploy workflow rewrites it
+with the output of `git describe --tags` — which is how the hosted page can
+say *release v0.0.3*, or *v0.0.3+* when commits have landed since that tag,
+while a local copy honestly says `dev`. The release tag is the only version
+anyone maintains.
 
 If you would rather serve it than open it from disk, anything static will do:
 
