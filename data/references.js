@@ -25,6 +25,7 @@ const REFERENCES = {
       "Git-Basics-Getting-a-Git-Repository": "2.1 — Getting a Git Repository",
       "Git-Basics-Git-Aliases": "2.7 — Git Aliases",
       "Git-Basics-Recording-Changes-to-the-Repository": "2.2 — Recording Changes (Ignoring Files)",
+      "Git-Basics-Tagging": "2.6 — Tagging",
       "Git-Basics-Undoing-Things": "2.4 — Undoing Things",
       "Git-Basics-Viewing-the-Commit-History": "2.3 — Viewing the Commit History",
       "Git-Basics-Working-with-Remotes": "2.5 — Working with Remotes",

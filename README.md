@@ -6,7 +6,7 @@ The same page runs straight from your file system if you would rather clone it:
 the repository holds everything it needs, and it works offline and signed out.
 
 - **A deck of flashcards**, grouped into stages that run from your first `init`
-  to force-push discipline
+  to cutting a release
 - **A multi-step lab** you run in a terminal, against a real repository
 - Every card links into the exact section of *Pro Git* and, where it goes
   deeper, of Wiegley's *Git from the Bottom Up*
@@ -110,8 +110,8 @@ Acts I–VII build a repository from nothing and stay on your own machine. Two
 acts are marked **optional** and can be skipped without stranding the ones after
 them: VI puts a file into the repository's root commit, and VIII adds a remote.
 That last one has you create a bare repository next door to act as the "server",
-so `push`, `pull`, tracking branches, `--force-with-lease` and pruning are all
-practised locally, with no account anywhere.
+so `push`, `pull`, tracking branches, `--force-with-lease`, pruning and tagging
+a release are all practised locally, with no account anywhere.
 
 The steps grow a small Python module, but the code is a prop rather than the
 subject: files of your own work too, and where an edit must keep a particular

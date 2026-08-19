@@ -1228,6 +1228,36 @@ const LAB = [
 },
 
 {
+  title: "Cut a release the server knows about",
+  task: [
+    "Back in `taskrunner`, mark the current `main` as version 0.1.0 — in the",
+    "form that records who cut it and when. Push, then check what the server",
+    "holds, and read the result carefully before making the server hold the",
+    "tag too. Finally add one small commit on top and ask git where you now",
+    "stand relative to the release."
+  ],
+  solution: [
+    "cd ../taskrunner",
+    "",
+    "git tag -a v0.1.0 -m \"First working cut\"",
+    "git push",
+    "# \"Everything up-to-date\" — and yet:",
+    "git ls-remote origin           # no refs/tags/ line: push ignored the tag",
+    "",
+    "git push origin v0.1.0",
+    "git ls-remote origin           # refs/tags/v0.1.0 — now the server has it",
+    "",
+    "printf '\\n## Ideas\\n' >> README.md",
+    "git commit -am \"Start an ideas section\"",
+    "git describe                   # v0.1.0-1-g… — one commit past the release",
+    "",
+    "# -a matters twice over: the annotation records who cut the release and",
+    "# why, and bare git describe consults annotated tags only — a lightweight",
+    "# v0.1.0 would need git describe --tags to be seen at all"
+  ]
+},
+
+{
   title: "Clean up everything",
   task: [
     "The whole exercise is disposable — three directories and nothing else.",

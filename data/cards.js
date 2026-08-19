@@ -1168,6 +1168,34 @@ const CARDS = [
 
 {
   stage:    "05 sync basics",
+  question: "What is a remote, actually?",
+  answer: [
+    "Another copy of the repository, known to yours by name. The name maps to",
+    "a URL in your config, and everything in this stage is traffic between the",
+    "two copies."
+  ],
+  detail: [
+    "Technically the copies are peers — each holds objects and refs, and a",
+    "server’s copy is special only because everyone agreed to treat it so.",
+    "Alongside the name and URL, your repository keeps a cached view of the",
+    "other side’s branches, the `origin/…` refs the branching stage glanced",
+    "at. Fetching copies their new commits to you and updates that cache;",
+    "pushing copies yours to them and moves their branch. Neither side ever",
+    "reaches into the other unasked."
+  ],
+  figure: [
+    "your repository                their repository (“origin”)",
+    "  objects + refs   ── push ──▶   objects + refs",
+    "                   ◀─ fetch ──",
+    "  origin/*  ← the cached view, refreshed by fetch",
+    "",
+    "git remote -v      the names and URLs yours knows"
+  ],
+  proGit:   "Git-Basics-Working-with-Remotes"
+},
+
+{
+  stage:    "05 sync basics",
   question: "Get a working copy of a repository that already exists on a server?",
   answer: [
     "$ git clone git@server.local:repos/taskrunner.git",
@@ -3496,6 +3524,164 @@ const CARDS = [
   ],
   proGit:   "Git-Basics-Viewing-the-Commit-History",
   bottomUp: "a-commit-by-any-other-name"
+},
+
+{
+  stage:    "15 tags & releases",
+  question: "Mark the commit you are on as release `v0.1.0`, in the form that records who cut it and when?",
+  answer: [
+    "$ git tag -a v0.1.0 -m \"First usable cut\"",
+    "`-a` makes the tag *annotated*: an object of its own, carrying tagger,",
+    "date and message. Plain `git tag v0.1.0` writes a lightweight one — a bare",
+    "pointer, nothing recorded."
+  ],
+  detail: [
+    "Annotated is the release form: `git show v0.1.0` then prints who cut it,",
+    "when, and the message, above the commit itself — a lightweight tag has",
+    "nothing to show but the commit. Keep lightweight for private bookmarks,",
+    "and note that some tooling quietly ignores it: `git describe`, three cards",
+    "on, is one example. `git tag` lists what exists; `-n` adds each tag’s",
+    "message line."
+  ],
+  figure: [
+    "git tag -a v0.1.0 -m \"msg\"   annotated — tagger, date, message",
+    "git tag v0.1.0               lightweight — a bare pointer",
+    "",
+    "git tag -n                   list tags with their messages",
+    "git show v0.1.0              the tag’s story, then the commit"
+  ],
+  proGit:   "Git-Basics-Tagging",
+  bottomUp: "a-commit-by-any-other-name"
+},
+
+{
+  stage:    "15 tags & releases",
+  question: "A tag and a branch are both refs. What is the difference, mechanically?",
+  answer: [
+    "Movement. A branch label advances with every commit made on it; a tag is",
+    "placed once and never follows. Permanence is the point — a release name",
+    "that drifted would name nothing."
+  ],
+  detail: [
+    "Both live as refs — `refs/heads/` against `refs/tags/` — and a lightweight",
+    "tag’s file is byte-for-byte a branch’s: forty hex characters naming a",
+    "commit. An annotated tag’s file names a *tag object* instead, which holds",
+    "the message and points on to the commit. Nothing enforces the stillness",
+    "beyond git refusing to overwrite a tag without `-f`; the discipline is",
+    "convention, and every release process assumes it."
+  ],
+  figure: [
+    "$ cat .git/refs/heads/main .git/refs/tags/v0.1.0",
+    "5e6f7g8…     ← advances with every commit",
+    "9d3c740…     ← never moves again",
+    "",
+    "branch: a label that follows    tag: a label that stays"
+  ],
+  proGit:   "Git-Internals-Git-References",
+  bottomUp: "a-commit-by-any-other-name"
+},
+
+{
+  stage:    "15 tags & releases",
+  question: "You tagged a release and pushed, yet `git ls-remote` shows no tag on the server. What happened?",
+  answer: [
+    "`git push` moves branches only — a tag stays local until pushed by name.",
+    "$ git push origin v0.1.0"
+  ],
+  detail: [
+    "`--tags` sends every tag at once, which after a few private experiments is",
+    "more than you meant to publish. The better standing choice is",
+    "`push.followTags = true`: annotated tags that point into what you are",
+    "pushing anyway ride along, lightweight ones stay home. Deleting from the",
+    "server mirrors a branch — `git push origin --delete v0.1.0`."
+  ],
+  figure: [
+    "git push                         commits and branch — no tags",
+    "git push origin v0.1.0           this one tag",
+    "git push --tags                  every tag, lightweight included",
+    "git config --global push.followTags true    annotated ones ride along",
+    "",
+    "git ls-remote origin             a refs/tags/ line ⇒ the server has it"
+  ],
+  proGit:   "Git-Basics-Tagging"
+},
+
+{
+  stage:    "15 tags & releases",
+  question: "Name where you stand relative to the last release — the string a build stamps into its version?",
+  answer: [
+    "$ git describe",
+    "Standing on the tag it prints the tag; past it, `v0.1.0-3-g4680cd7` —",
+    "last tag, commits since, current hash."
+  ],
+  detail: [
+    "The three parts read as a sentence: built from v0.1.0, three commits",
+    "later, standing at 4680cd7 — the `g` only marks the hash as git’s. Bare",
+    "`git describe` consults annotated tags alone, one more reason releases get",
+    "`-a`; `--tags` widens the search to lightweight ones. A deployed page or",
+    "binary can report this string verbatim, which is how a running thing says",
+    "what it was built from while nobody maintains a version number anywhere."
+  ],
+  figure: [
+    "on the tag      :  v0.1.0",
+    "3 commits later :  v0.1.0-3-g4680cd7",
+    "                   │      │    └─ where you actually stand",
+    "                   │      └─ commits since the tag",
+    "                   └─ the last release reachable from here"
+  ],
+  proGit:   "Distributed-Git-Maintaining-a-Project",
+  bottomUp: "a-commit-by-any-other-name"
+},
+
+{
+  stage:    "15 tags & releases",
+  question: "Read the code exactly as `v0.1.0` shipped — and what state does that put you in?",
+  answer: [
+    "$ git switch --detach v0.1.0",
+    "Detached HEAD, on purpose: a tag is not a branch, so there is nothing for",
+    "a new commit to belong to. Look around freely; branch before changing",
+    "anything."
+  ],
+  detail: [
+    "This is the state the gotcha card warns about, entered deliberately — HEAD",
+    "names the commit directly and the flag says you know. To fix something the",
+    "release shipped, plant a branch where the tag stands and work belongs",
+    "somewhere again: `git switch -c hotfix/0.1.1 v0.1.0`. Plain",
+    "`git checkout v0.1.0` lands in the same place, with a longer warning."
+  ],
+  figure: [
+    "git switch --detach v0.1.0          look, build, measure",
+    "git switch -                        back to where you were",
+    "git switch -c hotfix/0.1.1 v0.1.0   fix on a branch from the tag"
+  ],
+  proGit:   "Git-Basics-Tagging"
+},
+
+{
+  stage:    "15 tags & releases",
+  question: "The release tag sits on the wrong commit. What does moving it cost, and when is that still worth paying?",
+  answer: [
+    "$ git tag -fa v0.1.0 <right-commit> && git push -f origin v0.1.0",
+    "Cheap before anyone fetched. After that it splits reality: a plain fetch",
+    "never updates a tag a clone already holds, so old holders keep the old",
+    "commit under the same name."
+  ],
+  detail: [
+    "This is the tag counterpart of the golden rule of rebase, with a harder",
+    "edge: a rewritten branch at least announces itself as non-fast-forward,",
+    "while a moved tag gives no sign at all — the clones that fetched it simply",
+    "keep the old commit. Minutes after cutting it, moving is routine repair;",
+    "once it may have travelled, the honest fix is the next number. `git tag -d`",
+    "deletes locally, and the server’s copy goes the way a branch does."
+  ],
+  figure: [
+    "git tag -d v0.1.0                    delete locally",
+    "git push origin --delete v0.1.0      delete on the server",
+    "",
+    "already fetched by someone?  their v0.1.0 ≠ yours, silently",
+    "the honest fix is v0.1.1"
+  ],
+  proGit:   "Git-Basics-Tagging"
 }
 
 ];
