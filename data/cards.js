@@ -1556,8 +1556,10 @@ const CARDS = [
     "value you are about to restore. The ancestor is what distinguishes those,",
     "and picking wrongly reverts somebody's fix silently. `zdiff3` also lifts the",
     "lines both sides changed identically out of the conflicted region, leaving",
-    "only the real disagreement between the markers. A conflict already on disk",
-    "can be redrawn in that style with `git checkout --conflict=zdiff3 <file>`."
+    "only the real disagreement between the markers. Leave off `--global` and the",
+    "setting covers only the repository you are standing in. A conflict already",
+    "on disk can be redrawn in that style with",
+    "`git checkout --conflict=zdiff3 <file>`."
   ],
   figure: [
     "<<<<<<< HEAD",
@@ -1606,12 +1608,17 @@ const CARDS = [
   answer: [
     "$ git checkout --ours src/runner.py",
     "$ git checkout --theirs src/runner.py",
-    "Then `git add` the file as usual."
+    "Then `git add` the file — picking a side writes the text, but only staging",
+    "marks the conflict resolved."
   ],
   detail: [
-    "This takes the *entire file* from one side, not just the conflicted hunk —",
-    "fine for a generated file or a lockfile, wrong when each side has legitimate",
-    "changes elsewhere in the same file. Check with `git diff` before staging."
+    "In a merge, ours is the branch you were standing on and theirs the branch",
+    "you named in the command — a rebase flips the two, which its own card in",
+    "this stage unpicks. Either form takes the *entire file* from one side, not",
+    "just the conflicted hunk — fine for a generated file or a lockfile, wrong",
+    "when each side has legitimate changes elsewhere in the same file. Check",
+    "with `git diff` before staging; a wrong pick is not final, since",
+    "`git checkout --merge <file>` writes the conflict back untouched."
   ],
   figure: [
     "--ours    keep this side's whole file",

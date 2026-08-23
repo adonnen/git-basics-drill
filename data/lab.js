@@ -658,7 +658,11 @@ const LAB = [
     "# QUEUE_DEPTH = 16",
     "# >>>>>>> theirs",
     "",
-    "git config merge.conflictStyle zdiff3   # this repo; --global for every one"
+    "git config merge.conflictStyle zdiff3",
+    "# the same mechanism as user.name in act I: a setting, written to this",
+    "# repository's .git/config. From here on every conflict git writes in",
+    "# this repository carries the base section by itself; --global would",
+    "# set that for every repository on the machine"
   ]
 },
 
@@ -670,7 +674,11 @@ const LAB = [
     "first conflict, and put both conflicts back the way git wrote them."
   ],
   solution: [
-    "git checkout --ours src/runner.py     # ours = main, the branch you are on",
+    "git checkout --ours src/runner.py",
+    "# an unmerged file exists three times in the index: base, ours, theirs.",
+    "# ours is the side you stood on when you merged (main), theirs the branch",
+    "# you named (feature/retry) — this command copies one of the three over",
+    "# the working file",
     "",
     "grep -n QUEUE_DEPTH src/runner.py",
     "# QUEUE_DEPTH = 32 — the first conflict was decided too, silently:",
@@ -681,20 +689,121 @@ const LAB = [
     "# side. Nothing but a header here — no line in the file is your own work",
     "",
     "git checkout --merge src/runner.py",
-    "# both conflicts back, ancestor and all — the setting from the last step"
+    "# both conflicts back, ancestor and all — the setting from the last step.",
+    "# --merge rebuilds the marked-up file from the same three index copies,",
+    "# so taking a side is never a dead end"
+  ]
+},
+
+{
+  title: "Take the other side of the same conflict",
+  task: [
+    "Now the mirror image: take the *branch's* version of the whole file,",
+    "again without opening it. Check both disputed lines, then check `git",
+    "status` — has picking a side settled the conflict in git's eyes? Put the",
+    "markers back when you have your answer."
+  ],
+  solution: [
+    "git checkout --theirs src/runner.py",
+    "",
+    "grep -n 'QUEUE_DEPTH\\|queue full' src/runner.py",
+    "# QUEUE_DEPTH = 16 and \"queue full, try again\" — both lines are now the",
+    "# branch's, including the depth you were not looking at",
+    "",
+    "git status",
+    "# still \"both modified\": writing a version into the working tree is not",
+    "# a resolution. Only git add marks the file settled, however the text",
+    "# got there — which is also why you can keep changing your mind",
+    "",
+    "git checkout --merge src/runner.py    # markers back, next experiment"
+  ]
+},
+
+{
+  title: "Mix the two sides, then abandon the merge",
+  task: [
+    "Nothing forces one side to win everywhere. Resolve the two conflicts in",
+    "opposite directions — keep `main`'s depth, keep the branch's error",
+    "message — by editing the file. Then ask git which lines of the result",
+    "are your own invention, read its answer, and throw the whole merge away."
+  ],
+  solution: [
+    "# edit src/runner.py:",
+    "#   keep  QUEUE_DEPTH = 32                                    ← ours",
+    "#   keep  raise RuntimeError(\"queue full, try again\")         ← theirs",
+    "#   and delete every marker line",
+    "",
+    "git diff",
+    "# nothing but the header again: the combined diff lists only lines that",
+    "# match neither side, and every line you kept came from one of them.",
+    "# A mixed resolution is still a resolution made of picks",
+    "",
+    "git merge --abort",
+    "git status -sb                       # clean — the merge never happened",
+    "grep -n QUEUE_DEPTH src/runner.py    # 32: main exactly as before",
+    "",
+    "# two different sizes of undo: checkout --merge rebuilds ONE file and",
+    "# the merge stays in progress; --abort unwinds the whole operation —",
+    "# markers, your edits, the cleanly merged parts, all of it. The two",
+    "# branches themselves are untouched either way"
+  ]
+},
+
+{
+  title: "Decide the winner before the merge starts",
+  task: [
+    "Merge the branch twice more without ever seeing a marker: once telling",
+    "git in advance that `main` wins wherever the two sides collide, once",
+    "that the branch wins. Inspect what each produced, and return to the",
+    "pre-merge state after each try. Then say what these forms do that",
+    "`checkout --ours` after a stop does not."
+  ],
+  solution: [
+    "git merge -X ours feature/retry",
+    "# no stop: both collisions were settled in main's favour on the spot,",
+    "# and the merge commit was made in the same breath",
+    "",
+    "grep -n 'QUEUE_DEPTH\\|queue full' src/runner.py",
+    "# 32 and f\"queue full at {self.depth}\" — main's pair",
+    "",
+    "git reset --hard ORIG_HEAD",
+    "# merge stored where you stood in ORIG_HEAD; reset --hard moves the",
+    "# branch back there (act VII takes reset apart properly)",
+    "",
+    "git merge -X theirs feature/retry",
+    "grep -n 'QUEUE_DEPTH\\|queue full' src/runner.py",
+    "# 16 and \"queue full, try again\" — the branch's pair",
+    "",
+    "git reset --hard ORIG_HEAD",
+    "",
+    "# -X ours / -X theirs decide hunk by hunk, and only where the sides",
+    "# collide — everything that merges cleanly still comes from both.",
+    "# checkout --ours takes a whole file, and only after the stop has shown",
+    "# you there was a fight. -X never shows you: the losing hunks vanish",
+    "# unseen, which suits lockfiles and generated files, not code you would",
+    "# have wanted to read"
   ]
 },
 
 {
   title: "Resolve, finish, and inspect the merge commit",
   task: [
-    "Resolve both conflicts by hand this time: keep the branch's `QUEUE_DEPTH =",
-    "16`, and write an error message neither side has — `f\"queue full at",
-    "{self.depth}, try again\"`. Delete every marker line, check that what is left",
-    "of your own is exactly that one message, then finish the merge and prove the",
-    "commit you made has two parents."
+    "Start the merge one final time, and note what the markers look like now",
+    "without you asking for anything. Then resolve both conflicts by hand and",
+    "for good: keep the branch's `QUEUE_DEPTH = 16`, and write an error message",
+    "neither side has — `f\"queue full at {self.depth}, try again\"`. Delete",
+    "every marker line, check that what is left of your own is exactly that one",
+    "message, then finish the merge and prove the commit you made has two",
+    "parents."
   ],
   solution: [
+    "git merge feature/retry",
+    "# the same two conflicts, however many times you run it: a conflict is",
+    "# computed fresh from the two branch tips and their common ancestor, and",
+    "# none of the three has moved. The base section now appears by itself —",
+    "# the config you set earlier in this act — and the labels are the real",
+    "# names, HEAD and feature/retry, with the base labelled by its commit",
+    "",
     "# edit src/runner.py: QUEUE_DEPTH = 16, the combined error message,",
     "# and not one marker line left in either conflict",
     "",
