@@ -612,15 +612,19 @@ function buildStep(entry, number){
 
 function buildLab(){
   el.lab.replaceChildren(buildIntro());
-  let number = 0;
+  let number = 0, acts = 0, tint = '';
   for(const entry of LAB){
     if(entry.act){
-      const divider = make('div', 'act' + (entry.optional ? ' optional' : ''));
+      // each act deals the next of four tint classes; the colours are in the CSS
+      tint = 'act-c' + (acts++ % 4 + 1);
+      const divider = make('div', 'act ' + tint + (entry.optional ? ' optional' : ''));
       divider.append(make('span', null, entry.act.toUpperCase()));
       if(entry.optional) divider.append(make('span', 'badge', 'OPTIONAL'));
       el.lab.appendChild(divider);
     } else {
-      el.lab.appendChild(buildStep(entry, ++number));
+      const step = buildStep(entry, ++number);
+      if(tint) step.classList.add(tint);
+      el.lab.appendChild(step);
     }
   }
 }

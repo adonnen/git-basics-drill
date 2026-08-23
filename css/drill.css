@@ -35,6 +35,7 @@
   --amber:#e0a458;     /* accent, commands, cursor     */
   --green:#7fb069;     /* graded "got it", done        */
   --rust:#c0674f;      /* graded "again", warnings     */
+  --teal:#6fae9e;      /* the background's own hue, saturated — act tints only */
   --well:rgba(0,0,0,.28);   /* inset code backgrounds */
   --scrim:rgba(6,11,9,.78); /* modal backdrop         */
   --shadow:0 12px 40px rgba(0,0,0,.35);
@@ -51,7 +52,7 @@
     --pane:#fffdf7; --pane-2:#f0ebe0;
     --edge:#d9d0be; --edge-soft:#e6dfd0;
     --fog:#6a6355; --ink:#221e18;
-    --amber:#9a5d16; --green:#3d6a2b; --rust:#a03a20;
+    --amber:#9a5d16; --green:#3d6a2b; --rust:#a03a20; --teal:#2e6b5c;
     --well:rgba(0,0,0,.05);
     --scrim:rgba(60,52,40,.42);
     --shadow:0 10px 30px rgba(90,78,58,.16);
@@ -65,7 +66,7 @@
   --pane:#fffdf7; --pane-2:#f0ebe0;
   --edge:#d9d0be; --edge-soft:#e6dfd0;
   --fog:#6a6355; --ink:#221e18;
-  --amber:#9a5d16; --green:#3d6a2b; --rust:#a03a20;
+  --amber:#9a5d16; --green:#3d6a2b; --rust:#a03a20; --teal:#2e6b5c;
   --well:rgba(0,0,0,.05);
   --scrim:rgba(60,52,40,.42);
   --shadow:0 10px 30px rgba(90,78,58,.16);
@@ -417,7 +418,27 @@ body.gated{overflow:hidden}
   margin:34px 0 16px;font-size:11px;letter-spacing:.18em;color:var(--amber);
 }
 .act::after{content:'';flex:1;height:1px;background:var(--edge)}
-/* An optional act is marked rather than hidden — readers can skip it. */
+
+/* Act colour-coding. The acts cycle through four tints — amber, green, teal,
+   rust — and each act's tint is mixed faintly into the panes of its own steps,
+   so that crossing an act boundary is visible mid-scroll without any step
+   shouting over its text. The divider label and its rule take the same tint at
+   readable strength; drill.js deals the classes, wrapping after four. The
+   mixes lean on the live palette, so both themes come out right on their own. */
+.act-c1{--act-tint:var(--amber)}
+.act-c2{--act-tint:var(--green)}
+.act-c3{--act-tint:var(--teal)}
+.act-c4{--act-tint:var(--rust)}
+.act[class*="act-c"]{color:var(--act-tint)}
+.act[class*="act-c"]::after{background:color-mix(in srgb,var(--act-tint) 30%,var(--edge))}
+.step[class*="act-c"]{
+  background:color-mix(in srgb,var(--act-tint) 6%,var(--pane));
+  border-color:color-mix(in srgb,var(--act-tint) 20%,var(--edge));
+}
+
+/* An optional act is marked rather than hidden — readers can skip it. The
+   muted label and rule outrank the tint by order, so an optional divider stays
+   quiet; its steps keep the tint, which is where the colour-coding lives. */
 .act.optional{color:var(--fog)}
 .act .badge{
   font-size:10px;letter-spacing:.12em;color:var(--bg);
