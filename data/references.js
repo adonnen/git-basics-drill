@@ -110,6 +110,14 @@ const ALIASES = {
           "ago that was. Answers “what was I working on last week”."
   },
 
+  first: {
+    expands: "!f() { if [ \"$(git symbolic-ref --short -q HEAD)\" = main ]; then " +
+             "git log --oneline --max-parents=0 HEAD; " +
+             "else git log main..HEAD --oneline | tail -1; fi }; f",
+    note: "The branch's own first commit — the oldest line of `ahead`. On " +
+          "main, where that range is empty, it prints the root commit instead."
+  },
+
   "nuke-preview": {
     expands: "!echo '── tracked changes that would be reset ──' && git diff --stat && echo '── untracked files that would be removed ──' && git clean -nd",
     note: "Shows exactly what a full reset would destroy, and destroys nothing. " +

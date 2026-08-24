@@ -171,6 +171,21 @@
     # `main..HEAD` means "reachable from HEAD, not reachable from main".
     ahead = log main..HEAD --oneline
 
+    # The first commit this branch added — the oldest line of `ahead`, since
+    # log prints newest first and tail keeps the last line. On main that
+    # range is empty by construction, so the alias answers the question main
+    # deserves instead: the root commit, the only one with no parent
+    # (--max-parents=0). A fresh branch with no commits of its own still
+    # prints nothing, which is the honest answer. Replace `main` in both
+    # places if your trunk is named something else.
+    first = "!f() { \
+        if [ \"$(git symbolic-ref --short -q HEAD)\" = main ]; then \
+            git log --oneline --max-parents=0 HEAD; \
+        else \
+            git log main..HEAD --oneline | tail -1; \
+        fi \
+    }; f"
+
     # Everything queued for the next release, if you use a dev/main pair.
     pending = log main..dev --oneline
 

@@ -156,7 +156,8 @@ const CARDS = [
   answer: [
     "$ git add src/runner.py",
     "$ git add .",
-    "Staging is reversible: `git restore --staged` puts it back."
+    "Staging is reversible: `git restore --staged` puts it back — stage 10",
+    "takes that command apart."
   ],
   detail: [
     "`git add` snapshots the file *as it is right now*. Edit it again afterwards",
@@ -429,7 +430,9 @@ const CARDS = [
     "git restore -p      discard selected hunks",
     "git stash push -p   stash only part of your work",
     "git checkout -p     take selected hunks from another commit",
-    "git reset -p        unstage selected hunks"
+    "git reset -p        unstage selected hunks",
+    "",
+    "(stash, restore and reset are later stages — here, just the family)"
   ],
   proGit:   "Git-Tools-Interactive-Staging",
   bottomUp: "meet-the-middle-man"
@@ -547,9 +550,9 @@ const CARDS = [
     "$ git show          (defaults to HEAD)"
   ],
   detail: [
-    "The same object syntax works everywhere: `git show HEAD~2` for the commit",
-    "two back, `git show main:src/runner.py` to print a file as it exists on",
-    "another branch without switching to it."
+    "The same object syntax works everywhere. `git show HEAD~2` is the commit",
+    "two back — stage 02 unpacks that counting. `git show main:src/runner.py`",
+    "prints a file as another branch has it, without switching to it."
   ],
   figure: [
     "git show HEAD              the last commit, with its diff",
@@ -1146,9 +1149,10 @@ const CARDS = [
   stage:    "04 merging",
   question: "When would you choose merge over rebase to bring trunk changes into your feature branch?",
   answer: [
-    "When anyone else has pulled your branch. Merge adds a commit without",
-    "touching existing SHAs; rebase rewrites them and breaks every downstream",
-    "copy."
+    "When anyone else has pulled your branch. A rebase replays your commits on",
+    "top of the trunk, one by one — stage 07 shows the mechanics. The replayed",
+    "commits are copies with new SHAs, so every copy a colleague holds goes",
+    "stale. A merge only adds a commit and touches nothing that exists."
   ],
   detail: [
     "A second case is pragmatic rather than principled: a long-lived branch that",
@@ -2983,6 +2987,31 @@ const CARDS = [
 },
 
 {
+  stage:    "11 remotes & server",
+  question: "Refresh your view of every remote in one command, dropping the refs their servers have deleted?",
+  answer: [
+    "$ git fetch --all --prune",
+    "Polls every configured remote and deletes the stale remote-tracking refs."
+  ],
+  detail: [
+    "`--all` loops over every remote in your config — origin *and* the Pi —",
+    "where a bare `fetch` asks only the current branch’s remote. `--prune`",
+    "deletes the `origin/*` labels whose server branch is gone, which fetch",
+    "never does on its own, so without it the cached view only ever grows.",
+    "Local branches are untouched either way: this refreshes the cache and",
+    "integrates nothing, so it is always safe to run."
+  ],
+  figure: [
+    "git fetch                  the current branch’s remote (usually origin)",
+    "git fetch --all            every remote in .git/config",
+    "git fetch --all --prune    …and drop refs deleted server-side",
+    "",
+    "touches origin/* and pi/*  —  never your local branches"
+  ],
+  proGit:   "Git-Basics-Working-with-Remotes"
+},
+
+{
   stage:    "12 ssh & auth",
   question: "Generate a new SSH key with a meaningful filename rather than the default?",
   answer: [
@@ -3344,6 +3373,36 @@ const CARDS = [
     "",
     "git log main..dev   →  D1 D2 D3",
     "git log main...dev  →  both sides' unique commits"
+  ],
+  proGit:   "Git-Tools-Revision-Selection",
+  bottomUp: "a-commit-by-any-other-name"
+},
+
+{
+  stage:    "13 daily practice",
+  question: "Find the commit where `feature/task-queue` started — the point it grew away from `main`?",
+  answer: [
+    "$ git merge-base main feature/task-queue",
+    "Prints the newest commit the two histories share — the fork point."
+  ],
+  detail: [
+    "The graph has no memory of the creation: a branch is a label, and nothing",
+    "in the commits records where a label was first written. So git answers a",
+    "computable question instead — the newest commit reachable from both sides —",
+    "which matches the birthplace until a merge back or a rebase moves it. The",
+    "actual creation *is* recorded, but only locally: the oldest entry of",
+    "`git reflog show feature/task-queue` reads “branch: Created from …”, and",
+    "expires with the rest of the reflog after ~90 days."
+  ],
+  figure: [
+    "              E ── F   (feature/task-queue)",
+    "             /",
+    "A ── B ── C ── D      (main)",
+    "          ↑",
+    "          git merge-base main feature/task-queue",
+    "",
+    "git log main..feature/task-queue --oneline | tail -1   its first own commit",
+    "git reflog show feature/task-queue                     the creation, recorded"
   ],
   proGit:   "Git-Tools-Revision-Selection",
   bottomUp: "a-commit-by-any-other-name"
