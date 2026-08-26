@@ -1314,6 +1314,76 @@ const LAB = [
 },
 
 {
+  title: "Follow the bad hint, and watch what it builds",
+  task: [
+    "Let the trunk move again: in the clone, extend `LICENSE.md` on `main` and",
+    "push. Back in `taskrunner`, on the feature branch: fetch, rebase onto the",
+    "moved trunk, and push. Read the rejection’s hint closely this time — it",
+    "says you are *behind* and suggests a pull. Follow the suggestion with a",
+    "rebase-pull, push again, then list the commits your branch would add to",
+    "`main`. One of them should not be there."
+  ],
+  solution: [
+    "cd ../colleague",
+    "printf 'See COPYING for details.\\n' >> LICENSE.md",
+    "git commit -am \"Point licence at COPYING\"",
+    "git push",
+    "",
+    "cd ../taskrunner",
+    "git fetch",
+    "git rebase origin/main         # your commit replayed, new hash again",
+    "",
+    "git push",
+    "# ! [rejected] ... (non-fast-forward)",
+    "# hint: Updates were rejected because the tip of your current branch is behind",
+    "# hint: its remote counterpart. If you want to integrate the remote changes,",
+    "# hint: use 'git pull' before pushing again.",
+    "#   \"behind\" is wrong — you rewrote. git only sees two diverged tips",
+    "#   and names the common cause; it cannot know this one was deliberate",
+    "",
+    "git pull --rebase              # the trap, taken with open eyes",
+    "# warning: skipped previously applied commit ...",
+    "#   that was YOUR rebased commit, dropped in favour of the old copy:",
+    "#   the pull replays your branch onto the old remote tip, and what",
+    "#   that tip lacks is not your work but the trunk's new commit",
+    "",
+    "git push                       # ...and this one succeeds",
+    "",
+    "git log --oneline origin/main..HEAD",
+    "# the colleague's licence commit is in the list, under a new hash —",
+    "# a commit you never wrote now rides on your branch as yours"
+  ]
+},
+
+{
+  title: "Take the stray commit back out",
+  task: [
+    "Rebase the branch onto `origin/main` once more and watch what git does",
+    "with the copied commit. Confirm the branch now adds exactly one commit —",
+    "yours — then push, answering this rejection the way the last one should",
+    "have been answered."
+  ],
+  solution: [
+    "git rebase origin/main",
+    "# warning: skipped previously applied commit ...",
+    "#   the same mechanism, now working FOR you: rebase compares patches,",
+    "#   not hashes, and the licence change already sits in origin/main —",
+    "#   the copy is dropped from the replay, only your own commit survives",
+    "",
+    "git log --oneline origin/main..HEAD    # one commit: yours",
+    "",
+    "git push",
+    "# ! [rejected] — the same words as before, for the other cause",
+    "git push --force-with-lease",
+    "",
+    "# the two steps side by side are the whole rule: pull answers the",
+    "# rejection when the remote holds someone else's new work; after a",
+    "# rebase of your own, the answer is force-with-lease — and never a",
+    "# pull on a branch you have just rewritten"
+  ]
+},
+
+{
   title: "Tidy up the server",
   task: [
     "Merge the feature branch into `main`, push it, then delete the branch in",

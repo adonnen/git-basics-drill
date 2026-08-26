@@ -2018,6 +2018,94 @@ const CARDS = [
 
 {
   stage:    "07 rebasing",
+  question: "You rebased a pushed branch, the push was rejected — and the hint claims your branch is *behind*, suggesting `git pull`. What happens if you follow it?",
+  answer: [
+    "The hint is written for the other cause of rejection, and git cannot tell",
+    "the two apart. Pulling drags the *old* copies of your commits back into the",
+    "branch — and the push after it succeeds, so the wreck lands on the server."
+  ],
+  detail: [
+    "The wreck’s shape depends on how your pull behaves. A merge-pull keeps both",
+    "chains, so every commit of yours now exists twice, joined by a merge",
+    "commit. A rebase-pull replays onto the old remote tip whatever it lacks —",
+    "which, after your rebase, includes the trunk’s own commits, so copies of",
+    "other people’s work end up on your branch under new hashes. What the",
+    "rejection called for was `--force-with-lease`. It tells the server: replace",
+    "the branch with mine, but only if it still points where my last fetch saw",
+    "it — if anyone pushed in between, refuse (“stale info”). The old copies of",
+    "your commits are deleted from the server, and that is not damage, it is the",
+    "job: they are the leftovers of your rebase, and nothing you have not seen",
+    "can be touched."
+  ],
+  figure: [
+    "merge-pull :  … ── F1 ── F2 ──────┐",
+    "              … ── F1'── F2'──────┴── M    everything twice, plus a merge",
+    "",
+    "rebase-pull:  … ── F1 ── F2 ── C5'         C5' = a trunk commit, copied",
+    "",
+    "git push --force-with-lease",
+    "   server holds F2, as fetched  →  replaced by F2', old copies deleted",
+    "   server moved meanwhile       →  ! [rejected] (stale info)"
+  ],
+  proGit:   "Git-Branching-Rebasing"
+},
+
+{
+  stage:    "07 rebasing",
+  question: "The audit before pushing a rebased branch: list exactly the commits it would add to the trunk?",
+  answer: [
+    "$ git log --oneline origin/main..HEAD",
+    "Your own commits, once each — nothing else. Anything more means the branch",
+    "has picked up history it should only stand on."
+  ],
+  detail: [
+    "Watch for two things in the list. A commit you never wrote: that is trunk",
+    "work, copied onto your branch under a new hash. One of your own commits",
+    "shown twice: that is the old chain and the rebased chain merged together.",
+    "Both come from pulling a branch you had just rebased, and both are visible",
+    "here, in one line, before a reviewer sees them."
+  ],
+  figure: [
+    "healthy:  F2' F1'                your commits, once each",
+    "wrecked:  C5' F2  F1             a trunk commit, copied in",
+    "wrecked:  M   F2' F1' F2 F1      everything twice, plus a merge",
+    "",
+    "stage 13 takes the two-dot syntax apart properly"
+  ],
+  proGit:   "Git-Tools-Revision-Selection",
+  bottomUp: "a-commit-by-any-other-name"
+},
+
+{
+  stage:    "07 rebasing",
+  question: "The pull already happened: the branch holds copies of trunk commits, or your own commits twice. Clean it without picking commits apart by hand?",
+  answer: [
+    "Rebase once more, onto the trunk’s remote-tracking ref, and this time",
+    "answer the rejection correctly:",
+    "$ git rebase origin/main",
+    "$ git push --force-with-lease"
+  ],
+  detail: [
+    "Rebase compares patches, not hashes. Any commit whose changes already exist",
+    "upstream is left out of the replay — git names each one as it drops it — so",
+    "what survives is exactly your own work. Confirm with",
+    "`git log origin/main..HEAD` before pushing. The reflog offers a second",
+    "route: the tip from right after your original rebase is still in there, and",
+    "a hard reset to it rewinds the branch instead of replaying it."
+  ],
+  figure: [
+    "$ git rebase origin/main",
+    "dropping c5c0f3e Add licence -- patch contents already upstream",
+    "",
+    "$ git log --oneline origin/main..HEAD    ← only your commits remain",
+    "$ git push --force-with-lease"
+  ],
+  proGit:   "Git-Branching-Rebasing",
+  bottomUp: "stashing-and-the-reflog"
+},
+
+{
+  stage:    "07 rebasing",
   question: "The golden rule of rebase?",
   answer: [
     "**Never rewrite history that exists on a shared branch.** Feature branches",
