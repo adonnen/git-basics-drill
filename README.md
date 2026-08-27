@@ -437,6 +437,11 @@ The deck is not a substitute for either. It is a way of finding out which parts
 you have retained. Cards link to a section of one or both books; that
 is a bibliography, and no text or figure from either is reproduced here.
 
+The repository itself is part of the lesson: it is the author's own attempt to
+learn the git basics it drills, vibe-coded into existence with Claude — the
+commit trailers say as much — and every output a card or lab step quotes was
+still reproduced against a real git before it landed.
+
 ---
 
 ## License

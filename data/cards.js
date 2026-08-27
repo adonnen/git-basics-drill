@@ -2259,6 +2259,39 @@ const CARDS = [
 
 {
   stage:    "08 history edits",
+  question: "The last commit carries one broken line. Its fix sits in your working tree, tangled with unfinished work. Repair the commit without losing the rest?",
+  answer: [
+    "Stage the fix alone, then fold it in:",
+    "$ git add -p src/runner.py",
+    "$ git commit --amend --no-edit",
+    "Amend rebuilds the last commit from its parent plus the index, so the",
+    "unstaged work never enters it. No stash required."
+  ],
+  detail: [
+    "A dirty tree does not block an amend — only what is staged goes in, and",
+    "everything else stays where it was, ready to become its own commit",
+    "afterwards. When the fix and the new work share a hunk, `s` and `e` cut",
+    "them apart, and if you had already staged everything by habit,",
+    "`git restore --staged -p` takes the unrelated parts back out — mind that",
+    "its `y` now means *unstage*, the mirror of the answer you gave `add -p`.",
+    "The broken line vanishes from history only while the commit is unpushed;",
+    "a pushed branch needs `--force-with-lease` afterwards — stage 07's",
+    "territory."
+  ],
+  figure: [
+    "working tree    the fix  +  unfinished start()",
+    "",
+    "git add -p               index: the fix alone",
+    "git commit --amend       commit': same message, line repaired",
+    "",
+    "tree after      start(), untouched — commit it separately"
+  ],
+  proGit:   "Git-Tools-Rewriting-History",
+  bottomUp: "doing-a-soft-reset"
+},
+
+{
+  stage:    "08 history edits",
   question: "What does `--amend` do to the old commit?",
   answer: [
     "Replaces it — the “edited” commit is a new object with a new SHA. The old",

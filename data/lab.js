@@ -204,9 +204,9 @@ const LAB = [
   task: [
     "Open `src/runner.py` and make two *unrelated* changes: add a line",
     "`self.retries = 3` just below `self.pending = []`, and append this method",
-    "at the end of the class:",
+    "at the end of the class, exactly as written:",
     "|     def stop(self):",
-    "|         self.pending.clear()",
+    "|         self.pending.clear",
     "Whatever the file, keep at least a handful of unchanged lines between the",
     "two edits. Do not stage anything yet — just confirm git sees one modified",
     "file."
@@ -219,7 +219,7 @@ const LAB = [
     "# and the class ends with:",
     "#",
     "#     def stop(self):",
-    "#         self.pending.clear()",
+    "#         self.pending.clear",
     "",
     "git status -sb          # \" M src/runner.py\"  — one file, two changes",
     "",
@@ -279,6 +279,51 @@ const LAB = [
     "",
     "git log --oneline -1        # same message position, DIFFERENT hash",
     "# amend replaces the commit rather than editing it"
+  ]
+},
+
+{
+  title: "Repair the last commit, keep the rest",
+  task: [
+    "Look again at the `stop()` you committed: `self.pending.clear` — no",
+    "parentheses, so Python looks the method up and throws the result away.",
+    "The flaw was planted back in *Two edits, one file*; if you caught it",
+    "while typing, break the committed line again now — this step needs a",
+    "flawed last commit. Fix the line in your editor, and while you are in",
+    "the file add an unrelated method below `submit()`, because a real",
+    "afternoon never hands you exactly one change:",
+    "|     def start(self):",
+    "|         self.started = True",
+    "Now repair the last commit so the broken line never reaches history,",
+    "keeping its message — without committing `start()`, without losing it,",
+    "and without a stash. Then give `start()` the separate commit it",
+    "deserves, and prove both ended up where they belong."
+  ],
+  solution: [
+    "# edit src/runner.py: parentheses onto self.pending.clear(), and the",
+    "# start() method inserted below submit()",
+    "",
+    "git add -p src/runner.py",
+    "# the start() hunk comes first in file order  → answer n",
+    "# the parenthesis fix comes second            → answer y",
+    "",
+    "git commit --amend --no-edit",
+    "# amend rebuilds the last commit from its parent plus the index, so",
+    "# only what you staged enters it — a dirty tree never blocks an",
+    "# amend, and nothing needed stashing",
+    "",
+    "git show HEAD | grep clear      # shows: +        self.pending.clear()",
+    "git status -sb                  #  M src/runner.py — start() survived",
+    "",
+    "git add src/runner.py",
+    "git commit -m \"Add start() method\"",
+    "git show --stat HEAD            # start(), as its own commit",
+    "",
+    "# had the fix and the new work shared a hunk, s — or e, when no",
+    "# unchanged line separates them — cuts the patch apart; the deck's",
+    "# stage 01 hunk cards hold the rules. And the broken line vanishes",
+    "# from history only because nothing was pushed — a pushed branch",
+    "# would need the force-with-lease routine afterwards"
   ]
 },
 
