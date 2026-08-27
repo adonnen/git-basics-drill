@@ -142,9 +142,9 @@ const CARDS = [
   figure: [
     "$ git status -sb",
     "## main",
-    "M  src/states.py      ← staged",
-    " M src/queue.py  ← modified, not staged",
-    "?? src/scratch.py      ← untracked"
+    "M  src/states.py    ← staged",
+    " M src/queue.py     ← modified, not staged",
+    "?? src/scratch.py   ← untracked"
   ],
   proGit:   "Git-Basics-Recording-Changes-to-the-Repository",
   bottomUp: "meet-the-middle-man"
@@ -486,10 +486,10 @@ const CARDS = [
   ],
   figure: [
     "attached:",
-    "HEAD ──▶ refs/heads/main ──▶ c7d8e9f ──▶ b4e5f6g ──▶ a1b2c3d",
+    "HEAD ──▶ refs/heads/main ──▶ c7d8e9f ──▶ b4e5f6a ──▶ a1b2c3d",
     "",
     "detached:",
-    "HEAD ────────────────────▶ b4e5f6g",
+    "HEAD ────────────────────▶ b4e5f6a",
     "        (no branch label — new commits have no home)"
   ],
   proGit:   "Git-Internals-Git-References",
@@ -535,7 +535,7 @@ const CARDS = [
   figure: [
     "$ git log --oneline",
     "c7d8e9f Add task state enum",
-    "b4e5f6g Add TaskRunner skeleton",
+    "b4e5f6a Add TaskRunner skeleton",
     "a1b2c3d Initial commit: project description"
   ],
   proGit:   "Git-Basics-Viewing-the-Commit-History",
@@ -577,7 +577,7 @@ const CARDS = [
     "follows, so any flag you would type on the command line works there too —",
     "and flags you add at the call site are appended to the expansion. An alias",
     "beginning with `!` runs a shell command instead of a git subcommand, which",
-    "is how the guarded `git nuke` got its confirmation prompt."
+    "is how a guarded alias like `git nuke` gets its confirmation prompt."
   ],
   figure: [
     "[alias]",
@@ -652,8 +652,8 @@ const CARDS = [
   ],
   figure: [
     "$ git branch -vv",
-    "* feature/task-queue 5e6f7g8 [origin/feature/task-queue: ahead 2] Add overflow counter",
-    "  dev          f2g3h4i [origin/dev] Bump queue depth",
+    "* feature/task-queue 5e6f7a8 [origin/feature/task-queue: ahead 2] Add overflow counter",
+    "  dev          f2a3b4c [origin/dev] Bump queue depth",
     "  scratch      1a2b3c4 Experiment                      ← no upstream"
   ],
   proGit:   "Git-Branching-Remote-Branches"
@@ -717,7 +717,7 @@ const CARDS = [
     "error: the branch is not fully merged.",
     "",
     "$ git branch -D feature/scrapped",
-    "Deleted branch feature/scrapped (was 5e6f7g8).",
+    "Deleted branch feature/scrapped (was 5e6f7a8).",
     "                    ↑ still recoverable from the reflog"
   ],
   proGit:   "Git-Branching-Branch-Management"
@@ -740,7 +740,7 @@ const CARDS = [
   ],
   figure: [
     "$ cat .git/refs/heads/main",
-    "5e6f7g8a9b0c1d2e3f4g5h6i7j8k9l0m1n2o3p4q",
+    "5e6f7a8b9c0d1e2f3a4b5c6d7e8f9a0b1c2d3e4f",
     "",
     "$ ls .git/refs/heads/",
     "dev   feature/task-queue   main"
@@ -1034,13 +1034,16 @@ const CARDS = [
     "`git merge-base` prints the ancestor it will use."
   ],
   figure: [
-    "        ancestor",
-    "       /           main          feature",
-    "               /",
-    "        merge M",
+    "           C4 ── C5    (main) ──┐",
+    "          /                     M   ← the merge commit",
+    "A ── B ── C                     │",
+    "          \\                    │",
+    "           F1 ── F2 (feature) ──┘",
     "",
-    "only one side changed  →  taken automatically",
-    "both sides changed     →  conflict, your call"
+    "C = the ancestor — git merge-base main feature prints it",
+    "",
+    "only one side changed a line  →  taken automatically",
+    "both sides changed it         →  conflict, your call"
   ],
   proGit:   "Git-Branching-Basic-Branching-and-Merging"
 },
@@ -1259,7 +1262,7 @@ const CARDS = [
   detail: [
     "The two halves carry very different risk. Fetch touches nothing you can see",
     "and can never conflict, which is why it is safe to run at any moment. The",
-    "integration is a genuine merge with everything that implies — it can",
+    "integration is a real merge with everything that implies — it can",
     "fast-forward, build a merge commit, or stop dead on a conflict."
   ],
   figure: [
@@ -1362,7 +1365,7 @@ const CARDS = [
   ],
   figure: [
     "git push -u origin feature/task-queue    first time",
-    "git push                           every time after",
+    "git push                                 every time after",
     "",
     "$ git status -sb",
     "## feature/task-queue...origin/feature/task-queue [ahead 2]"
@@ -2341,7 +2344,7 @@ const CARDS = [
   ],
   figure: [
     "pick   F1  Add queue skeleton",
-    "squash F2  Add write-enable logic     ← folds up into F1",
+    "squash F2  Add overflow guard         ← folds up into F1",
     "",
     "editor opens with BOTH messages, you write the final one"
   ],
@@ -2383,7 +2386,7 @@ const CARDS = [
   ],
   detail: [
     "It is the right tool for a commit whose content is fine but whose subject",
-    "line says “wip” or misspells the signal it introduces. The commit is still",
+    "line says “wip” or misspells the name it introduces. The commit is still",
     "replaced rather than edited, so everything from it onward gets new hashes."
   ],
   figure: [
@@ -2437,7 +2440,7 @@ const CARDS = [
     "pick F1  add overflow_count",
     "drop F2  wire overflow_count to the log",
     "pick F3  assert overflow_count in tests",
-    "                    ↑ conflicts — the signal no longer exists"
+    "                    ↑ conflicts — the counter no longer exists"
   ],
   proGit:   "Git-Tools-Rewriting-History",
   bottomUp: "interactive-rebasing"
@@ -2510,7 +2513,9 @@ const CARDS = [
     "Nothing is lost but the shape — the flattened history ends at exactly the",
     "same tree, file for file. Seven commits carrying two merges come out as",
     "five carrying none. `--rebase-merges` rebuilds the merges as it goes, and",
-    "`rebase.rebaseMerges = true` makes it the default."
+    "`rebase.rebaseMerges = true` makes it the default. Rebuilt means re-run:",
+    "a merge you once resolved by hand stops on the same conflict again, which",
+    "is rerere's moment — stage 06 closes on it."
   ],
   figure: [
     "plain rebase                --rebase-merges",
@@ -2584,7 +2589,7 @@ const CARDS = [
   stage:    "09 cherry-picking",
   question: "Cherry-pick a whole range of commits — and which end is excluded?",
   answer: [
-    "$ git cherry-pick a1b2c3d..h7i8j9k",
+    "$ git cherry-pick a1b2c3d..b7c8d9e",
     "Exclusive of the first, inclusive of the last — same two-dot semantics as",
     "log ranges.",
     "| A ── B ── C ── D ── E",
@@ -2594,7 +2599,7 @@ const CARDS = [
   ],
   detail: [
     "To include the first commit as well, start the range one commit earlier by",
-    "suffixing it with `^` — `a1b2c3d^..h7i8j9k` — where `^` means “the parent",
+    "suffixing it with `^` — `a1b2c3d^..b7c8d9e` — where `^` means “the parent",
     "of.” Ranges replay in",
     "order and can conflict partway; the same `--continue` / `--skip` / `--abort`",
     "trio applies."
@@ -2887,10 +2892,10 @@ const CARDS = [
   ],
   figure: [
     "$ git reflog",
-    "5e6f7g8 HEAD@{0}: rebase -i (finish): returning to feature/task-queue",
+    "5e6f7a8 HEAD@{0}: rebase -i (finish): returning to feature/task-queue",
     "2b3c4d5 HEAD@{1}: rebase -i (fixup): Add queue skeleton",
     "9c8b7a6 HEAD@{2}: commit: Add overflow counter   ← target",
-    "f2g3h4i HEAD@{3}: checkout: moving from main to feature"
+    "f2a3b4c HEAD@{3}: checkout: moving from main to feature"
   ],
   proGit:   "Git-Internals-Maintenance-and-Data-Recovery",
   bottomUp: "stashing-and-the-reflog"
@@ -2926,7 +2931,7 @@ const CARDS = [
   question: "You deleted a branch with `-D` and now want it back. Two steps?",
   answer: [
     "$ git reflog",
-    "$ git branch feature/task-queue 5e6f7g8",
+    "$ git branch feature/task-queue 5e6f7a8",
     "Find the tip commit in the reflog, then plant a fresh label on it."
   ],
   detail: [
@@ -2970,7 +2975,7 @@ const CARDS = [
   stage:    "11 remotes & server",
   question: "Create a push-ready repository on the server — and why does it have to be this kind?",
   answer: [
-    "$ git init --bare taskrunner.git",
+    "$ git init --bare -b main taskrunner.git",
     "Bare means the repository has no working tree. Git refuses a push to a",
     "branch that is checked out, and a bare repository has nothing checked out."
   ],
@@ -2978,7 +2983,10 @@ const CARDS = [
     "The command creates the directory itself, so no `mkdir` is needed — but run",
     "it from the parent, never inside an existing repo folder, or you convert",
     "that folder into a bare repo. The `.git` suffix is convention, not",
-    "requirement, and it must match the path in your remote URL exactly."
+    "requirement, and it must match the path in your remote URL exactly.",
+    "`-b main` sets what the repository's HEAD names, and a later `clone` checks",
+    "out whatever that is — left unset, a clone can land on a default branch",
+    "nobody ever pushed."
   ],
   figure: [
     "taskrunner.git/",
@@ -3820,7 +3828,7 @@ const CARDS = [
   ],
   figure: [
     "$ cat .git/refs/heads/main .git/refs/tags/v0.1.0",
-    "5e6f7g8…     ← advances with every commit",
+    "5e6f7a8…     ← advances with every commit",
     "9d3c740…     ← never moves again",
     "",
     "branch: a label that follows    tag: a label that stays"

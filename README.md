@@ -119,8 +119,8 @@ shape for the git lesson to land — two changes far apart in one file, a line
 both branches will fight over — the task names that property and the solution
 says why.
 
-Everything the lab creates lives in two or three directories you delete at the
-end. The last step of each act tells you how.
+Everything the lab creates lives in two or three directories; the closing
+steps of acts VII and VIII delete them.
 
 You need git and a shell: Terminal on macOS or Linux, **Git Bash** on Windows.
 
@@ -157,8 +157,9 @@ Safari do not yet support the browser API that allows that, so they download a
 fresh copy instead; the result is the same file, and you choose where it
 lands.
 
-Both stores are keyed by the *content* of each card and step, not by their
-positions, so progress keeps working after the deck is edited or reordered.
+Both stores key a card by its *question* and a lab step by its *title*, never
+by position, so progress keeps working when answers are polished or the deck
+is reordered.
 Anything that no longer matches is reported as unmatched rather than dropped
 silently, and a file that matches nothing at all — saved before the questions
 it refers to were reworded — is refused outright rather than allowed to wipe

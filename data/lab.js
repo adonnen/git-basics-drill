@@ -22,9 +22,12 @@
    },
 
    Write tasks as requirements, not as commands — the reader should have to
-   know the tool to get there. In "task" you can use `code`, *italic* and
-   **bold**, exactly as in cards.js. "solution" lines are shown exactly as
-   written, so indentation and comments line up.
+   know the tool to get there. In "task" all five marks from cards.js work:
+   `code`, *italic*, **bold**, "$" terminal lines and "|" drawing lines. When
+   a step needs specific file content, put it in the task as a "|" block —
+   the reader should never need the solution just to know what to type into
+   a file. "solution" lines are shown exactly as written, so indentation and
+   comments line up.
 
    ---------------------------------------------------------------------------
    ACTS
@@ -73,7 +76,8 @@ const LAB = [
     "git config user.email \"you@example.com\"",
     "",
     "git config --list --show-origin | grep user.",
-    "# the path shown should end in taskrunner/.git/config"
+    "# the last pair reads file:.git/config — this repository's own file;",
+    "# a machine-wide pair above it would name .gitconfig in your home"
   ]
 },
 
@@ -199,10 +203,13 @@ const LAB = [
   title: "Two edits, one file",
   task: [
     "Open `src/runner.py` and make two *unrelated* changes: add a line",
-    "`self.retries = 3` just below `self.pending = []`, and append a `stop()`",
-    "method at the end of the class. Whatever the file, keep at least a handful",
-    "of unchanged lines between the two edits. Do not stage anything yet — just",
-    "confirm git sees one modified file."
+    "`self.retries = 3` just below `self.pending = []`, and append this method",
+    "at the end of the class:",
+    "|     def stop(self):",
+    "|         self.pending.clear()",
+    "Whatever the file, keep at least a handful of unchanged lines between the",
+    "two edits. Do not stage anything yet — just confirm git sees one modified",
+    "file."
   ],
   solution: [
     "# edit src/runner.py so that __init__ ends with:",
@@ -413,10 +420,13 @@ const LAB = [
 {
   title: "Stage whole files from a menu",
   task: [
-    "Append a `RETRY_DELAY = 2` line to `src/runner.py`, a `noop()` helper to",
-    "`src/utils.py`, and create an untracked `src/tmp.py`. Now stage the two",
-    "tracked files by number rather than by path, without leaving the tool.",
-    "Notice which of the three it never offers you, and why."
+    "Append a `RETRY_DELAY = 2` line to `src/runner.py`, this helper to",
+    "`src/utils.py`:",
+    "| def noop():",
+    "|     return None",
+    "and create an untracked `src/tmp.py`. Now stage the two tracked files by",
+    "number rather than by path, without leaving the tool. Notice which of the",
+    "three it never offers you, and why."
   ],
   solution: [
     "echo \"RETRY_DELAY = 2\" >> src/runner.py",
@@ -474,9 +484,13 @@ const LAB = [
 {
   title: "Two commits on the branch",
   task: [
-    "Add a new file `src/queue.py` with a small `Queue` class and commit it. Then",
-    "add a `push()` method to that same file and commit again — two separate",
-    "commits."
+    "Add a new file `src/queue.py` and commit it:",
+    "| class Queue:",
+    "|     def __init__(self):",
+    "|         self.items = []",
+    "Then grow it by this method and commit again — two separate commits:",
+    "|     def push(self, item):",
+    "|         self.items.append(item)"
   ],
   solution: [
     "cat > src/queue.py <<'EOF'",
@@ -502,10 +516,12 @@ const LAB = [
 {
   title: "Park an edit, switch away, and bring it back",
   task: [
-    "Start a third change in `src/queue.py` — add a `pop()` method — but do not",
-    "commit it. Now you need to check something on `main`. Set the unfinished",
-    "edit aside with a label, switch to `main`, switch straight back, and restore",
-    "the edit. Then commit it properly."
+    "Start a third change in `src/queue.py` — but do not commit it:",
+    "|     def pop(self):",
+    "|         return self.items.pop(0)",
+    "Now you need to check something on `main`. Set the unfinished edit aside",
+    "with a label, switch to `main`, switch straight back, and restore the",
+    "edit. Then commit it properly."
   ],
   solution: [
     "cat >> src/queue.py <<'EOF'",
@@ -653,7 +669,7 @@ const LAB = [
     "# <<<<<<< ours",
     "# QUEUE_DEPTH = 32",
     "# ||||||| base",
-    "# QUEUE_DEPTH = 8          ← both sides raised it: a genuine choice",
+    "# QUEUE_DEPTH = 8          ← both sides raised it: a real choice",
     "# =======",
     "# QUEUE_DEPTH = 16",
     "# >>>>>>> theirs",
@@ -794,7 +810,7 @@ const LAB = [
     "neither side has — `f\"queue full at {self.depth}, try again\"`. Delete",
     "every marker line, check that what is left of your own is exactly that one",
     "message, then finish the merge and prove the commit you made has two",
-    "parents."
+    "parents. Then retire the branch label, the way act III did."
   ],
   solution: [
     "git merge feature/retry",
@@ -820,7 +836,11 @@ const LAB = [
     "# TWO hashes listed — only merge commits have more than one",
     "",
     "git log --oneline --graph -8",
-    "# the branch splits and rejoins"
+    "# the branch splits and rejoins",
+    "",
+    "git branch -d feature/retry",
+    "# merged, so the safe delete goes through — the label was scaffolding,",
+    "# and act III's cleanup discipline applies to it here too"
   ]
 },
 
@@ -829,9 +849,13 @@ const LAB = [
 {
   title: "Build a deliberately messy branch",
   task: [
-    "Create a branch `feature/logging` and make three commits on it: a proper",
-    "one, one whose message is just `wip`, and one whose message contains the",
-    "typo `defualt`. You will clean these up shortly."
+    "Create a branch `feature/logging` and grow a new `src/log.py` one line",
+    "per commit, three commits in all:",
+    "| import logging",
+    "| LOG = logging.getLogger(__name__)",
+    "| LEVEL = 'INFO'",
+    "Give the first a proper message, make the second just `wip`, and put the",
+    "typo `defualt` into the third's. You will clean these up shortly."
   ],
   solution: [
     "git switch -c feature/logging",
@@ -944,7 +968,9 @@ const LAB = [
     "from the beginning rather than bolted on at the end. Write one, then get it",
     "into the *root* commit, so that every commit in the history contains it —",
     "without flattening the two merges you built in acts IV and V, and without",
-    "changing any other file. Give yourself a way back before you start."
+    "changing any other file. Give yourself a way back before you start. The",
+    "replay stops twice on the way; both stops are lessons, not accidents, so",
+    "read each one before reaching for the solution."
   ],
   solution: [
     "printf 'MIT License\\n\\nCopyright (c) 2026 Your Name\\n' > LICENSE",
@@ -957,6 +983,22 @@ const LAB = [
     "",
     "# replay everything that came after the old root onto the new one",
     "git rebase --rebase-merges --onto HEAD $ROOT main",
+    "",
+    "# stop one: \"untracked working tree files would be overwritten\". The",
+    "# debug.log kept on disk since act II blocks the replay of the commit",
+    "# that first added it — at that point in history nothing ignored it yet.",
+    "# It has long since served its purpose:",
+    "rm debug.log",
+    "git rebase --continue",
+    "",
+    "# stop two: act IV's conflict, back from the dead. --rebase-merges",
+    "# re-RUNS each merge rather than copying its result, so a hand-resolved",
+    "# conflict is yours to resolve again — rerere, which stage 06 of the",
+    "# deck closes on, is the tool that would have replayed it for you.",
+    "# Resolve exactly as before (depth 16, the combined message) — the next",
+    "# step checks nothing drifted — then:",
+    "git add src/runner.py",
+    "git rebase --continue",
     "",
     "# the rebase leaves you back on main",
     "# without --rebase-merges, both merges would be flattened away"
@@ -1166,7 +1208,11 @@ const LAB = [
   ],
   solution: [
     "cd ..                                  # step out of taskrunner",
-    "git init --bare taskrunner-origin.git",
+    "git init --bare -b main taskrunner-origin.git",
+    "# -b main again: a bare repository's HEAD names its default branch, and",
+    "# a later clone checks out whatever that says — left unset, the clone",
+    "# two steps from here can land on a branch nobody ever pushed",
+    "",
     "ls taskrunner-origin.git                # HEAD, config, objects/, refs/ — no src/",
     "cd taskrunner"
   ]
@@ -1195,7 +1241,7 @@ const LAB = [
   title: "Clone it as if you were someone else",
   task: [
     "Clone the bare repository into a second directory to stand in for a",
-    "colleague. Note that one command does what `init` plus `remote add` plus",
+    "colleague, and watch one command do what `init` plus `remote add` plus",
     "`pull` was reaching for."
   ],
   solution: [
@@ -1325,6 +1371,9 @@ const LAB = [
   ],
   solution: [
     "cd ../colleague",
+    "git pull                       # the trunk moved in the collision step and",
+    "                               # this clone never fetched it — catch up,",
+    "                               # or the push below is rejected (fetch first)",
     "printf 'See COPYING for details.\\n' >> LICENSE.md",
     "git commit -am \"Point licence at COPYING\"",
     "git push",
@@ -1505,7 +1554,8 @@ const LAB = [
     "",
     "cd ../colleague",
     "git fetch --prune              # drop stale origin/* refs",
-    "git branch -r                  # only origin/main remains",
+    "git branch -r                  # origin/main — plus origin/HEAD, the",
+    "                               # clone's note of the server's default",
     "",
     "git config --global fetch.prune true   # make that automatic"
   ]
