@@ -1212,7 +1212,7 @@ const LAB = [
 {
   title: "Push a change from the clone",
   task: [
-    "As the \"colleague\", add a line to the README and push it. Then look at what",
+    "From the clone, add a line to the README and push it. Then look at what",
     "the server holds — it should now be ahead of your original working copy."
   ],
   solution: [
@@ -1350,7 +1350,7 @@ const LAB = [
     "git push                       # ...and this one succeeds",
     "",
     "git log --oneline origin/main..HEAD",
-    "# the colleague's licence commit is in the list, under a new hash —",
+    "# the clone's licence commit is in the list, under a new hash —",
     "# a commit you never wrote now rides on your branch as yours"
   ]
 },
@@ -1380,6 +1380,111 @@ const LAB = [
     "# rejection when the remote holds someone else's new work; after a",
     "# rebase of your own, the answer is force-with-lease — and never a",
     "# pull on a branch you have just rewritten"
+  ]
+},
+
+{
+  title: "Watch the force-push arrive",
+  task: [
+    "Change chairs: in the clone, fetch, then check out the feature branch",
+    "— no `-c`, no `origin/` prefix, just its name. Back in `taskrunner`,",
+    "reword the metrics commit and push the rewrite the way rewrites are",
+    "pushed. In the clone again, fetch once more: read the one-character",
+    "marker in front of the branch line, then ask `git status` where you",
+    "stand. You changed nothing on this side — read what it claims anyway."
+  ],
+  solution: [
+    "cd ../colleague",
+    "git fetch                # * [new branch]  Component/... — now you have it",
+    "git switch Component/feature/queue-metrics",
+    "# exactly one remote has a branch of this name, so git creates the",
+    "# local copy and links it to the remote one in a single move",
+    "",
+    "cd ../taskrunner",
+    "git commit --amend -m \"Add a metrics toggle\"",
+    "git push --force-with-lease",
+    "",
+    "cd ../colleague",
+    "git fetch",
+    "# + 4ed890d...9c1e07f Component/... -> origin/Component/...  (forced update)",
+    "#   the + is the message: not a fast-forward — the branch was rewritten",
+    "",
+    "git status",
+    "# \"Your branch and 'origin/Component/feature/queue-metrics' have",
+    "#  diverged, and have 1 and 1 different commits each\" — counts you did",
+    "#  nothing to cause. And the hint offers git pull again; by now you",
+    "#  know what that would build"
+  ]
+},
+
+{
+  title: "Sort your copy, then follow the rewrite",
+  task: [
+    "Before touching anything, sort what sits on your copy of the branch:",
+    "which commits carry changes the rewritten chain already has, and which",
+    "are yours alone? One command answers this commit by commit. Read its",
+    "output, then bring your copy level with the server by the route that",
+    "answer allows."
+  ],
+  solution: [
+    "git cherry -v origin/Component/feature/queue-metrics",
+    "# - 4ed890d… Add metrics flag",
+    "#   minus: this change already sits on the rewritten chain under a new",
+    "#   hash — a stale copy, safe to drop. A plus would mean a commit of",
+    "#   your own; the move would then be git rebase origin/... instead,",
+    "#   which keeps the + commits and drops the - ones by itself",
+    "",
+    "git reset --hard origin/Component/feature/queue-metrics",
+    "git status -sb           # level with the remote again, nothing lost"
+  ]
+},
+
+{
+  title: "The fetch that fails over a branch you never touched",
+  task: [
+    "Give the server a short-lived branch: in `taskrunner`, put a label named",
+    "`hotfix` on `main`'s tip — without leaving the branch you are on — and",
+    "push it. Fetch once in the clone, so it learns the name.",
+    "Back in `taskrunner`: delete `hotfix` from the server, rename it to",
+    "`hotfix/typo`, and push that. Fetch in the clone, with pruning",
+    "switched off for this one command. Read the error, say which branch it",
+    "trips on and why, and fix it by hand. Clean up the server before moving",
+    "on."
+  ],
+  solution: [
+    "cd ../taskrunner",
+    "git branch hotfix main         # a label on main's tip; no switch needed",
+    "git push -u origin hotfix",
+    "",
+    "cd ../colleague",
+    "git fetch                      # * [new branch]  hotfix -> origin/hotfix",
+    "",
+    "cd ../taskrunner",
+    "git push origin --delete hotfix",
+    "git branch -m hotfix hotfix/typo",
+    "# renamed rather than recreated: your own labels collide on these",
+    "# names too — a branch called hotfix blocks creating hotfix/typo",
+    "git push -u origin hotfix/typo",
+    "",
+    "cd ../colleague",
+    "git -c fetch.prune=false fetch",
+    "# error: some local refs could not be updated; try running",
+    "#  'git remote prune origin' to remove any old, conflicting branches",
+    "#  ! [new branch] hotfix/typo -> origin/hotfix/typo (unable to update local ref)",
+    "# your cached origin/hotfix blocks the new name — and one blocked ref",
+    "# fails the whole fetch, which is why it hits a branch you never use",
+    "",
+    "git update-ref -d refs/remotes/origin/hotfix",
+    "git fetch                      # * [new branch]  hotfix/typo — healed",
+    "# git fetch --prune does both in one command; pruning was off above",
+    "# because with it on the trap never fires — the next step makes that",
+    "# permanent",
+    "",
+    "cd ../taskrunner",
+    "git push origin --delete hotfix/typo",
+    "git branch -D hotfix/typo",
+    "# deleting the label only — the commit it points at is main's tip and",
+    "# stays exactly where it is"
   ]
 },
 

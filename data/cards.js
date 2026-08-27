@@ -2128,6 +2128,65 @@ const CARDS = [
 
 {
   stage:    "07 rebasing",
+  question: "Your fetch prints `+ ae653d0...58f7c2b topic -> origin/topic  (forced update)` — on a branch you never touched. What is git telling you?",
+  answer: [
+    "Someone rewrote that branch and force-pushed it. The `+` marks an update",
+    "that was not a fast-forward: your `origin/topic` left the old chain and",
+    "jumped to the rewritten one. Nothing on your side did this — fetch is",
+    "reporting what the server now holds."
+  ],
+  detail: [
+    "Remote-tracking refs follow the remote wherever it goes, so the jump has",
+    "already happened by the time you read the line, and the line is the only",
+    "notice you get. If you also hold a local `topic`, it still sits on the old",
+    "chain, and `git status` now claims “have diverged, and have 1 and 1",
+    "different commits each” on a branch you never committed to. Its hint",
+    "suggests `git pull` — a pull would join the old chain to the new one and",
+    "hand the duplicates back to the person who just cleaned them away."
+  ],
+  figure: [
+    "$ git fetch",
+    " + ae653d0...58f7c2b topic -> origin/topic  (forced update)",
+    "",
+    "old chain:  … ── A ── B     where origin/topic (and you) stood",
+    "new chain:  … ── A'── B'    where the server points now"
+  ],
+  proGit:   "Git-Branching-Remote-Branches"
+},
+
+{
+  stage:    "07 rebasing",
+  question: "A branch you track was force-pushed. Update your local copy — first when nothing on it is yours, then when some commits are.",
+  answer: [
+    "`git cherry -v origin/topic` marks every commit that is only on your",
+    "copy: `-` its change already sits on the new chain, `+` it is yours",
+    "alone. All minus — take the new chain as it stands:",
+    "$ git reset --hard origin/topic",
+    "Any plus — replay just your own onto it:",
+    "$ git rebase origin/topic"
+  ],
+  detail: [
+    "`reset --hard` moves your branch label to where `origin/topic` now points",
+    "and makes the files match — whatever existed only here is gone, which is",
+    "why you ask `cherry` first. The rebase route needs no sorting by hand: the",
+    "`-` commits carry changes the new chain already has, so the replay drops",
+    "them — “skipped previously applied commit” — and keeps the `+` ones.",
+    "Either way you end up on the rewritten branch with nothing of yours lost."
+  ],
+  figure: [
+    "$ git cherry -v origin/topic",
+    "- ae653d0… Add metrics    change already upstream — a stale copy",
+    "+ a8e569d… Add a note     only here — this one is yours",
+    "",
+    "all -  →  git reset --hard origin/topic",
+    "any +  →  git rebase origin/topic    (the - lines drop out on their own)"
+  ],
+  proGit:   "Git-Branching-Rebasing",
+  bottomUp: "branching-and-the-power-of-rebase"
+},
+
+{
+  stage:    "07 rebasing",
   question: "You rebased onto main, but main’s changes don’t appear as “your” commits in `git log`. Where are they?",
   answer: [
     "Beneath you — as ancestors. A branch’s content is the union of",
@@ -3678,6 +3737,41 @@ const CARDS = [
   ],
   proGit:   "Git-Basics-Viewing-the-Commit-History",
   bottomUp: "a-commit-by-any-other-name"
+},
+
+{
+  stage:    "14 gotchas",
+  question: "`git fetch` suddenly fails with “some local refs could not be updated” — naming a branch you never even checked out. What broke?",
+  answer: [
+    "A branch name was reused with a slash in it: `hotfix` was deleted on the",
+    "server and `hotfix/typo` pushed in its place. Your cached `origin/hotfix`",
+    "blocks the new name, and one blocked ref fails the whole fetch. Drop the",
+    "dead ref, then fetch again:",
+    "$ git update-ref -d refs/remotes/origin/hotfix",
+    "$ git fetch"
+  ],
+  detail: [
+    "Refs are stored like file paths, and a file named `hotfix` cannot live",
+    "next to a folder named `hotfix/` — so `origin/hotfix` and",
+    "`origin/hotfix/typo` cannot both exist. The server dropped one and offers",
+    "the other; your clone still holds the dead name and refuses the new one.",
+    "It hits you on branches you never use because fetch updates every",
+    "branch’s ref, not just yours. `git fetch --prune` clears dead names and",
+    "writes the new ones in one command, and with `fetch.prune` set to `true`",
+    "(stage 11) the collision never happens. Your own labels collide the same",
+    "way: a local branch called `hotfix` blocks creating `hotfix/typo` until",
+    "the old label is deleted or renamed."
+  ],
+  figure: [
+    "$ git fetch",
+    "error: some local refs could not be updated; try running",
+    " 'git remote prune origin' to remove any old, conflicting branches",
+    " ! [new branch]  hotfix/typo -> origin/hotfix/typo  (unable to update local ref)",
+    "",
+    "origin/hotfix       ← you hold it; dead on the server",
+    "origin/hotfix/typo  ← the server offers it; blocked by the line above"
+  ],
+  proGit:   "Git-Internals-Git-References"
 },
 
 {
