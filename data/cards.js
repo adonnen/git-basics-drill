@@ -1050,6 +1050,38 @@ const CARDS = [
 
 {
   stage:    "04 merging",
+  question: "Ask what a merge *would* do — conflicts and all — without touching your working tree?",
+  answer: [
+    "`merge-tree` runs the same three-way comparison entirely in memory and",
+    "reports the outcome. Exit code 0: it would merge cleanly. 1: it would",
+    "conflict.",
+    "$ git merge-tree --write-tree HEAD feature"
+  ],
+  detail: [
+    "The true dry run, in git since 2.38: it prints the id of the tree the",
+    "merge would have produced, then any conflicted paths, and moves nothing —",
+    "built for servers that answer “can this branch land cleanly?” all day",
+    "without a working tree. The look-alike `git merge --no-commit` is *not*",
+    "this: that is a real merge paused one step before committing, index and",
+    "tree already rewritten, and only `git merge --abort` gets you back out."
+  ],
+  figure: [
+    "$ git merge-tree --write-tree HEAD feature/retry",
+    "3a5f01c…                        ← the merged tree, had it run",
+    "100644 … 1  src/runner.py      ← base    (the common ancestor’s version)",
+    "100644 … 2  src/runner.py      ← ours",
+    "100644 … 3  src/runner.py      ← theirs",
+    "Auto-merging src/runner.py",
+    "CONFLICT (content): Merge conflict in src/runner.py",
+    "",
+    "$ echo $?          # 1 — the real merge would stop and ask",
+    "$ git status -sb   # clean: nothing on disk was touched"
+  ],
+  proGit:   "Git-Tools-Advanced-Merging"
+},
+
+{
+  stage:    "04 merging",
   question: "Force a real merge commit even when a fast-forward would work — which flag, and why bother?",
   answer: [
     "`--no-ff`. It preserves the fact that this work arrived as a branch — the",
@@ -1971,6 +2003,38 @@ const CARDS = [
     "error: cannot rebase: You have unstaged changes."
   ],
   proGit:   "Git-Branching-Rebasing"
+},
+
+{
+  stage:    "07 rebasing",
+  question: "Is there a dry run for rebase, the way stage 04’s `merge-tree` is one for merge?",
+  answer: [
+    "No — and there almost cannot be: a rebase is cherry-picks in sequence,",
+    "and each step’s conflicts depend on how you resolved the step before.",
+    "What you preview is the *plan*:",
+    "$ git log --oneline main..HEAD"
+  ],
+  detail: [
+    "That list is exactly what will be replayed, and the todo sheet of `git",
+    "rebase -i` is the same plan made editable — close it empty and nothing at",
+    "all happens (stage 08 lives in that file). `merge-tree main HEAD` still",
+    "earns its keep as a first approximation, telling you whether the branch’s",
+    "*total* content collides with the trunk — though a replay taken one",
+    "commit at a time can snag where the total does not. Past that, rebase’s",
+    "safety is not prediction but escape: `--abort` restores everything",
+    "mid-flight, and even a finished rebase is one `ORIG_HEAD` reset away",
+    "(stage 10). That is part of why the clean tree the previous card enforced",
+    "matters — an escape can only restore a state that was unambiguous to",
+    "begin with."
+  ],
+  figure: [
+    "the plan   :  git log --oneline main..HEAD          what gets replayed",
+    "the probe  :  git merge-tree --write-tree main HEAD  (stage 04’s dry run)",
+    "the escapes:  git rebase --abort                     mid-flight",
+    "              git reset --hard ORIG_HEAD             after — stage 10"
+  ],
+  proGit:   "Git-Branching-Rebasing",
+  bottomUp: "branching-and-the-power-of-rebase"
 },
 
 {

@@ -661,14 +661,37 @@ const LAB = [
     "",
     "# \"far enough apart\" matters: conflicting regions, like hunks, carry",
     "# surrounding context, and two disagreements too close together fuse into",
-    "# a single conflict block — the next step wants to count two"
+    "# a single conflict block — two steps on, you will count them"
+  ]
+},
+
+{
+  title: "Ask git what the merge would do — before running it",
+  task: [
+    "You know the branches disagree, because you wrote both sides. Ask git",
+    "instead: have it perform the merge entirely in memory and report what",
+    "*would* happen. Then prove, from the exit code and from `status`, that a",
+    "conflict is coming — and that nothing on disk moved."
+  ],
+  solution: [
+    "git merge-tree --write-tree HEAD feature/retry",
+    "# the id of the would-be merged tree, then the unmerged file, then",
+    "# CONFLICT (content): Merge conflict in src/runner.py",
+    "",
+    "echo $?          # 1 — the real merge would stop and ask (0 = clean)",
+    "",
+    "git status -sb   # clean: working tree and index untouched",
+    "",
+    "# needs git 2.38+. And note what this is not: git merge --no-commit is",
+    "# a real merge paused before the commit, not a dry run"
   ]
 },
 
 {
   title: "Trigger the conflict and read it",
   task: [
-    "Merge `feature/retry` into `main`. It will stop. Find out which file is",
+    "Merge `feature/retry` into `main`. It stops exactly where the dry run",
+    "said it would. Find out which file is",
     "unmerged, then open it and identify the conflict markers, how many separate",
     "conflicts there are, and which side each block belongs to."
   ],
@@ -938,6 +961,28 @@ const LAB = [
     "",
     "# a file the branch never edits, on purpose: this act is about the",
     "# mechanics of replay, and a conflict here would be act IV's lesson again"
+  ]
+},
+
+{
+  title: "Preview the rebase before you run it",
+  task: [
+    "Rebase has no dry run — each replayed commit lands on the result of the",
+    "one before, so the outcome cannot be computed up front. Preview what it",
+    "*can* promise: list exactly the commits that would be replayed, then",
+    "reuse act IV's in-memory merge to check whether their content collides",
+    "with what the trunk grew."
+  ],
+  solution: [
+    "git log --oneline main..HEAD     # the replay list: your three commits",
+    "",
+    "git merge-tree --write-tree main HEAD",
+    "# a tree id and nothing else — no CONFLICT lines this time",
+    "echo $?                          # 0 — the contents stay clear of each other",
+    "",
+    "# and if a clean prediction still goes wrong mid-rebase:",
+    "#   git rebase --abort            # the same escape merge --abort gave you",
+    "#   git reset --hard ORIG_HEAD    # even after it finished — act VII's tools"
   ]
 },
 
