@@ -31,7 +31,13 @@
     <!-- act divider. The rule starts well clear of the label, because the
          sketch font differs between machines and the text grows with it. -->
     <text class="lbl" x="30" y="88">IV — DIVERGENCE AND A REAL CONFLICT</text>
-    <line class="fade" x1="330" y1="84" x2="590" y2="84"/>
+    <line class="fade" x1="330" y1="84" x2="518" y2="84"/>
+    <text class="mono" x="528" y="88">3/8</text>
+    <circle class="fill" cx="574" cy="84" r="11"/>
+    <path class="thin" d="M569 81 L574 87 L579 81"/>
+    <path class="fade" d="M520 112 C 542 112, 558 104, 566 94"/>
+    <text class="lbl" x="474" y="128">folds the act;</text>
+    <text class="lbl" x="474" y="144">the count stays</text>
 
     <!-- step card. It stops at 470 to leave the annotations a margin. -->
     <rect class="paper" x="30" y="104" width="440" height="200" rx="8"/>
@@ -64,7 +70,11 @@
     <text class="s" x="30" y="342">VIII — WORKING WITH A REMOTE</text>
     <rect class="fill" x="250" y="328" width="66" height="18" rx="3"/>
     <text class="s" x="258" y="341">OPTIONAL</text>
-    <line class="fade" x1="330" y1="338" x2="590" y2="338"/>
+    <line class="fade" x1="330" y1="338" x2="518" y2="338"/>
+    <!-- shown folded: the chevron has turned, and no steps follow it -->
+    <text class="mono" x="528" y="342">6/6</text>
+    <circle class="fill" cx="574" cy="338" r="11"/>
+    <path class="thin" d="M571 333 L577 338 L571 343"/>
     <text class="lbl" x="30" y="368">adds a remote — still on your own machine, using a bare repo as the "server"</text>
   </g>
 </svg>

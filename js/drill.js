@@ -535,7 +535,15 @@ function restart(withShuffle){
 }
 
 
-/* == B9. lab ============================================================== */
+/* == B9. lab ==============================================================
+   The lab is one long page, so each act folds: the divider is the section
+   header, the steps up to the next divider are its body, and the round button
+   at the right end of the divider's rule opens and shuts it. An act whose
+   steps are all ticked folds itself, but only when a whole session arrives at
+   once — a file load, or a resume after a refresh. Ticking the last box by
+   hand leaves the act open, because collapsing the thing under the cursor is
+   how a reader loses their place.
+   ========================================================================== */
 
 /** How many steps sit under an act marked optional — counted, never hardcoded. */
 
@@ -610,28 +618,94 @@ function buildStep(entry, number){
   return step;
 }
 
+/* The act sections, in page order. Held here rather than found by selector
+   each time, so that folding never walks the whole lab. */
+const actGroups = [];
+
+/** One act: the divider that names it, and the box its steps go in. */
+function buildAct(entry, tint, index){
+  const group = make('section', 'act-group');
+  const steps = make('div', 'act-steps');
+  steps.id = 'act-steps-' + index;
+
+  // The chevron is decoration; the name a screen reader reads out is written by
+  // setActFolded, which is the only thing that knows which way the act stands.
+  const chev = make('span', 'chev', '▾');
+  chev.setAttribute('aria-hidden', 'true');
+  const fold = make('button', 'act-fold', [chev]);
+  fold.type = 'button';
+  fold.setAttribute('aria-controls', steps.id);
+  fold.onclick = () => setActFolded(group, !group.classList.contains('folded'));
+
+  // The tally says what a folded act is hiding. Its text is written by
+  // syncActTallies from the steps the act was actually dealt, so nothing here
+  // knows how many there are.
+  const tally = make('span', 'act-tally');
+
+  const divider = make('div', 'act ' + tint + (entry.optional ? ' optional' : ''));
+  divider.append(make('span', null, entry.act.toUpperCase()));
+  if(entry.optional) divider.append(make('span', 'badge', 'OPTIONAL'));
+  divider.append(tally, fold);       // the CSS orders both past the divider rule
+
+  group.append(divider, steps);
+  group.name  = entry.act;
+  group.steps = steps;
+  group.fold  = fold;
+  group.tally = tally;
+  group.boxes = [];                  // filled by buildLab as the steps are dealt
+  setActFolded(group, false);
+  return group;
+}
+
+function setActFolded(group, folded){
+  group.classList.toggle('folded', folded);
+  group.fold.setAttribute('aria-expanded', String(!folded));
+  group.fold.setAttribute('aria-label', (folded ? 'unfold act ' : 'fold act ') + group.name);
+}
+
+/** Ticked over total on each act's divider, counted from the act's own steps. */
+function syncActTallies(){
+  for(const group of actGroups){
+    const total = group.boxes.length;
+    const done  = group.boxes.filter(box => box.checked).length;
+    group.tally.textContent = total ? done + '/' + total : '';
+    group.tally.classList.toggle('all-done', total > 0 && done === total);
+  }
+}
+
+/** Fold the acts that are finished, unfold the rest. See the section note. */
+function foldFinishedActs(){
+  for(const group of actGroups){
+    setActFolded(group, group.boxes.length > 0 && group.boxes.every(box => box.checked));
+  }
+}
+
 function buildLab(){
   el.lab.replaceChildren(buildIntro());
-  let number = 0, acts = 0, tint = '';
+  actGroups.length = 0;
+  let number = 0, group = null, tint = '';
   for(const entry of LAB){
     if(entry.act){
       // each act deals the next of four tint classes; the colours are in the CSS
-      tint = 'act-c' + (acts++ % 4 + 1);
-      const divider = make('div', 'act ' + tint + (entry.optional ? ' optional' : ''));
-      divider.append(make('span', null, entry.act.toUpperCase()));
-      if(entry.optional) divider.append(make('span', 'badge', 'OPTIONAL'));
-      el.lab.appendChild(divider);
+      tint  = 'act-c' + (actGroups.length % 4 + 1);
+      group = buildAct(entry, tint, actGroups.length);
+      actGroups.push(group);
+      el.lab.appendChild(group);
     } else {
       const step = buildStep(entry, ++number);
       if(tint) step.classList.add(tint);
-      el.lab.appendChild(step);
+      // A step before the first divider belongs to no act, so it cannot fold.
+      if(group){ group.steps.appendChild(step); group.boxes.push(entry.box); }
+      else el.lab.appendChild(step);
     }
   }
+  syncActTallies();
 }
 
 function syncLabCount(){
   const counter = $('labCount');
   if(counter) counter.innerHTML = labProgressText();
+  syncActTallies();
 }
 
 /** Reflect `labDone` onto the checkboxes — used after loading a file. */
@@ -643,6 +717,7 @@ function syncLab(){
     step.box.closest('.step').classList.toggle('done', done);
   }
   syncLabCount();
+  foldFinishedActs();
 }
 
 

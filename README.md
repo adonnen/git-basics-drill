@@ -119,6 +119,13 @@ shape for the git lesson to land — two changes far apart in one file, a line
 both branches will fight over — the task names that property and the solution
 says why.
 
+The round button at the right end of an act's divider folds the act away and
+opens it again, and the count beside the button — ticked over total, taken
+from the steps the act actually has — stays readable while it is shut. An act
+whose every step is ticked comes back folded when a whole session arrives at
+once: a reload you resume, or a progress file you load. Ticking the last box
+yourself leaves the act open, so the page never collapses under your cursor.
+
 Everything the lab creates lives in two or three directories; the closing
 steps of acts VII and VIII delete them.
 
@@ -351,10 +358,11 @@ gives the act its OPTIONAL badge:
 { act: "VIII — optional: working with a remote", optional: true },
 ```
 
-Steps are numbered automatically, so inserting one renumbers the rest. One thing
-to know: a reader's ticked steps are remembered by the step *title*, so
-reordering is free but **renaming** one loses its tick in progress files people
-have already saved.
+Steps are numbered automatically, so inserting one renumbers the rest. An
+act's fold count is the length of the run of steps between its divider and the
+next — move a step across a divider and both counts follow. A reader's ticked
+steps are remembered by the step *title*, so reordering is free, but
+**renaming** one loses its tick in progress files people have already saved.
 
 ### Checking a change
 

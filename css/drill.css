@@ -436,6 +436,31 @@ body.gated{overflow:hidden}
   border-color:color-mix(in srgb,var(--act-tint) 20%,var(--edge));
 }
 
+/* Folding. The divider heads its act, and the round button sits at the far end
+   of the rule: .act::after is the rule and takes flex order 0, so ordering the
+   button after it puts it at the right margin whatever the label's length. The
+   chevron turns a quarter clockwise when the act is shut, so the button reads
+   as a hinge rather than a switch. The tally rides in beside it under the same
+   order, so a shut act still says what it is hiding. Colour is inherited from
+   the divider, which is where the act tint and the optional muting live. */
+.act-tally{
+  order:1;flex:none;
+  font-family:var(--mono);font-size:11px;letter-spacing:0;color:var(--fog);
+  font-variant-numeric:tabular-nums;
+}
+.act-tally.all-done{color:var(--green)}
+.act-fold{
+  order:1;flex:none;
+  width:24px;height:24px;border-radius:50%;
+  display:grid;place-items:center;
+  color:inherit;background:transparent;border:1px solid var(--edge);
+  cursor:pointer;transition:background .15s,border-color .15s;
+}
+.act-fold:hover{background:var(--well);border-color:currentColor}
+.act-fold .chev{font-size:11px;line-height:1;transition:transform .18s ease}
+.act-group.folded .act-fold .chev{transform:rotate(-90deg)}
+.act-group.folded .act-steps{display:none}
+
 /* An optional act is marked rather than hidden — readers can skip it. The
    muted label and rule outrank the tint by order, so an optional divider stays
    quiet; its steps keep the tint, which is where the colour-coding lives. */
