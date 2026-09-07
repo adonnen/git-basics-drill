@@ -11,6 +11,7 @@
    ---------------------------------------------------------------------------
    {
      title: "Delete the merged branch",
+     level: "basics",                       optional — see LEVELS below
      task: [                                what the reader has to work out
        "Remove the branch label using the form that refuses to delete",
        "unmerged work. Confirm the commits survived it."
@@ -42,6 +43,30 @@
    One thing to know: a reader's ticked steps are remembered by the step
    *title*, so reordering steps is free but renaming one loses its tick in
    progress files people have already saved.
+
+   ---------------------------------------------------------------------------
+   LEVELS
+   ---------------------------------------------------------------------------
+   A step may carry `level: "basics"` or `level: "intermediate"`, cumulative in
+   the same way as the deck, and an untagged step belongs to the full lab only.
+
+   The lab has a constraint the deck does not, and it is the whole difficulty of
+   the feature. A level's steps are run *in order, in one repository*, so the
+   surviving steps must still form a working sequence: every step's required
+   state has to be produced by an earlier step at the same level, and no step
+   may destroy state a later one needs.
+
+   That is why some steps are tagged basics while teaching nothing a beginner
+   asked for. "Add the first real source file" is there because it writes the
+   two lines act IV puts in conflict, far enough apart that git reports two
+   conflicts rather than one. "Mix the two sides, then abandon the merge" is
+   there because its `git merge --abort` is the only one in act IV, and the step
+   after it opens a fresh merge, which git refuses while MERGE_HEAD exists.
+
+   So before moving a step down a level, check what its solution *produces*, not
+   only what it teaches. The acts that end up empty at a level are hidden, and
+   the numerals keep their gaps — at basics the reader sees I, II, III, IV, V,
+   VIII, which is honest about the lab being larger than this pass through it.
    ============================================================================= */
 
 const LAB = [
@@ -50,6 +75,7 @@ const LAB = [
 
 {
   title: "Create the repository",
+  level: "basics",
   task: [
     "Make a directory called `taskrunner`, move into it, and initialise a",
     "repository whose first branch is named `main`. Then confirm the repository",
@@ -66,6 +92,7 @@ const LAB = [
 
 {
   title: "Set an identity for this repository only",
+  level: "basics",
   task: [
     "Every commit records a name and an email. Set both — but scoped to this",
     "repository, not to your whole machine. Then prove the setting landed locally",
@@ -83,6 +110,7 @@ const LAB = [
 
 {
   title: "Your first commit",
+  level: "basics",
   task: [
     "Create a `README.md` containing a single heading line. Look at the status",
     "*before* staging and again *after*, so you see the file move between states.",
@@ -101,6 +129,7 @@ const LAB = [
 
 {
   title: "Add the first real source file",
+  level: "basics",
   task: [
     "Create `src/runner.py` with the content below, then stage and commit it in",
     "one step each. Keep this file — most later steps edit it. A file of your",
@@ -163,6 +192,7 @@ const LAB = [
 
 {
   title: "Keep junk out of the repository",
+  level: "basics",
   task: [
     "Create a `build/` directory and a `__pycache__/` directory, each with a",
     "throwaway file inside. Now make git ignore both, so that `git status`",
@@ -184,6 +214,7 @@ const LAB = [
 
 {
   title: "Read the history two ways",
+  level: "basics",
   task: [
     "Print the history as one line per commit. Then print everything about the",
     "most recent commit — its message, author, and full diff."
@@ -199,6 +230,7 @@ const LAB = [
 
 {
   title: "Ask git about a flag you do not know",
+  level: "intermediate",
   task: [
     "You want that same history, but with a count of how many lines each commit",
     "changed — and you do not know the flag. Ask git for the *short* option list",
@@ -230,6 +262,7 @@ const LAB = [
 
 {
   title: "Two edits, one file",
+  level: "intermediate",
   task: [
     "Open `src/runner.py` and make two *unrelated* changes: add a line",
     "`self.retries = 3` just below `self.pending = []`, and append this method",
@@ -260,6 +293,7 @@ const LAB = [
 
 {
   title: "Stage only the first change",
+  level: "intermediate",
   task: [
     "Stage the `retries` line and leave the `stop()` method unstaged — without",
     "editing the file or using a second file. Git should offer you the two",
@@ -279,6 +313,7 @@ const LAB = [
 
 {
   title: "Prove the two diffs are different",
+  level: "intermediate",
   task: [
     "Show what you are about to commit, then show what would still be left",
     "behind. They should contain different changes. Commit only the staged one."
@@ -293,6 +328,7 @@ const LAB = [
 
 {
   title: "Commit the remainder, then fix its message",
+  level: "intermediate",
   task: [
     "Stage and commit the `stop()` method with any message you like. Then change",
     "that message to `Add stop() method` — without creating a second commit. Note",
@@ -313,6 +349,7 @@ const LAB = [
 
 {
   title: "Repair the last commit, keep the rest",
+  level: "intermediate",
   task: [
     "Look again at the `stop()` you committed: `self.pending.clear` — no",
     "parentheses, so Python looks the method up and throws the result away.",
@@ -358,6 +395,7 @@ const LAB = [
 
 {
   title: "Stage a directory, then take one file back out",
+  level: "basics",
   task: [
     "Write a second module `src/timer.py` with the content below, and append a",
     "`MAX_WAIT = 60` line to `src/runner.py`. Stage both with a single command",
@@ -398,6 +436,7 @@ const LAB = [
 
 {
   title: "Stage the tracked changes only",
+  level: "basics",
   task: [
     "Timing turns out to belong in the runner rather than in a module of its",
     "own, so delete `src/timer.py` from the working tree. Then create an",
@@ -433,6 +472,7 @@ const LAB = [
 
 {
   title: "Rename a file in a way git records",
+  level: "intermediate",
   task: [
     "Add `src/util.py` with the helper below and commit it. Then decide the name",
     "should have been plural: rename the file with the command that stages the",
@@ -464,6 +504,7 @@ const LAB = [
 
 {
   title: "Untrack a file without deleting it",
+  level: "intermediate",
   task: [
     "Commit a `debug.log` you should never have committed. Now take it out of",
     "git's hands while leaving it where it is on disk, and add a rule so that",
@@ -493,6 +534,7 @@ const LAB = [
 
 {
   title: "Stage whole files from a menu",
+  level: "intermediate",
   task: [
     "Append a `RETRY_DELAY = 2` line to `src/runner.py`, this helper to",
     "`src/utils.py`:",
@@ -543,6 +585,7 @@ const LAB = [
 
 {
   title: "Branch and switch in one command",
+  level: "basics",
   task: [
     "Create a branch called `feature/queue` and move onto it with a single",
     "command. Confirm where you are."
@@ -557,6 +600,7 @@ const LAB = [
 
 {
   title: "Two commits on the branch",
+  level: "basics",
   task: [
     "Add a new file `src/queue.py` and commit it:",
     "| class Queue:",
@@ -589,6 +633,7 @@ const LAB = [
 
 {
   title: "Park an edit, switch away, and bring it back",
+  level: "intermediate",
   task: [
     "Start a third change in `src/queue.py` — but do not commit it:",
     "|     def pop(self):",
@@ -622,6 +667,7 @@ const LAB = [
 
 {
   title: "Merge it back, then delete the branch",
+  level: "basics",
   task: [
     "Return to `main` and merge the branch. Read the word git prints — is there a",
     "merge commit, or not, and why? Then remove the branch label using the form",
@@ -647,6 +693,7 @@ const LAB = [
 
 {
   title: "Change one line on a branch",
+  level: "basics",
   task: [
     "Create and switch to a branch `feature/retry`. Make two changes to",
     "`src/runner.py`: `QUEUE_DEPTH = 8` becomes `16`, and the overflow error",
@@ -669,6 +716,7 @@ const LAB = [
 
 {
   title: "Change the same line differently on main",
+  level: "basics",
   task: [
     "Go back to `main` and change those same two places differently:",
     "`QUEUE_DEPTH = 32`, and the error message becomes the f-string `f\"queue",
@@ -696,6 +744,7 @@ const LAB = [
 
 {
   title: "Ask git what the merge would do — before running it",
+  level: "intermediate",
   task: [
     "You know the branches disagree, because you wrote both sides. Ask git",
     "instead: have it perform the merge entirely in memory and report what",
@@ -718,6 +767,7 @@ const LAB = [
 
 {
   title: "Trigger the conflict and read it",
+  level: "basics",
   task: [
     "Merge `feature/retry` into `main`. It stops exactly where the dry run",
     "said it would. Find out which file is",
@@ -752,6 +802,7 @@ const LAB = [
 
 {
   title: "See what both sides started from",
+  level: "basics",
   task: [
     "Two versions of a line do not tell you which side moved. Redraw the same",
     "conflict with the common ancestor included, read what it tells you about",
@@ -781,6 +832,7 @@ const LAB = [
 
 {
   title: "Take one whole side, and see what it costs",
+  level: "intermediate",
   task: [
     "Settle the second conflict — the error message — by taking `main`'s version",
     "of it wholesale, without opening the file. Then look at what that did to the",
@@ -810,6 +862,7 @@ const LAB = [
 
 {
   title: "Take the other side of the same conflict",
+  level: "intermediate",
   task: [
     "Now the mirror image: take the *branch's* version of the whole file,",
     "again without opening it. Check both disputed lines, then check `git",
@@ -834,6 +887,7 @@ const LAB = [
 
 {
   title: "Mix the two sides, then abandon the merge",
+  level: "basics",
   task: [
     "Nothing forces one side to win everywhere. Resolve the two conflicts in",
     "opposite directions — keep `main`'s depth, keep the branch's error",
@@ -864,6 +918,7 @@ const LAB = [
 
 {
   title: "Decide the winner before the merge starts",
+  level: "intermediate",
   task: [
     "Merge the branch twice more without ever seeing a marker: once telling",
     "git in advance that `main` wins wherever the two sides collide, once",
@@ -900,6 +955,7 @@ const LAB = [
 
 {
   title: "Resolve, finish, and inspect the merge commit",
+  level: "basics",
   task: [
     "Start the merge one final time, and note what the markers look like now",
     "without you asking for anything. Then resolve both conflicts by hand and",
@@ -943,6 +999,7 @@ const LAB = [
 
 {
   title: "Trace one line back, and one value that vanished",
+  level: "intermediate",
   task: [
     "Two questions about the file you just merged. One tool answers each, and",
     "neither answers both.",
@@ -984,6 +1041,7 @@ const LAB = [
 
 {
   title: "Build a deliberately messy branch",
+  level: "basics",
   task: [
     "Create a branch `feature/logging` and grow a new `src/log.py` one line",
     "per commit, three commits in all:",
@@ -1011,6 +1069,7 @@ const LAB = [
 
 {
   title: "Let the trunk move underneath you",
+  level: "basics",
   task: [
     "Switch to `main`, expand the README with a description line, and commit it",
     "— any edit works, provided it touches a file your branch does not. Then go",
@@ -1034,6 +1093,7 @@ const LAB = [
 
 {
   title: "Preview the rebase before you run it",
+  level: "intermediate",
   task: [
     "Rebase has no dry run — each replayed commit lands on the result of the",
     "one before, so the outcome cannot be computed up front. Preview what it",
@@ -1056,6 +1116,7 @@ const LAB = [
 
 {
   title: "Rebase onto the trunk and watch the hashes change",
+  level: "basics",
   task: [
     "Note your three commit hashes. Replay them on top of the latest `main`. Then",
     "compare the hashes — and explain why the README change is now in your branch",
@@ -1077,6 +1138,7 @@ const LAB = [
 
 {
   title: "Clean up the branch with an interactive rebase",
+  level: "intermediate",
   task: [
     "In one interactive rebase against `main`: fold the `wip` commit into the one",
     "before it and discard its message, and correct the `defualt` typo in the",
@@ -1101,6 +1163,7 @@ const LAB = [
 
 {
   title: "Land it with the branch shape preserved",
+  level: "basics",
   task: [
     "Merge the branch into `main` in a way that creates a merge commit even",
     "though a fast-forward would be possible — so the graph records that this",
@@ -1189,6 +1252,7 @@ const LAB = [
 
 {
   title: "Stash again, this time with untracked files",
+  level: "intermediate",
   task: [
     "Add a `TIMEOUT = 30` line to `src/runner.py` *and* create a new untracked",
     "file `src/probe.py`. Stash your work and check the tree: one of the two is",
@@ -1217,6 +1281,7 @@ const LAB = [
 
 {
   title: "Discard an uncommitted edit for real",
+  level: "intermediate",
   task: [
     "You have decided the `TIMEOUT` line was a mistake. Throw the edit away and",
     "return the file to its committed state. Note what makes this different from",
@@ -1236,6 +1301,7 @@ const LAB = [
 
 {
   title: "Take one file back to an older commit",
+  level: "intermediate",
   task: [
     "You want to read `src/runner.py` as it stood when it was first committed —",
     "but only that file, and nothing else in the tree touched.",
@@ -1268,6 +1334,7 @@ const LAB = [
 
 {
   title: "Remove untracked clutter — carefully",
+  level: "intermediate",
   task: [
     "Create two untracked files, `src/scratch.py` and `notes.txt`. Now list",
     "exactly what a cleanup would delete *without deleting anything*, and only",
@@ -1286,6 +1353,7 @@ const LAB = [
 
 {
   title: "Collapse three commits into one",
+  level: "intermediate",
   task: [
     "Make three trivial commits to a new `notes.md` file. Then combine all three",
     "into a single commit called `Add release notes` — without an interactive",
@@ -1308,6 +1376,7 @@ const LAB = [
 
 {
   title: "Undo a commit by adding history, not removing it",
+  level: "intermediate",
   task: [
     "Undo the release-notes commit using the method that is safe on a branch",
     "other people have pulled — the one that appends rather than rewrites.",
@@ -1371,6 +1440,7 @@ const LAB = [
 
 {
   title: "Final review",
+  level: "intermediate",
   task: [
     "Take stock. Print the full history as a graph across all branches, list",
     "every branch, and count how many commits the repository holds. You should",
@@ -1391,6 +1461,7 @@ const LAB = [
 
 {
   title: "Make a \"server\" on your own machine",
+  level: "basics",
   task: [
     "Everything so far has been local. To practise remotes without an account",
     "anywhere, create a *bare* repository next to your project — a repository",
@@ -1410,6 +1481,7 @@ const LAB = [
 
 {
   title: "Connect and make the first push",
+  level: "basics",
   task: [
     "Register that bare repository under the conventional name `origin`, then",
     "push `main` to it — setting up tracking in the same command, so later pushes",
@@ -1429,6 +1501,7 @@ const LAB = [
 
 {
   title: "Clone it as if you were someone else",
+  level: "basics",
   task: [
     "Clone the bare repository into a second directory to stand in for a",
     "colleague, and watch one command do what `init` plus `remote add` plus",
@@ -1447,6 +1520,7 @@ const LAB = [
 
 {
   title: "Push a change from the clone",
+  level: "basics",
   task: [
     "From the clone, add a line to the README and push it. Then look at what",
     "the server holds — it should now be ahead of your original working copy."
@@ -1462,6 +1536,7 @@ const LAB = [
 
 {
   title: "See what is incoming before you take it",
+  level: "basics",
   task: [
     "Back in `taskrunner`, download the new state *without* changing your branch.",
     "Read exactly what is about to arrive, and only then integrate it."
@@ -1480,6 +1555,7 @@ const LAB = [
 
 {
   title: "Push a new branch without retyping its name",
+  level: "basics",
   task: [
     "Create a branch with a long, namespaced name, commit something on it, and",
     "try a plain `git push`. It will refuse. Fix it in a way that does not",
@@ -1500,6 +1576,7 @@ const LAB = [
 
 {
   title: "Collide on the trunk, then recover",
+  level: "basics",
   task: [
     "In the clone, commit to `main` and push. In `taskrunner`, commit to `main`",
     "too — without pulling first, and touching a different file than the clone",
@@ -1530,6 +1607,7 @@ const LAB = [
 
 {
   title: "Rebase a pushed branch and push it again",
+  level: "basics",
   task: [
     "Return to your feature branch, rebase it onto the updated `main`, and push.",
     "The plain push will be refused because the hashes changed. Use the safe form",
@@ -1551,6 +1629,7 @@ const LAB = [
 
 {
   title: "Follow the bad hint, and watch what it builds",
+  level: "intermediate",
   task: [
     "Let the trunk move again: in the clone, extend `LICENSE.md` on `main` and",
     "push. Back in `taskrunner`, on the feature branch: fetch, rebase onto the",
@@ -1596,6 +1675,7 @@ const LAB = [
 
 {
   title: "Take the stray commit back out",
+  level: "intermediate",
   task: [
     "Rebase the branch onto `origin/main` once more and watch what git does",
     "with the copied commit. Confirm the branch now adds exactly one commit —",
@@ -1624,6 +1704,7 @@ const LAB = [
 
 {
   title: "Watch the force-push arrive",
+  level: "intermediate",
   task: [
     "Change chairs: in the clone, fetch, then check out the feature branch",
     "— no `-c`, no `origin/` prefix, just its name. Back in `taskrunner`,",
@@ -1658,6 +1739,7 @@ const LAB = [
 
 {
   title: "Sort your copy, then follow the rewrite",
+  level: "intermediate",
   task: [
     "Before touching anything, sort what sits on your copy of the branch:",
     "which commits carry changes the rewritten chain already has, and which",
@@ -1680,6 +1762,7 @@ const LAB = [
 
 {
   title: "The fetch that fails over a branch you never touched",
+  level: "intermediate",
   task: [
     "Give the server a short-lived branch: in `taskrunner`, put a label named",
     "`hotfix` on `main`'s tip — without leaving the branch you are on — and",
@@ -1729,6 +1812,7 @@ const LAB = [
 
 {
   title: "Tidy up the server",
+  level: "basics",
   task: [
     "Merge the feature branch into `main`, push it, then delete the branch in",
     "both places. Finally, make your clone forget remote branches that no longer",
@@ -1753,6 +1837,7 @@ const LAB = [
 
 {
   title: "Cut a release the server knows about",
+  level: "intermediate",
   task: [
     "Back in `taskrunner`, mark the current `main` as version 0.1.0 — in the",
     "form that records who cut it and when. Push, then check what the server",
@@ -1783,6 +1868,7 @@ const LAB = [
 
 {
   title: "Clean up everything",
+  level: "basics",
   task: [
     "The whole exercise is disposable — three directories and nothing else.",
     "Remove them."

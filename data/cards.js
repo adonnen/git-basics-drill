@@ -10,6 +10,7 @@
    ---------------------------------------------------------------------------
    {
      stage:    "02 branching",              which group the card belongs to
+     level:    "basics",                    optional — see LEVELS below
      question: "How do you rename a branch?",
      answer: [                              one line per line of text
        "Renames the branch you are standing on.",
@@ -64,6 +65,22 @@
    they first appear.
 
    ---------------------------------------------------------------------------
+   LEVELS
+   ---------------------------------------------------------------------------
+   A card may carry `level: "basics"` or `level: "intermediate"`. The levels are
+   cumulative: the basics filter shows the basics cards, intermediate shows
+   basics *and* intermediate, and the full deck shows everything.
+
+   Leaving the field off is a real choice, not an oversight — an untagged card
+   appears only in the full deck. That is the safe direction: a card nobody
+   classified stays out of the beginner's pass instead of ambushing them.
+
+   The test for basics is not "is this useful" but "would someone in their first
+   month meet it, and does it need no idea that is itself above basics". The
+   second half is the one that bites: a card is only basics if every concept it
+   leans on is too.
+
+   ---------------------------------------------------------------------------
    IF SOMETHING GOES WRONG
    ---------------------------------------------------------------------------
    A blank page almost always means a missing comma or quote. Open the browser
@@ -75,6 +92,7 @@ const CARDS = [
 
 {
   stage:    "01 foundations",
+  level:    "basics",
   question: "Start a brand-new repository in the current folder, with the default branch named `main` from the start.",
   answer: [
     "Creates the `.git/` directory — that directory *is* the repository;",
@@ -102,6 +120,7 @@ const CARDS = [
 
 {
   stage:    "01 foundations",
+  level:    "basics",
   question: "Which two identity settings must git know before your first commit?",
   answer: [
     "Name and email — stamped into every commit you author. Add `--global` to set",
@@ -129,6 +148,7 @@ const CARDS = [
 
 {
   stage:    "01 foundations",
+  level:    "basics",
   question: "Read the output of `git status` — what are the three states a file can be in?",
   answer: [
     "**Modified** in the working tree, **staged** in the index, or **committed**",
@@ -152,6 +172,7 @@ const CARDS = [
 
 {
   stage:    "01 foundations",
+  level:    "basics",
   question: "Put a file’s current changes into the next commit — without committing yet?",
   answer: [
     "$ git add src/runner.py",
@@ -176,6 +197,7 @@ const CARDS = [
 
 {
   stage:    "01 foundations",
+  level:    "basics",
   question: "Stage every change under `src/` and leave the rest of the tree alone?",
   answer: [
     "$ git add src/",
@@ -206,6 +228,7 @@ const CARDS = [
 
 {
   stage:    "01 foundations",
+  level:    "basics",
   question: "You edited three tracked files and deleted a fourth, and there is scratch output lying about that you have not ignored yet. Stage the real work only?",
   answer: [
     "$ git add -u",
@@ -232,6 +255,7 @@ const CARDS = [
 
 {
   stage:    "01 foundations",
+  level:    "intermediate",
   question: "Drop a file from the project — deleted from your tree and the deletion recorded, in one move?",
   answer: [
     "$ git rm src/legacy.py",
@@ -258,6 +282,7 @@ const CARDS = [
 
 {
   stage:    "01 foundations",
+  level:    "intermediate",
   question: "Rename a tracked file so git stages a rename rather than a deletion and an addition?",
   answer: [
     "$ git mv src/util.py src/utils.py",
@@ -290,6 +315,7 @@ const CARDS = [
 
 {
   stage:    "01 foundations",
+  level:    "basics",
   question: "Record whatever is staged as a permanent commit?",
   answer: [
     "$ git commit -m \"Add task state enum\"",
@@ -311,6 +337,7 @@ const CARDS = [
 
 {
   stage:    "01 foundations",
+  level:    "basics",
   question: "What is the staging area (the index) actually *for*?",
   answer: [
     "It’s a draft of the next commit. You choose exactly what goes in — which is",
@@ -335,6 +362,7 @@ const CARDS = [
 
 {
   stage:    "01 foundations",
+  level:    "intermediate",
   question: "One file holds two unrelated changes. Stage only the first?",
   answer: [
     "$ git add -p src/runner.py",
@@ -359,6 +387,7 @@ const CARDS = [
 
 {
   stage:    "01 foundations",
+  level:    "intermediate",
   question: "`git add -p` offers you five hunks in one file. What is a hunk?",
   answer: [
     "A contiguous run of changed lines *plus* the unchanged lines around it,",
@@ -385,6 +414,7 @@ const CARDS = [
 
 {
   stage:    "01 foundations",
+  level:    "intermediate",
   question: "One hunk bundles two changes you want staged separately. Two ways to cut it finer?",
   answer: [
     "`s` splits it — but only at an unchanged line inside the hunk. When two",
@@ -471,6 +501,7 @@ const CARDS = [
 
 {
   stage:    "01 foundations",
+  level:    "basics",
   question: "What is `HEAD`?",
   answer: [
     "The pointer to *where you are*. Normally it points at the branch you’re on,",
@@ -498,6 +529,7 @@ const CARDS = [
 
 {
   stage:    "01 foundations",
+  level:    "basics",
   question: "See what you have changed but not yet staged — and what you have staged but not yet committed?",
   answer: [
     "$ git diff",
@@ -522,6 +554,7 @@ const CARDS = [
 
 {
   stage:    "01 foundations",
+  level:    "basics",
   question: "Show the commit history as one line per commit?",
   answer: [
     "$ git log --oneline"
@@ -544,6 +577,7 @@ const CARDS = [
 
 {
   stage:    "01 foundations",
+  level:    "intermediate",
   question: "Inspect one particular commit — its message, author, and full diff?",
   answer: [
     "$ git show a1b2c3d",
@@ -565,6 +599,7 @@ const CARDS = [
 
 {
   stage:    "01 foundations",
+  level:    "intermediate",
   question: "Define a shortcut for a decorated graph of all branches — where does it live, and what does it expand to?",
   answer: [
     "An alias in your gitconfig — this one turns four flags into two characters:",
@@ -591,6 +626,7 @@ const CARDS = [
 
 {
   stage:    "01 foundations",
+  level:    "basics",
   question: "You need a flag and you do not know its name. Ask git two ways, and say which one leaves options out.",
   answer: [
     "$ git log -h        the one-screen summary, no pager",
@@ -622,6 +658,7 @@ const CARDS = [
 
 {
   stage:    "02 branching",
+  level:    "basics",
   question: "Create a new branch and switch to it — one command, modern syntax.",
   answer: [
     "$ git switch -c feature/task-queue",
@@ -646,6 +683,7 @@ const CARDS = [
 
 {
   stage:    "02 branching",
+  level:    "basics",
   question: "List your local branches; list remote-tracking ones too?",
   answer: [
     "`git branch` for local, `-r` for the remote-tracking ones — your local",
@@ -669,6 +707,7 @@ const CARDS = [
 
 {
   stage:    "02 branching",
+  level:    "intermediate",
   question: "Which flag shows each branch’s upstream and how far ahead or behind it is?",
   answer: [
     "$ git branch -vv",
@@ -692,6 +731,7 @@ const CARDS = [
 
 {
   stage:    "02 branching",
+  level:    "intermediate",
   question: "List only the branches whose work has already landed on `dev`?",
   answer: [
     "$ git branch --merged dev",
@@ -711,6 +751,7 @@ const CARDS = [
 
 {
   stage:    "02 branching",
+  level:    "intermediate",
   question: "Rename the branch you’re currently on?",
   answer: [
     "$ git branch -m feature/better-name"
@@ -732,6 +773,7 @@ const CARDS = [
 
 {
   stage:    "02 branching",
+  level:    "basics",
   question: "Delete a merged branch — and force-delete an unmerged one?",
   answer: [
     "`git branch -d` is the safe form: it refuses if the branch holds unmerged",
@@ -756,6 +798,7 @@ const CARDS = [
 
 {
   stage:    "02 branching",
+  level:    "intermediate",
   question: "What is a branch, mechanically?",
   answer: [
     "A ref: a tiny file under `.git/refs/heads/` containing one commit SHA.",
@@ -782,6 +825,7 @@ const CARDS = [
 
 {
   stage:    "02 branching",
+  level:    "intermediate",
   question: "Why prefer `switch` over `checkout` for branch work?",
   answer: [
     "`checkout` overloaded two jobs — switching branches and restoring files —",
@@ -807,6 +851,7 @@ const CARDS = [
 
 {
   stage:    "02 branching",
+  level:    "intermediate",
   question: "Jump back to the branch you were on before — the `cd -` of git?",
   answer: [
     "$ git switch -"
@@ -827,6 +872,7 @@ const CARDS = [
 
 {
   stage:    "02 branching",
+  level:    "intermediate",
   question: "Refer to a commit by its position rather than its hash — the parent of HEAD, and five commits back?",
   answer: [
     "`HEAD^` is the parent, `HEAD~5` is five generations back. They compose:",
@@ -849,6 +895,7 @@ const CARDS = [
 
 {
   stage:    "03 stashing",
+  level:    "intermediate",
   question: "Set aside all uncommitted work with a label you’ll recognize later?",
   answer: [
     "$ git stash push -m \"queue backpressure spike\"",
@@ -875,6 +922,7 @@ const CARDS = [
 
 {
   stage:    "03 stashing",
+  level:    "intermediate",
   question: "You are mid-edit when you need to switch branches or pull. How do you park the work and get it back afterwards?",
   answer: [
     "Stash it, do the other thing, pop it back. Nothing gets committed, and the",
@@ -912,6 +960,7 @@ const CARDS = [
 
 {
   stage:    "03 stashing",
+  level:    "intermediate",
   question: "`stash pop` vs `stash apply`?",
   answer: [
     "`pop` applies the stash and removes it from the list. `apply` applies and",
@@ -935,6 +984,7 @@ const CARDS = [
 
 {
   stage:    "03 stashing",
+  level:    "intermediate",
   question: "List your stashes, and preview one before applying it?",
   answer: [
     "$ git stash list",
@@ -958,6 +1008,7 @@ const CARDS = [
 
 {
   stage:    "03 stashing",
+  level:    "intermediate",
   question: "You stashed, but new untracked files are still cluttering the tree. Why — and the fix?",
   answer: [
     "The default stash takes tracked files only. Include the rest:",
@@ -980,6 +1031,7 @@ const CARDS = [
 
 {
   stage:    "03 stashing",
+  level:    "intermediate",
   question: "Delete a single stash — and why should you never reach for `git stash clear`?",
   answer: [
     "`git stash drop stash@{1}` removes one. `clear` removes every stash at once,",
@@ -1001,6 +1053,7 @@ const CARDS = [
 
 {
   stage:    "04 merging",
+  level:    "basics",
   question: "Merge `feature` into `main` — the two commands, in order?",
   answer: [
     "You merge *into* the branch you’re standing on:",
@@ -1026,6 +1079,7 @@ const CARDS = [
 
 {
   stage:    "04 merging",
+  level:    "basics",
   question: "What is a fast-forward merge?",
   answer: [
     "If `main` hasn’t moved since you branched, there’s nothing to reconcile —",
@@ -1052,6 +1106,7 @@ const CARDS = [
 
 {
   stage:    "04 merging",
+  level:    "intermediate",
   question: "The branches have both moved. What does git actually compare to build the merge?",
   answer: [
     "Three snapshots: the two branch tips and their **common ancestor**. Hence",
@@ -1113,6 +1168,7 @@ const CARDS = [
 
 {
   stage:    "04 merging",
+  level:    "intermediate",
   question: "Force a real merge commit even when a fast-forward would work — which flag, and why bother?",
   answer: [
     "`--no-ff`. It preserves the fact that this work arrived as a branch — the",
@@ -1144,6 +1200,7 @@ const CARDS = [
 
 {
   stage:    "04 merging",
+  level:    "intermediate",
   question: "Refuse the merge entirely unless it can fast-forward?",
   answer: [
     "`--ff-only`. A guard for updating a trunk: succeed cleanly or fail loudly,",
@@ -1166,6 +1223,7 @@ const CARDS = [
 
 {
   stage:    "04 merging",
+  level:    "intermediate",
   question: "What does a merge commit have that ordinary commits don’t?",
   answer: [
     "Two parents — the tips of both merged lines. That’s how the graph records",
@@ -1193,6 +1251,7 @@ const CARDS = [
 
 {
   stage:    "04 merging",
+  level:    "basics",
   question: "The feature is merged. What do you do with the branch label?",
   answer: [
     "Delete it: `git branch -d feature/…`. The commits stay reachable through the",
@@ -1213,6 +1272,7 @@ const CARDS = [
 
 {
   stage:    "04 merging",
+  level:    "intermediate",
   question: "When would you choose merge over rebase to bring trunk changes into your feature branch?",
   answer: [
     "When anyone else has pulled your branch. A rebase replays your commits on",
@@ -1238,6 +1298,7 @@ const CARDS = [
 
 {
   stage:    "05 sync basics",
+  level:    "basics",
   question: "What is a remote, actually?",
   answer: [
     "Another copy of the repository, known to yours by name. The name maps to",
@@ -1266,6 +1327,7 @@ const CARDS = [
 
 {
   stage:    "05 sync basics",
+  level:    "basics",
   question: "Get a working copy of a repository that already exists on a server?",
   answer: [
     "$ git clone git@server.local:repos/taskrunner.git",
@@ -1292,6 +1354,7 @@ const CARDS = [
 
 {
   stage:    "05 sync basics",
+  level:    "basics",
   question: "What is `origin`, and how do you see where it points?",
   answer: [
     "A nickname for a remote URL — the default one `clone` creates. Nothing is",
@@ -1316,6 +1379,7 @@ const CARDS = [
 
 {
   stage:    "05 sync basics",
+  level:    "basics",
   question: "What does `git pull` actually do?",
   answer: [
     "Two commands wearing one name: **fetch**, then **integrate**. Fetch updates",
@@ -1340,6 +1404,7 @@ const CARDS = [
 
 {
   stage:    "05 sync basics",
+  level:    "basics",
   question: "`fetch` vs `pull`?",
   answer: [
     "`fetch` downloads the remote’s state without touching your branch — look",
@@ -1365,6 +1430,7 @@ const CARDS = [
 
 {
   stage:    "05 sync basics",
+  level:    "basics",
   question: "Send your local commits up to the remote?",
   answer: [
     "$ git push",
@@ -1390,6 +1456,7 @@ const CARDS = [
 
 {
   stage:    "05 sync basics",
+  level:    "basics",
   question: "`git push` is rejected as non-fast-forward, and you have *not* rewritten anything. What now?",
   answer: [
     "The remote has commits you don’t. Integrate first, then push:",
@@ -1416,6 +1483,7 @@ const CARDS = [
 
 {
   stage:    "05 sync basics",
+  level:    "basics",
   question: "The first push of a new branch, setting up tracking so plain `push` and `pull` work afterwards?",
   answer: [
     "$ git push -u origin feature/task-queue",
@@ -1438,6 +1506,7 @@ const CARDS = [
 
 {
   stage:    "05 sync basics",
+  level:    "intermediate",
   question: "You branched with `switch -c`, committed a quick fix, and `git push` refuses: “the current branch has no upstream branch”. What is missing — and how do you fix it without retyping a long branch name?",
   answer: [
     "The branch exists only locally, so push has no destination. Link it — and",
@@ -1465,6 +1534,7 @@ const CARDS = [
 
 {
   stage:    "05 sync basics",
+  level:    "intermediate",
   question: "Stop that error happening at all — make a plain `git push` create the upstream by itself for any new branch?",
   answer: [
     "One setting, once:",
@@ -1492,6 +1562,7 @@ const CARDS = [
 
 {
   stage:    "05 sync basics",
+  level:    "basics",
   question: "What is `origin/main` — and why can it be out of date?",
   answer: [
     "A remote-tracking ref: your local *cache* of where the remote’s `main` stood",
@@ -1519,6 +1590,7 @@ const CARDS = [
 
 {
   stage:    "05 sync basics",
+  level:    "intermediate",
   question: "Make `pull` refuse rather than quietly build a merge commit?",
   answer: [
     "$ git pull --ff-only",
@@ -1541,6 +1613,7 @@ const CARDS = [
 
 {
   stage:    "05 sync basics",
+  level:    "intermediate",
   question: "Pull, but replay your local commits on top of the incoming ones instead of merging?",
   answer: [
     "$ git pull --rebase",
@@ -1563,6 +1636,7 @@ const CARDS = [
 
 {
   stage:    "05 sync basics",
+  level:    "intermediate",
   question: "`git status` says *no upstream*. Pair this branch with its remote counterpart — without pushing anything.",
   answer: [
     "$ git branch -u origin/feature/task-queue",
@@ -1592,6 +1666,7 @@ const CARDS = [
 
 {
   stage:    "05 sync basics",
+  level:    "basics",
   question: "A colleague pushed `feature/parser` and you have fetched it. Get a local branch tracking it — in one command, with no flags.",
   answer: [
     "$ git switch feature/parser",
@@ -1623,6 +1698,7 @@ const CARDS = [
 
 {
   stage:    "05 sync basics",
+  level:    "intermediate",
   question: "What have you written that the server has not seen — and what is waiting there for you?",
   answer: [
     "$ git log @{u}.. --oneline      yours, not yet pushed",
@@ -1655,6 +1731,7 @@ const CARDS = [
 
 {
   stage:    "06 conflicts",
+  level:    "basics",
   question: "A merge stops with `CONFLICT (content)`. First command to see where you stand?",
   answer: [
     "$ git status",
@@ -1681,6 +1758,7 @@ const CARDS = [
 
 {
   stage:    "06 conflicts",
+  level:    "basics",
   question: "The three markers git writes into a conflicted file?",
   answer: [
     "`<<<<<<<` opens your side, `=======` divides, `>>>>>>>` closes theirs. Edit",
@@ -1706,6 +1784,7 @@ const CARDS = [
 
 {
   stage:    "06 conflicts",
+  level:    "intermediate",
   question: "Both sides of a conflict look plausible and you cannot tell which one moved. Show the text they started from?",
   answer: [
     "$ git config --global merge.conflictStyle zdiff3",
@@ -1740,6 +1819,7 @@ const CARDS = [
 
 {
   stage:    "06 conflicts",
+  level:    "intermediate",
   question: "Which side is “ours” and which is “theirs” — and why does the answer flip during a rebase?",
   answer: [
     "In a **merge**, ours is the branch you’re standing on. In a **rebase** it",
@@ -1766,6 +1846,7 @@ const CARDS = [
 
 {
   stage:    "06 conflicts",
+  level:    "intermediate",
   question: "One whole side of the conflict is correct. Take it without hand-editing?",
   answer: [
     "$ git checkout --ours src/runner.py",
@@ -1793,6 +1874,7 @@ const CARDS = [
 
 {
   stage:    "06 conflicts",
+  level:    "intermediate",
   question: "One branch should win wherever the two collide, across every file, without you opening any of them?",
   answer: [
     "$ git merge -X theirs feature/retry",
@@ -1823,6 +1905,7 @@ const CARDS = [
 
 {
   stage:    "06 conflicts",
+  level:    "intermediate",
   question: "Resolve a conflicted file in a three-pane editor instead of by hand?",
   answer: [
     "$ git mergetool",
@@ -1851,6 +1934,7 @@ const CARDS = [
 
 {
   stage:    "06 conflicts",
+  level:    "intermediate",
   question: "Mid-resolution, which lines in the file are your own invention rather than either side’s?",
   answer: [
     "$ git diff",
@@ -1881,6 +1965,7 @@ const CARDS = [
 
 {
   stage:    "06 conflicts",
+  level:    "intermediate",
   question: "You hand-edited a conflicted file into a mess. Get the conflict back exactly as git wrote it?",
   answer: [
     "$ git checkout --merge src/runner.py",
@@ -1909,6 +1994,7 @@ const CARDS = [
 
 {
   stage:    "06 conflicts",
+  level:    "basics",
   question: "You’ve fixed a conflicted file. The two steps that finish the merge?",
   answer: [
     "$ git add src/runner.py",
@@ -1933,6 +2019,7 @@ const CARDS = [
 
 {
   stage:    "06 conflicts",
+  level:    "basics",
   question: "Abandon a half-done merge and return to the pre-merge state?",
   answer: [
     "$ git merge --abort"
@@ -1956,6 +2043,7 @@ const CARDS = [
 
 {
   stage:    "06 conflicts",
+  level:    "basics",
   question: "A conflict during a *rebase* — what’s the rhythm, and which command do you never run mid-rebase?",
   answer: [
     "**Fix → `git add` → `git rebase --continue`**, repeated per conflicted",
@@ -1979,6 +2067,7 @@ const CARDS = [
 
 {
   stage:    "06 conflicts",
+  level:    "basics",
   question: "Besides `--continue`, the two other exits from a conflicted rebase?",
   answer: [
     "`git rebase --skip` drops the commit currently being replayed;",
@@ -2000,6 +2089,7 @@ const CARDS = [
 
 {
   stage:    "06 conflicts",
+  level:    "intermediate",
   question: "The same conflict keeps returning every time you rebase onto the moving trunk. Which setting makes git replay your past resolution automatically?",
   answer: [
     "$ git config --global rerere.enabled true",
@@ -2023,6 +2113,7 @@ const CARDS = [
 
 {
   stage:    "07 rebasing",
+  level:    "basics",
   question: "Replay your feature branch’s commits on top of the latest `main`?",
   answer: [
     "$ git switch feature",
@@ -2056,6 +2147,7 @@ const CARDS = [
 
 {
   stage:    "07 rebasing",
+  level:    "basics",
   question: "What happens to the SHAs of rebased commits?",
   answer: [
     "All new. Rebase creates *copies* on the new base — same content, different",
@@ -2083,6 +2175,7 @@ const CARDS = [
 
 {
   stage:    "07 rebasing",
+  level:    "intermediate",
   question: "A rebase finished cleanly. Do you need to stage or commit anything before pushing?",
   answer: [
     "No — the replay *is* the committing. The working tree is clean and the",
@@ -2107,6 +2200,7 @@ const CARDS = [
 
 {
   stage:    "07 rebasing",
+  level:    "intermediate",
   question: "Rebase refuses to start because your working tree is dirty. Two ways past it?",
   answer: [
     "Stash manually, or let git do it every time:",
@@ -2130,6 +2224,7 @@ const CARDS = [
 
 {
   stage:    "07 rebasing",
+  level:    "intermediate",
   question: "Is there a dry run for rebase, the way stage 04’s `merge-tree` is one for merge?",
   answer: [
     "No — and there almost cannot be: a rebase is cherry-picks in sequence,",
@@ -2162,6 +2257,7 @@ const CARDS = [
 
 {
   stage:    "07 rebasing",
+  level:    "basics",
   question: "The one-sentence rule for merge vs rebase on your feature branch?",
   answer: [
     "**Rebase if the branch is yours alone; merge if anyone else has pulled it.**"
@@ -2185,6 +2281,7 @@ const CARDS = [
 
 {
   stage:    "07 rebasing",
+  level:    "basics",
   question: "After rebasing a branch that was already pushed, plain `git push` is rejected. Why, and what’s the correct next command?",
   answer: [
     "Your local SHAs no longer match the remote’s — non-fast-forward. The fix:",
@@ -2208,6 +2305,7 @@ const CARDS = [
 
 {
   stage:    "07 rebasing",
+  level:    "intermediate",
   question: "You rebased a pushed branch, the push was rejected — and the hint claims your branch is *behind*, suggesting `git pull`. What happens if you follow it?",
   answer: [
     "The hint is written for the other cause of rejection, and git cannot tell",
@@ -2242,6 +2340,7 @@ const CARDS = [
 
 {
   stage:    "07 rebasing",
+  level:    "intermediate",
   question: "The audit before pushing a rebased branch: list exactly the commits it would add to the trunk?",
   answer: [
     "$ git log --oneline origin/main..HEAD",
@@ -2268,6 +2367,7 @@ const CARDS = [
 
 {
   stage:    "07 rebasing",
+  level:    "intermediate",
   question: "The pull already happened: the branch holds copies of trunk commits, or your own commits twice. Clean it without picking commits apart by hand?",
   answer: [
     "Rebase once more, onto the trunk’s remote-tracking ref, and this time",
@@ -2296,6 +2396,7 @@ const CARDS = [
 
 {
   stage:    "07 rebasing",
+  level:    "basics",
   question: "The golden rule of rebase?",
   answer: [
     "**Never rewrite history that exists on a shared branch.** Feature branches",
@@ -2318,6 +2419,7 @@ const CARDS = [
 
 {
   stage:    "07 rebasing",
+  level:    "intermediate",
   question: "Your fetch prints `+ ae653d0...58f7c2b topic -> origin/topic  (forced update)` — on a branch you never touched. What is git telling you?",
   answer: [
     "Someone rewrote that branch and force-pushed it. The `+` marks an update",
@@ -2346,6 +2448,7 @@ const CARDS = [
 
 {
   stage:    "07 rebasing",
+  level:    "intermediate",
   question: "A branch you track was force-pushed. Update your local copy — first when nothing on it is yours, then when some commits are.",
   answer: [
     "`git cherry -v origin/topic` marks every commit that is only on your",
@@ -2377,6 +2480,7 @@ const CARDS = [
 
 {
   stage:    "07 rebasing",
+  level:    "intermediate",
   question: "You rebased onto main, but main’s changes don’t appear as “your” commits in `git log`. Where are they?",
   answer: [
     "Beneath you — as ancestors. A branch’s content is the union of",
@@ -2403,6 +2507,7 @@ const CARDS = [
 
 {
   stage:    "08 history edits",
+  level:    "intermediate",
   question: "Fix the message of the last commit?",
   answer: [
     "$ git commit --amend -m \"Add configurable queue depth\""
@@ -2423,6 +2528,7 @@ const CARDS = [
 
 {
   stage:    "08 history edits",
+  level:    "intermediate",
   question: "You forgot to stage one file for the last commit. Fold it in, keeping the message?",
   answer: [
     "$ git add src/queue.py",
@@ -2446,6 +2552,7 @@ const CARDS = [
 
 {
   stage:    "08 history edits",
+  level:    "intermediate",
   question: "The last commit carries one broken line. Its fix sits in your working tree, tangled with unfinished work. Repair the commit without losing the rest?",
   answer: [
     "Stage the fix alone, then fold it in:",
@@ -2479,6 +2586,7 @@ const CARDS = [
 
 {
   stage:    "08 history edits",
+  level:    "intermediate",
   question: "What does `--amend` do to the old commit?",
   answer: [
     "Replaces it — the “edited” commit is a new object with a new SHA. The old",
@@ -2502,6 +2610,7 @@ const CARDS = [
 
 {
   stage:    "08 history edits",
+  level:    "intermediate",
   question: "The last commit has the wrong author or a wrong date. Fix it without touching the content?",
   answer: [
     "$ git commit --amend --author=\"Your Name <you@example.com>\" --no-edit",
@@ -2526,6 +2635,7 @@ const CARDS = [
 
 {
   stage:    "08 history edits",
+  level:    "intermediate",
   question: "Open interactive rebase for everything since `main` diverged; for just the last five commits?",
   answer: [
     "$ git rebase -i main",
@@ -2551,6 +2661,7 @@ const CARDS = [
 
 {
   stage:    "08 history edits",
+  level:    "intermediate",
   question: "Fold a commit into the one above it, combining both messages?",
   answer: [
     "Mark it `squash`. Git pauses and opens an editor holding both messages so",
@@ -2574,6 +2685,7 @@ const CARDS = [
 
 {
   stage:    "08 history edits",
+  level:    "intermediate",
   question: "Fold a commit into the one above it and throw its message away?",
   answer: [
     "Mark it `fixup`. Same fold as squash, no editor, message discarded — the",
@@ -2599,6 +2711,7 @@ const CARDS = [
 
 {
   stage:    "08 history edits",
+  level:    "intermediate",
   question: "The interactive-rebase verb for changing only a commit’s *message*?",
   answer: [
     "`reword`. The diff is untouched; git stops just long enough to open the",
@@ -2620,6 +2733,7 @@ const CARDS = [
 
 {
   stage:    "08 history edits",
+  level:    "intermediate",
   question: "Pause a rebase at one particular commit so you can change its content?",
   answer: [
     "Mark it `edit`. The replay stops with that commit checked out; amend, split",
@@ -2644,6 +2758,7 @@ const CARDS = [
 
 {
   stage:    "08 history edits",
+  level:    "intermediate",
   question: "What does `drop` do — and where’s the sharp edge?",
   answer: [
     "Removes the commit *and its changes*. Any later commit that built on those",
@@ -2668,6 +2783,7 @@ const CARDS = [
 
 {
   stage:    "08 history edits",
+  level:    "intermediate",
   question: "Mark a fix for an *older* commit now, and fold it in later without editing any todo list?",
   answer: [
     "$ git commit --fixup=1a2b3c4",
@@ -2781,6 +2897,7 @@ const CARDS = [
 
 {
   stage:    "09 cherry-picking",
+  level:    "intermediate",
   question: "Copy one specific commit from anywhere in the repo onto your current branch?",
   answer: [
     "$ git cherry-pick a1b2c3d",
@@ -2807,6 +2924,7 @@ const CARDS = [
 
 {
   stage:    "09 cherry-picking",
+  level:    "intermediate",
   question: "Cherry-pick a whole range of commits — and which end is excluded?",
   answer: [
     "$ git cherry-pick a1b2c3d..b7c8d9e",
@@ -2833,6 +2951,7 @@ const CARDS = [
 
 {
   stage:    "09 cherry-picking",
+  level:    "intermediate",
   question: "Apply a commit’s changes to your working tree *without* committing yet?",
   answer: [
     "$ git cherry-pick -n a1b2c3d",
@@ -2854,6 +2973,7 @@ const CARDS = [
 
 {
   stage:    "09 cherry-picking",
+  level:    "intermediate",
   question: "A cherry-pick stops on a conflict. The three ways out?",
   answer: [
     "Same trio as rebase: fix and `git cherry-pick --continue`, abandon this one",
@@ -2878,6 +2998,7 @@ const CARDS = [
 
 {
   stage:    "09 cherry-picking",
+  level:    "intermediate",
   question: "Two classic cherry-pick use cases?",
   answer: [
     "Backporting a single fix from `main` to a release branch, and salvaging one",
@@ -2898,6 +3019,7 @@ const CARDS = [
 
 {
   stage:    "10 undo · reflog",
+  level:    "basics",
   question: "Unstage a file but keep your edits in the working tree?",
   answer: [
     "$ git restore --staged src/runner.py"
@@ -2919,6 +3041,7 @@ const CARDS = [
 
 {
   stage:    "10 undo · reflog",
+  level:    "basics",
   question: "Throw away your uncommitted edits to one file — back to the committed version?",
   answer: [
     "$ git restore src/runner.py",
@@ -2941,6 +3064,7 @@ const CARDS = [
 
 {
   stage:    "10 undo · reflog",
+  level:    "intermediate",
   question: "`restore` cleaned up the tracked files, but scratch files and build output are still there. Which command removes them — and how do you look first?",
   answer: [
     "$ git clean -nd     ← dry run: lists, deletes nothing",
@@ -2965,6 +3089,7 @@ const CARDS = [
 
 {
   stage:    "10 undo · reflog",
+  level:    "intermediate",
   question: "`reset --soft` vs the default (`--mixed`) vs `--hard`?",
   answer: [
     "**soft**: move the branch pointer, keep index and working tree. **mixed**:",
@@ -2996,6 +3121,7 @@ const CARDS = [
 
 {
   stage:    "10 undo · reflog",
+  level:    "intermediate",
   question: "“Reset everything” in full — tracked *and* untracked — as two commands?",
   answer: [
     "$ git reset --hard HEAD",
@@ -3021,6 +3147,7 @@ const CARDS = [
 
 {
   stage:    "10 undo · reflog",
+  level:    "intermediate",
   question: "Your last three commits should have been one. Collapse them without an interactive rebase?",
   answer: [
     "$ git reset --soft HEAD~3",
@@ -3047,6 +3174,7 @@ const CARDS = [
 
 {
   stage:    "10 undo · reflog",
+  level:    "intermediate",
   question: "Undo a commit that colleagues have already pulled?",
   answer: [
     "$ git revert a1b2c3d",
@@ -3073,6 +3201,7 @@ const CARDS = [
 
 {
   stage:    "10 undo · reflog",
+  level:    "intermediate",
   question: "`revert` vs `reset` — the one-line distinction?",
   answer: [
     "**Revert appends history; reset rewrites it.** Revert for anything shared,",
@@ -3094,6 +3223,7 @@ const CARDS = [
 
 {
   stage:    "10 undo · reflog",
+  level:    "intermediate",
   question: "What is the reflog?",
   answer: [
     "*ref* + *log*: a local journal of every pointer movement — commits,",
@@ -3123,6 +3253,7 @@ const CARDS = [
 
 {
   stage:    "10 undo · reflog",
+  level:    "intermediate",
   question: "A hard reset landed in the wrong place. The recovery sequence?",
   answer: [
     "$ git reflog",
@@ -3148,6 +3279,7 @@ const CARDS = [
 
 {
   stage:    "10 undo · reflog",
+  level:    "intermediate",
   question: "You deleted a branch with `-D` and now want it back. Two steps?",
   answer: [
     "$ git reflog",
@@ -3193,6 +3325,7 @@ const CARDS = [
 
 {
   stage:    "10 undo · reflog",
+  level:    "intermediate",
   question: "You want *one file* back as it stood three commits ago, and the rest of the tree left exactly where it is.",
   answer: [
     "$ git restore --source=HEAD~3 src/core/runner.py",
@@ -3257,6 +3390,7 @@ const CARDS = [
 
 {
   stage:    "11 remotes & server",
+  level:    "basics",
   question: "Connect your local repo to that remote, then verify the wiring?",
   answer: [
     "$ git remote add origin git@server.local:repos/taskrunner.git",
@@ -3280,6 +3414,7 @@ const CARDS = [
 
 {
   stage:    "11 remotes & server",
+  level:    "intermediate",
   question: "See what refs the remote actually has, without fetching anything?",
   answer: [
     "$ git ls-remote origin",
@@ -3306,6 +3441,7 @@ const CARDS = [
 
 {
   stage:    "11 remotes & server",
+  level:    "intermediate",
   question: "You ran `init`, added the remote, and `pull` failed: “no commit on branch ’main’ yet.” Why — and the right tool?",
   answer: [
     "`init` creates the branch ref lazily; it’s *unborn* until the first commit,",
@@ -3331,6 +3467,7 @@ const CARDS = [
 
 {
   stage:    "11 remotes & server",
+  level:    "intermediate",
   question: "“fatal: refusing to merge unrelated histories” — what happened, and the two ways out?",
   answer: [
     "Local and remote share no common ancestor — two histories born from nothing,",
@@ -3355,6 +3492,7 @@ const CARDS = [
 
 {
   stage:    "11 remotes & server",
+  level:    "basics",
   question: "The Pi’s username or IP changed. Repoint the remote without re-cloning?",
   answer: [
     "$ git remote set-url origin git@newhost.local:repos/taskrunner.git"
@@ -3375,6 +3513,7 @@ const CARDS = [
 
 {
   stage:    "11 remotes & server",
+  level:    "intermediate",
   question: "The feature has landed. Delete the branch on the remote as well as locally?",
   answer: [
     "$ git branch -d feature/task-queue",
@@ -3397,6 +3536,7 @@ const CARDS = [
 
 {
   stage:    "11 remotes & server",
+  level:    "basics",
   question: "Refresh your view of every remote in one command, dropping the refs their servers have deleted?",
   answer: [
     "$ git fetch --all --prune",
@@ -3422,6 +3562,7 @@ const CARDS = [
 
 {
   stage:    "12 ssh & auth",
+  level:    "intermediate",
   question: "Generate a new SSH key with a meaningful filename rather than the default?",
   answer: [
     "$ ssh-keygen -t ed25519 -C \"github-personal\" -f ~/.ssh/github_personal",
@@ -3446,6 +3587,7 @@ const CARDS = [
 
 {
   stage:    "12 ssh & auth",
+  level:    "intermediate",
   question: "Two machines, and you can’t tell whether they share a key. What actually identifies one?",
   answer: [
     "The **fingerprint**. The trailing comment (`you@old-laptop`) is a label set",
@@ -3470,6 +3612,7 @@ const CARDS = [
 
 {
   stage:    "12 ssh & auth",
+  level:    "intermediate",
   question: "You made a key with a custom name and the server still refuses you. What’s missing?",
   answer: [
     "SSH only auto-tries default filenames. A custom name needs a `Host` block in",
@@ -3494,6 +3637,7 @@ const CARDS = [
 
 {
   stage:    "12 ssh & auth",
+  level:    "intermediate",
   question: "Why does `IdentitiesOnly yes` matter on a machine with several keys?",
   answer: [
     "Without it SSH offers every key it can find, in its own order — so a work",
@@ -3522,6 +3666,7 @@ const CARDS = [
 
 {
   stage:    "12 ssh & auth",
+  level:    "intermediate",
   question: "Stop being asked for the key passphrase on every single push, on macOS?",
   answer: [
     "$ ssh-add --apple-use-keychain ~/.ssh/github_personal",
@@ -3546,6 +3691,7 @@ const CARDS = [
 
 {
   stage:    "12 ssh & auth",
+  level:    "basics",
   question: "Confirm SSH access to GitHub actually works, before touching any repository?",
   answer: [
     "$ ssh -T git@github.com",
@@ -3569,6 +3715,7 @@ const CARDS = [
 
 {
   stage:    "12 ssh & auth",
+  level:    "basics",
   question: "GitHub answers a pull with “Password authentication is not supported.” What broke, and the two fixes?",
   answer: [
     "GitHub removed password auth for git operations in 2021. Either switch the",
@@ -3594,6 +3741,7 @@ const CARDS = [
 
 {
   stage:    "13 daily practice",
+  level:    "basics",
   question: "`--force` vs `--force-with-lease`?",
   answer: [
     "The lease overwrites the remote branch *only if* it still matches your",
@@ -3619,6 +3767,7 @@ const CARDS = [
 
 {
   stage:    "13 daily practice",
+  level:    "intermediate",
   question: "Ignore `.DS_Store` in every repository on this machine — the two-step?",
   answer: [
     "$ echo \".DS_Store\" >> ~/.gitignore_global",
@@ -3646,6 +3795,7 @@ const CARDS = [
 
 {
   stage:    "13 daily practice",
+  level:    "basics",
   question: "Keep build output out of the repository for everyone who clones it?",
   answer: [
     "A `.gitignore` file committed at the repo root — patterns apply to that",
@@ -3669,6 +3819,7 @@ const CARDS = [
 
 {
   stage:    "13 daily practice",
+  level:    "intermediate",
   question: "You added a file to `.gitignore` but git keeps tracking it. Why — and the fix?",
   answer: [
     "Ignore rules apply only to *untracked* files; this one was already",
@@ -3692,6 +3843,7 @@ const CARDS = [
 
 {
   stage:    "13 daily practice",
+  level:    "intermediate",
   question: "Where does the global gitconfig live on Windows — and the command that always finds it, on any OS?",
   answer: [
     "`%USERPROFILE%\\.gitconfig`. But don’t hunt for it:",
@@ -3715,6 +3867,7 @@ const CARDS = [
 
 {
   stage:    "13 daily practice",
+  level:    "intermediate",
   question: "A config setting refuses to behave. Which command shows where every value came from?",
   answer: [
     "$ git config --list --show-origin",
@@ -3739,6 +3892,7 @@ const CARDS = [
 
 {
   stage:    "13 daily practice",
+  level:    "intermediate",
   question: "`git log --since=2 weeks ago` → “fatal: ambiguous argument ’weeks’”. What went wrong?",
   answer: [
     "The shell split the unquoted value into three arguments before git saw it.",
@@ -3763,6 +3917,7 @@ const CARDS = [
 
 {
   stage:    "13 daily practice",
+  level:    "intermediate",
   question: "Show the commits that are on `dev` but not yet on `main`?",
   answer: [
     "$ git log main..dev --oneline",
@@ -3789,6 +3944,7 @@ const CARDS = [
 
 {
   stage:    "13 daily practice",
+  level:    "intermediate",
   question: "Find the commit where `feature/task-queue` started — the point it grew away from `main`?",
   answer: [
     "$ git merge-base main feature/task-queue",
@@ -3819,6 +3975,7 @@ const CARDS = [
 
 {
   stage:    "13 daily practice",
+  level:    "intermediate",
   question: "Hide merge commits from a log; show *only* the merges?",
   answer: [
     "`--no-merges` and `--merges`. The second is a quick “what landed this week”",
@@ -3841,6 +3998,7 @@ const CARDS = [
 
 {
   stage:    "13 daily practice",
+  level:    "intermediate",
   question: "Read a busy trunk as a list of what landed, without the interior of every merged branch?",
   answer: [
     "$ git log --first-parent dev --oneline",
@@ -3864,6 +4022,7 @@ const CARDS = [
 
 {
   stage:    "13 daily practice",
+  level:    "intermediate",
   question: "Limit a log to commits touching one directory?",
   answer: [
     "Everything after `--` is a pathspec:",
@@ -3887,6 +4046,7 @@ const CARDS = [
 
 {
   stage:    "13 daily practice",
+  level:    "intermediate",
   question: "A constant named `QUEUE_DEPTH` is gone from the codebase. Which commit deleted it?",
   answer: [
     "$ git log -S QUEUE_DEPTH --oneline",
@@ -3928,6 +4088,7 @@ const CARDS = [
 
 {
   stage:    "13 daily practice",
+  level:    "intermediate",
   question: "One line in a file makes no sense to you. Who wrote it, when, and in which commit?",
   answer: [
     "$ git blame -L 40,60 src/core/runner.py",
@@ -3957,6 +4118,7 @@ const CARDS = [
 
 {
   stage:    "13 daily practice",
+  level:    "intermediate",
   question: "Monday morning, and you have to say what you did last week. Ask git.",
   answer: [
     "$ git log --since=1.week --author=you --oneline",
@@ -3987,6 +4149,7 @@ const CARDS = [
 
 {
   stage:    "14 gotchas",
+  level:    "intermediate",
   question: "The rebase succeeded and `git diff` is clean, but your editor still shows the old file. What happened?",
   answer: [
     "The editor’s buffer cache is stale. Git swapped the working tree underneath",
@@ -4010,6 +4173,7 @@ const CARDS = [
 
 {
   stage:    "14 gotchas",
+  level:    "intermediate",
   question: "In Eclipse you pressed F5 and the sources are *still* stale. Why isn’t a refresh enough?",
   answer: [
     "F5 refreshes only the workspace’s filesystem model — one of four cache",
@@ -4031,6 +4195,7 @@ const CARDS = [
 
 {
   stage:    "14 gotchas",
+  level:    "basics",
   question: "`git status` says “HEAD detached at a1b2c3d”. What does that mean, and what should you do before committing?",
   answer: [
     "You’re pointing straight at a commit with no branch attached, so new commits",
@@ -4055,6 +4220,7 @@ const CARDS = [
 
 {
   stage:    "14 gotchas",
+  level:    "intermediate",
   question: "You committed inside a submodule and the commits later vanished. Why?",
   answer: [
     "Submodules check out a *detached HEAD* by default — they track a commit, not",
@@ -4080,6 +4246,7 @@ const CARDS = [
 
 {
   stage:    "14 gotchas",
+  level:    "intermediate",
   question: "`--since` combined with `--graph --all` returns a set that looks arbitrary. What is actually going on?",
   answer: [
     "`--since` is a traversal *cutoff*, not a filter applied afterwards. Git",
@@ -4138,6 +4305,7 @@ const CARDS = [
 
 {
   stage:    "15 tags & releases",
+  level:    "intermediate",
   question: "Mark the commit you are on as release `v0.1.0`, in the form that records who cut it and when?",
   answer: [
     "$ git tag -a v0.1.0 -m \"First usable cut\"",
@@ -4166,6 +4334,7 @@ const CARDS = [
 
 {
   stage:    "15 tags & releases",
+  level:    "intermediate",
   question: "A tag and a branch are both refs. What is the difference, mechanically?",
   answer: [
     "Movement. A branch label advances with every commit made on it; a tag is",
@@ -4193,6 +4362,7 @@ const CARDS = [
 
 {
   stage:    "15 tags & releases",
+  level:    "intermediate",
   question: "You tagged a release and pushed, yet `git ls-remote` shows no tag on the server. What happened?",
   answer: [
     "`git push` moves branches only — a tag stays local until pushed by name.",
@@ -4218,6 +4388,7 @@ const CARDS = [
 
 {
   stage:    "15 tags & releases",
+  level:    "intermediate",
   question: "Name where you stand relative to the last release — the string a build stamps into its version?",
   answer: [
     "$ git describe",
@@ -4245,6 +4416,7 @@ const CARDS = [
 
 {
   stage:    "15 tags & releases",
+  level:    "intermediate",
   question: "Read the code exactly as `v0.1.0` shipped — and what state does that put you in?",
   answer: [
     "$ git switch --detach v0.1.0",
@@ -4269,6 +4441,7 @@ const CARDS = [
 
 {
   stage:    "15 tags & releases",
+  level:    "intermediate",
   question: "The release tag sits on the wrong commit. What does moving it cost, and when is that still worth paying?",
   answer: [
     "$ git tag -fa v0.1.0 <right-commit> && git push -f origin v0.1.0",
