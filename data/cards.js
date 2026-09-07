@@ -590,6 +590,37 @@ const CARDS = [
 },
 
 {
+  stage:    "01 foundations",
+  question: "You need a flag and you do not know its name. Ask git two ways, and say which one leaves options out.",
+  answer: [
+    "$ git log -h        the one-screen summary, no pager",
+    "$ git help log      the full manual page",
+    "The short form is deliberately incomplete: it lists the options log defines",
+    "and leaves out the ones it shares with the rest of git."
+  ],
+  detail: [
+    "`git log -h` never mentions `--stat`, because `--stat` belongs to the diff",
+    "machinery that `log`, `show` and `diff` all draw from; `git help log` documents",
+    "it in full. So `-h` is for remembering a spelling you already know, and `help`",
+    "is for finding one you do not.",
+    "",
+    "`git help -g` switches the listing from commands to concept guides, and one of",
+    "them is worth the detour on its own: `git help revisions` is where `HEAD~2`,",
+    "`@{u}`, `a..b` and `stash@{1}` are actually specified, rather than merely used."
+  ],
+  figure: [
+    "git log -h         options log defines",
+    "git help log       those, plus every shared diff option",
+    "",
+    "git help -a        every command there is",
+    "git help -g        the concept guides",
+    "git help revisions how commits are named",
+    "git help glossary  the vocabulary"
+  ],
+  proGit:   "Getting-Started-Getting-Help"
+},
+
+{
   stage:    "02 branching",
   question: "Create a new branch and switch to it — one command, modern syntax.",
   answer: [
@@ -1528,6 +1559,98 @@ const CARDS = [
     "rebase-pull: … ── origin work ── your commits'   (linear)"
   ],
   proGit:   "Git-Branching-Rebasing"
+},
+
+{
+  stage:    "05 sync basics",
+  question: "`git status` says *no upstream*. Pair this branch with its remote counterpart — without pushing anything.",
+  answer: [
+    "$ git branch -u origin/feature/task-queue",
+    "Records the pairing in the local config. `git push` and `git pull` now know",
+    "where to go, and status starts counting ahead and behind again."
+  ],
+  detail: [
+    "The long spelling is `--set-upstream-to`, and it acts on the branch you are",
+    "standing on unless you name another as a second argument.",
+    "",
+    "Two things leave a branch unpaired. One is a branch made before anyone thought",
+    "about the server. The other is a rename: `git branch -m old new` leaves the",
+    "upstream still pointing at `origin/old`, so the pairing survives as a lie until",
+    "you re-point it or push with `-u`. `git branch --unset-upstream` breaks it",
+    "deliberately, which is what you want before deleting the remote branch."
+  ],
+  figure: [
+    "main         ## main...origin/main [ahead 2]      paired",
+    "feature/x    ## feature/x                         no upstream",
+    "",
+    "git branch -u origin/feature/x     pair it, push nothing",
+    "git push -u origin feature/x       pair it by pushing",
+    "git branch --unset-upstream        break the pairing"
+  ],
+  proGit:   "Git-Branching-Remote-Branches"
+},
+
+{
+  stage:    "05 sync basics",
+  question: "A colleague pushed `feature/parser` and you have fetched it. Get a local branch tracking it — in one command, with no flags.",
+  answer: [
+    "$ git switch feature/parser",
+    "Git finds no local branch by that name, sees exactly one remote that has it,",
+    "and creates the local branch already tracking it."
+  ],
+  detail: [
+    "This only fires when the name is unambiguous. Add a second remote with the same",
+    "branch and git refuses rather than guessing, pointing at two ways out:",
+    "spell the remote out with `git switch --track origin/feature/parser`, or settle",
+    "it once with `git config checkout.defaultRemote origin`.",
+    "",
+    "It also needs the remote-tracking ref to exist locally already, so a `git fetch`",
+    "has to come first — the guess is made against `refs/remotes`, never against the",
+    "server."
+  ],
+  figure: [
+    "refs/remotes/origin/feature/parser     fetched, exists",
+    "refs/heads/feature/parser              missing",
+    "",
+    "git switch feature/parser",
+    "  → creates refs/heads/feature/parser",
+    "  → upstream set to origin/feature/parser",
+    "",
+    "two remotes have the name → git refuses and names both ways out"
+  ],
+  proGit:   "Git-Branching-Remote-Branches"
+},
+
+{
+  stage:    "05 sync basics",
+  question: "What have you written that the server has not seen — and what is waiting there for you?",
+  answer: [
+    "$ git log @{u}.. --oneline      yours, not yet pushed",
+    "$ git log ..@{u} --oneline      theirs, not yet merged",
+    "`@{u}` is *this branch's upstream*, so neither line names a branch and both",
+    "keep working after you switch."
+  ],
+  detail: [
+    "This is the two-dot range with one end left off, which git fills in with `HEAD`.",
+    "`@{u}..` reads as *from upstream to here*, and `..@{u}` the other way — the two",
+    "halves of the `[ahead 2, behind 3]` that `git status -sb` prints, spelled out as",
+    "commits instead of counts.",
+    "",
+    "Because no branch is named, both are worth an alias. `@{push}` is the sibling to",
+    "know on a triangular setup, where you pull from one remote and push to another,",
+    "and `@{u}` is no longer where your work goes."
+  ],
+  figure: [
+    "        ┌── C1 ── C2            (HEAD)",
+    "A ── B ─┤",
+    "        └── S1 ── S2 ── S3      (@{u} — origin/main)",
+    "",
+    "git log @{u}..   →  C1 C2       ahead 2",
+    "git log ..@{u}   →  S1 S2 S3    behind 3",
+    "git status -sb   →  [ahead 2, behind 3]"
+  ],
+  proGit:   "Git-Tools-Revision-Selection",
+  bottomUp: "a-commit-by-any-other-name"
 },
 
 {
@@ -3069,6 +3192,40 @@ const CARDS = [
 },
 
 {
+  stage:    "10 undo · reflog",
+  question: "You want *one file* back as it stood three commits ago, and the rest of the tree left exactly where it is.",
+  answer: [
+    "$ git restore --source=HEAD~3 src/core/runner.py",
+    "Writes that one path into the working tree from the named commit. HEAD, the",
+    "branch and every other file stay where they were."
+  ],
+  detail: [
+    "Without `--source`, `git restore` takes the file from the index, which is the",
+    "everyday discard. With it, any commit will do — a hash, a tag, `main@{yesterday}`.",
+    "",
+    "The default writes the working tree only, leaving the change *unstaged*, so",
+    "`git diff` shows it before anything is committed. `--staged` writes the index",
+    "instead, and `-SW` writes both. The older spelling is",
+    "`git checkout HEAD~3 -- src/core/runner.py`, which is the form you will meet in",
+    "other people's answers. The `--` there separates paths from revisions, so a file",
+    "named like a branch cannot confuse git."
+  ],
+  figure: [
+    "                    --source=HEAD~3",
+    "                          │",
+    "  HEAD~3 ── HEAD~2 ── HEAD~1 ── HEAD      (main, unmoved)",
+    "     │",
+    "     └──→ one path ──→ working tree",
+    "",
+    "git restore --source=X file           worktree only, unstaged",
+    "git restore --source=X --staged file  index only",
+    "git restore --source=X -SW file       both at once"
+  ],
+  proGit:   "Git-Basics-Undoing-Things",
+  bottomUp: "to-reset-or-not-to-reset"
+},
+
+{
   stage:    "11 remotes & server",
   question: "Create a push-ready repository on the server — and why does it have to be this kind?",
   answer: [
@@ -3726,6 +3883,106 @@ const CARDS = [
     "git log --follow -- src/core/runner.py      follow across renames"
   ],
   proGit:   "Git-Basics-Viewing-the-Commit-History"
+},
+
+{
+  stage:    "13 daily practice",
+  question: "A constant named `QUEUE_DEPTH` is gone from the codebase. Which commit deleted it?",
+  answer: [
+    "$ git log -S QUEUE_DEPTH --oneline",
+    "Lists the commits where the *number of occurrences* of that string changed —",
+    "so the one that introduced it, and the one that took it away."
+  ],
+  detail: [
+    "Blame cannot answer this, because it reports the lines a file still has and the",
+    "line you are asking about is the one that no longer exists. The pickaxe searches",
+    "the diffs instead of the tree, across every file and the whole history at once,",
+    "which is why it needs no path to start from.",
+    "",
+    "`-S` counts occurrences, so a line that was *edited* rather than added or",
+    "removed leaves the count unchanged and does not match. `-G` takes a regular",
+    "expression and matches any diff touching a line it finds, which catches the",
+    "edit. Add `-p` to either and the commits arrive with their diffs.",
+    "",
+    "Two silences are worth knowing about, and neither is an error. Adding a path",
+    "turns on history simplification, which can prune the very side branch the string",
+    "lived on — `--full-history` puts it back. And merge commits are not diffed at",
+    "all by default, so a value deleted *by a merge resolution* needs `-m` before the",
+    "merge will admit to it."
+  ],
+  figure: [
+    "git log -S QUEUE_DEPTH          occurrence count changed",
+    "git log -G 'QUEUE_.*'           regex, any line touched",
+    "git log -S QUEUE_DEPTH -p       … and show me the diffs",
+    "",
+    "blame    → lines that are still there",
+    "pickaxe  → lines that stopped being there",
+    "",
+    "-S 'X' -- path                  can find NOTHING: the branch was simplified",
+    "-S 'X' --full-history -- path   the branch is back",
+    "-S 'X' -m                       … and merge diffs are searched too"
+  ],
+  proGit:   "Git-Tools-Searching",
+  bottomUp: "a-commit-by-any-other-name"
+},
+
+{
+  stage:    "13 daily practice",
+  question: "One line in a file makes no sense to you. Who wrote it, when, and in which commit?",
+  answer: [
+    "$ git blame -L 40,60 src/core/runner.py",
+    "Each line prefixed with the commit that last touched it, its author and its",
+    "date. `-L` limits the range, because the whole file is rarely the question."
+  ],
+  detail: [
+    "The commit blame names is the *last* one to touch the line, which is often a",
+    "reformat rather than the decision you are hunting. To step past it, blame the",
+    "parent — `git blame <sha>^ -- <file>` — and read the same range again.",
+    "",
+    "A repository that has run a formatter over everything can record those sweeps",
+    "in a file and have blame skip them for good:",
+    "`git config blame.ignoreRevsFile .git-blame-ignore-revs`. GitHub and GitLab",
+    "honour the same file in their own blame views, so the fix travels."
+  ],
+  figure: [
+    "git blame -L 40,60 file       just that range",
+    "git blame <sha>^ -- file      the file before that commit touched it",
+    "git blame -w file             ignore whitespace-only changes",
+    "git blame -C file             follow lines moved in from other files",
+    "",
+    ".git-blame-ignore-revs        the formatting sweeps to skip"
+  ],
+  proGit:   "Git-Tools-Debugging-with-Git"
+},
+
+{
+  stage:    "13 daily practice",
+  question: "Monday morning, and you have to say what you did last week. Ask git.",
+  answer: [
+    "$ git log --since=1.week --author=you --oneline",
+    "Two filters that compose: a window in time, and a person. Both narrow the",
+    "same list a bare `git log` would print."
+  ],
+  detail: [
+    "`--since` and `--until` take the same generous date vocabulary — `2.weeks`,",
+    "`\"last monday\"`, `2026-04-01` — and bound the window from either end, so",
+    "`--since=2.weeks --until=1.week` is the week before last.",
+    "",
+    "They filter on the *commit* date, not the author date, and a rebase rewrites",
+    "the first while leaving the second alone. So work written a month ago and",
+    "rebased yesterday answers to yesterday here. When that difference matters,",
+    "`--pretty=format:\"%h %ad %cd %s\" --date=short` puts both dates side by side."
+  ],
+  figure: [
+    "--since=1.week                  the last seven days",
+    "--until=2026-04-01              up to a fixed date",
+    "--since=2.weeks --until=1.week  the week before last",
+    "",
+    "--author=name     who wrote it       (author date)",
+    "--committer=name  who applied it     (commit date — what --since reads)"
+  ],
+  proGit:   "Git-Basics-Viewing-the-Commit-History",
+  bottomUp: "a-commit-by-any-other-name"
 },
 
 {

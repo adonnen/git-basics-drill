@@ -197,6 +197,35 @@ const LAB = [
   ]
 },
 
+{
+  title: "Ask git about a flag you do not know",
+  task: [
+    "You want that same history, but with a count of how many lines each commit",
+    "changed — and you do not know the flag. Ask git for the *short* option list",
+    "first and look for it. It will not be there. Then ask for the full manual",
+    "page, find it, and run the log again with it.",
+    "",
+    "Then find where the syntax for naming commits is actually written down —",
+    "`HEAD~2` and its relatives. It is a guide rather than a command, and git",
+    "will list the guides if you ask the right way."
+  ],
+  solution: [
+    "git log -h",
+    "# the one-screen summary, no pager. No --stat anywhere in it: -h lists",
+    "# the options log defines, not the diff options it shares with show",
+    "# and diff",
+    "",
+    "git help log            # the full page — / searches, q quits",
+    "# --stat is documented here",
+    "",
+    "git log --stat",
+    "# the same three commits, each with its files and a +/- count",
+    "",
+    "git help -g             # the concept guides, not the commands",
+    "git help revisions      # where HEAD~2, a..b and @{u} are specified"
+  ]
+},
+
 { act: "II — the index, precisely" },
 
 {
@@ -912,6 +941,45 @@ const LAB = [
   ]
 },
 
+{
+  title: "Trace one line back, and one value that vanished",
+  task: [
+    "Two questions about the file you just merged. One tool answers each, and",
+    "neither answers both.",
+    "",
+    "First: for the `QUEUE_DEPTH` line as it now stands, find the commit, author",
+    "and date that last touched it — without printing the rest of the file.",
+    "",
+    "Second: `QUEUE_DEPTH = 32` lived on the branch you just deleted and is",
+    "nowhere in the tree now. Find the commit that introduced it. Try the obvious",
+    "search *limited to the file* first — it will print nothing, and that silence",
+    "is not an error. Work out what git pruned, then ask again so it answers.",
+    "",
+    "Finally, make the merge commit itself show where the 32 was dropped."
+  ],
+  solution: [
+    "grep -n QUEUE_DEPTH src/runner.py       # note the line number",
+    "git blame -L 1,1 src/runner.py          # use the number you just found",
+    "# one line: the commit that last set it, its author, its date",
+    "",
+    "git log -S 'QUEUE_DEPTH = 32' --oneline -- src/runner.py",
+    "# NOTHING. Adding a path turns on history simplification, and the side",
+    "# branch was simplified away: the merge's result matches main's side,",
+    "# so git decided that side of the fork explained nothing",
+    "",
+    "git log -S 'QUEUE_DEPTH = 32' --oneline --full-history -- src/runner.py",
+    "# there it is — or drop the path entirely, which never simplifies",
+    "",
+    "git log -S 'QUEUE_DEPTH = 32' --oneline -m",
+    "# now two lines: the commit that introduced it, AND the merge that",
+    "# dropped it. Merge commits are not diffed at all without -m",
+    "",
+    "# blame reads the file as it stands, so a line that no longer exists is",
+    "# invisible to it. The pickaxe reads the diffs, which is why it can find",
+    "# a value whose last trace is a deletion"
+  ]
+},
+
 { act: "V — rewriting a branch before it lands" },
 
 {
@@ -1163,6 +1231,38 @@ const LAB = [
     "",
     "# stash is reversible; restore is not — the edit was never",
     "# in the object database, so no reflog can bring it back"
+  ]
+},
+
+{
+  title: "Take one file back to an older commit",
+  task: [
+    "You want to read `src/runner.py` as it stood when it was first committed —",
+    "but only that file, and nothing else in the tree touched.",
+    "",
+    "Find that commit by reading the history rather than by scrolling: you want",
+    "the oldest one that touched the file. Bring its version of the file into",
+    "your working tree. Then confirm three things before you undo it — that",
+    "neither the branch nor HEAD moved, that the change arrived *unstaged*, and",
+    "that the old value is really there. Finish with the tree clean."
+  ],
+  solution: [
+    "git log --oneline -- src/runner.py | tail -1",
+    "# the oldest commit that touched the file — note its hash",
+    "",
+    "git restore --source=<that-hash> src/runner.py",
+    "",
+    "git status -sb          # ONE modified file, and the branch line unchanged:",
+    "                        # restore moves no ref, so HEAD is where it was",
+    "git diff --stat         # the change is unstaged — restore writes the",
+    "                        # working tree only, unless you ask for --staged",
+    "head -1 src/runner.py   # QUEUE_DEPTH is back to its original 8",
+    "",
+    "git restore src/runner.py",
+    "git status -sb          # clean again, ready for the next step",
+    "",
+    "# the index is restore's default source; --source is what let a commit",
+    "# stand in for it here"
   ]
 },
 
