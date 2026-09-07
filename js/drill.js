@@ -25,7 +25,7 @@ const $ = id => document.getElementById(id);
 
 const el = {
   // header
-  blurb:$('blurb'), view:$('view'), chips:$('chips'), theme:$('theme'),
+  blurb:$('blurb'), view:$('view'), chips:$('chips'), theme:$('theme'), level:$('level'),
   filters:$('filters'), filterbar:$('filterbar'), search:$('search'),
   searchClear:$('searchClear'), searchCount:$('searchCount'),
   // progress files
@@ -159,6 +159,7 @@ const prefersReducedMotion = matchMedia('(prefers-reduced-motion: reduce)').matc
  */
 const DECK = CARDS.map(card => ({
   stage:    card.stage,
+  level:    card.level,
   question: renderInline(card.question),
   answer:   renderLines(card.answer),
   detail:   renderLines(card.detail),
@@ -174,6 +175,18 @@ const DECK = CARDS.map(card => ({
 const STAGES    = [...new Set(DECK.map(card => card.stage))];
 const LAB_STEPS = LAB.filter(entry => !entry.act);
 
+/* The difficulty levels, in order, and cumulative: choosing one shows
+   everything at or below it, which is what lets any single level stand on its
+   own. Under that rule "advanced" and "all" would select the same set, so the
+   switch offers three positions rather than four.
+
+   A card or step carrying no level belongs to the full deck only. The absence
+   is deliberate and it fails in the safe direction: something nobody
+   classified stays out of the beginner's pass instead of ambushing them. */
+const LEVELS = ['basics', 'intermediate', 'all'];
+const RANK   = { basics:0, intermediate:1, all:2 };
+const rankOf = item => RANK[item.level] ?? RANK.all;
+
 LAB_STEPS.forEach(step => { step.key = hashKey('lab|' + step.title); });
 
 let view      = 'cards';   // 'cards' | 'lab'
@@ -185,18 +198,20 @@ const labDone = new Set(); // keys of completed lab steps
 
 let order      = DECK.map((_, i) => i); // deck indices, in presentation order
 let filter     = 'all';                 // active stage, or 'all'
+let level      = 'all';                 // active difficulty, one of LEVELS
 let terms      = [];                    // keyword filter, OR-ed together
 let pos        = 0;                     // cursor within the visible list
 let flipped    = false;                 // showing the answer?
 let sequential = true;                  // order untouched -> draw stage gaps
 
 /**
- * Does this card survive both filters? The stage must match (or be 'all'), and
- * at least one search term must appear somewhere in the card — terms are OR-ed,
- * so "rebase stash" shows cards about either.
+ * Does this card survive all three filters? The level must reach it, the stage
+ * must match (or be 'all'), and at least one search term must appear somewhere
+ * in the card — terms are OR-ed, so "rebase stash" shows cards about either.
  */
 function keeps(deckIndex){
   const card = DECK[deckIndex];
+  if(rankOf(card) > RANK[level]) return false;
   if(filter !== 'all' && card.stage !== filter) return false;
   if(terms.length && !terms.some(term => card.hay.includes(term))) return false;
   return true;
@@ -222,6 +237,33 @@ function applyTheme(next){
 
 /** auto -> light -> dark -> auto, for the keyboard shortcut. */
 const cycleTheme = () => applyTheme({ auto:'light', light:'dark', dark:'auto' }[theme]);
+
+/**
+ * Set the level and light the right button, and nothing else. Kept separate
+ * from applyLevel because boot and a loaded progress file both need the level
+ * live *before* the lab is built, without also moving the card cursor or
+ * writing the session back.
+ */
+function setLevel(next){
+  level = LEVELS.includes(next) ? next : 'all';
+  for(const b of el.level.children) b.classList.toggle('on', b.dataset.level === level);
+}
+
+/** Switch level from the UI: both views change membership, so both rebuild. */
+function applyLevel(next){
+  setLevel(next);
+  buildLab();          // the lab's step list changed
+  syncLab();           // and the ticks have to find the new checkboxes
+  pos = 0;
+  flipped = false;
+  showDeckPanel('stage');
+  render();
+  remember();
+}
+
+/** basics -> intermediate -> all -> basics, for the keyboard shortcut. */
+const cycleLevel = () =>
+  applyLevel(LEVELS[(LEVELS.indexOf(level) + 1) % LEVELS.length]);
 
 /** Choose which cards-view panel is current, and show it if that view is up. */
 function showDeckPanel(which){
@@ -326,10 +368,15 @@ function drawGraph(){
 function drawCard(){
   const card = current();
   if(!card){                                  // the filters matched nothing
+    // Naming the level matters here: several stages hold no basics cards at
+    // all, and "No cards in this stage" would read as a bug rather than as the
+    // level doing its job.
+    const at  = level === 'all' ? '' : ' at ' + level;
     const why = terms.length && filter !== 'all'
-      ? 'No cards match those keywords in ' + filter + '.'
-      : terms.length ? 'No cards match those keywords.'
-      : 'No cards in this stage.';
+      ? 'No cards match those keywords in ' + filter + at + '.'
+      : terms.length ? 'No cards match those keywords' + at + '.'
+      : filter !== 'all' ? 'No cards in this stage' + at + '.'
+      : 'No cards' + at + '.';
     el.text.className = 'prose q';
     el.text.textContent = why;
     el.path.textContent = '~/git-drill/';
@@ -547,17 +594,44 @@ function restart(withShuffle){
 
 /** How many steps sit under an act marked optional — counted, never hardcoded. */
 
+/** The steps this level shows, in file order. LAB_STEPS stays whole: it is the
+    identity of the lab, and every progress file is measured against all of it. */
+const labSteps = () => LAB_STEPS.filter(step => rankOf(step) <= RANK[level]);
+
+/** Does this act keep a step at this level? An act's steps are the entries that
+    follow its divider, so this walks forward to the next one. */
+function actHasVisibleStep(actEntry){
+  const start = LAB.indexOf(actEntry);
+  for(let i = start + 1; i < LAB.length && !LAB[i].act; i++){
+    if(rankOf(LAB[i]) <= RANK[level]) return true;
+  }
+  return false;
+}
+
+/* Both numbers follow the level. A reader at basics is working through a
+   30-step lab, and every count in front of them should describe that lab; the
+   full totals belong to the progress file, which describes the artefact. The
+   numerator has to be counted rather than read off labDone.size, because ticks
+   survive a level change and someone who did 40 steps at "all" would otherwise
+   be told "40 of 31". */
 function labProgressText(){
-  return '<b>' + labDone.size + '</b> of ' + LAB_STEPS.length + ' steps done';
+  const shown = labSteps();
+  const done  = shown.filter(step => labDone.has(step.key)).length;
+  const rest  = LAB_STEPS.length - shown.length;
+  return '<b>' + done + '</b> of ' + shown.length + ' steps done' +
+         (rest ? ' · ' + rest + ' more in the full lab' : '');
 }
 
 function buildIntro(){
   const intro = make('div', 'lab-intro prose');
-  const acts = LAB.filter(entry => entry.act);
+  // Every count here is derived, because at basics the hardcoded ones were all
+  // wrong: two acts keep no steps and are not drawn at all.
+  const acts = LAB.filter(entry => entry.act && actHasVisibleStep(entry));
   const optionalActs = acts.filter(entry => entry.optional).length;
+  const shown = labSteps().length;
   intro.innerHTML =
     '<h2>Lab — build a repository from nothing</h2>' +
-    '<p>' + LAB_STEPS.length + ' steps in a real terminal, against a real directory on ' +
+    '<p>' + shown + ' steps in a real terminal, against a real directory on ' +
     'your machine. Read the task, do it in your shell, then reveal the solution to ' +
     'check yourself.</p>' +
     '<p>The steps grow a tiny Python module — a <code>TaskRunner</code> class that ' +
@@ -567,7 +641,8 @@ function buildIntro(){
     'lesson to work — two changes far apart in one file, a line both branches will ' +
     'fight over — the task names that property, and the solution says why it ' +
     'matters.</p>' +
-    '<p>' + optionalActs + ' of the ' + acts.length + ' acts are marked optional and can ' +
+    '<p>' + (optionalActs || 'None') + ' of the ' + acts.length + ' acts ' +
+    (optionalActs === 1 ? 'is' : 'are') + ' marked optional and can ' +
     'be skipped. Everything up to the last act runs on your own machine; the last act ' +
     'adds a remote, using a bare repository next door as the “server”, so no account is ' +
     'needed anywhere. You need git and a shell: Terminal on macOS or Linux, Git Bash on ' +
@@ -683,16 +758,29 @@ function foldFinishedActs(){
 function buildLab(){
   el.lab.replaceChildren(buildIntro());
   actGroups.length = 0;
+
+  // buildStep parks its checkbox on the entry, and a rebuild at a narrower
+  // level would otherwise leave excluded steps holding a box that is no longer
+  // in the document — which syncLab would then tick, invisibly. Clearing first
+  // is what makes its `if(!step.box)` guard mean what it says.
+  for(const step of LAB_STEPS) step.box = null;
+
   let number = 0, group = null, tint = '';
   for(const entry of LAB){
     if(entry.act){
+      // An act with nothing left at this level is not drawn at all. It has to
+      // be decided before the divider is built: the tint cycle runs off
+      // actGroups.length, so a group dropped after the fact would shift the
+      // colour of every act behind it.
+      if(!actHasVisibleStep(entry)){ group = null; tint = ''; continue; }
       // each act deals the next of four tint classes; the colours are in the CSS
       tint  = 'act-c' + (actGroups.length % 4 + 1);
       group = buildAct(entry, tint, actGroups.length);
       actGroups.push(group);
       el.lab.appendChild(group);
     } else {
-      const step = buildStep(entry, ++number);
+      if(rankOf(entry) > RANK[level]) continue;   // skip before ++number, so the
+      const step = buildStep(entry, ++number);    // survivors number 01..n solid
       if(tint) step.classList.add(tint);
       // A step before the first divider belongs to no act, so it cannot fold.
       if(group){ group.steps.appendChild(step); group.boxes.push(entry.box); }
@@ -767,7 +855,9 @@ function serialize(){
   return JSON.stringify({
     app:'git-drill', version:1,
     saved:new Date().toISOString(),
-    theme,
+    theme, level,
+    // The sizes describe the whole artefact, never the current level's view of
+    // it: the file has to stay readable by someone drilling at another level.
     deckSize:DECK.length, graded:Object.keys(marks).length,
     labSize:LAB_STEPS.length, labDone:labDone.size,
     marks,
@@ -806,11 +896,18 @@ function deserialize(text){
 
   if(data.theme) applyTheme(data.theme);
 
+  // Order matters, and getting it wrong is silent. The level has to be live
+  // before the lab is rebuilt, and the rebuild has to happen before the ticks
+  // go back on — syncLab writes onto the checkboxes buildLab creates, so any
+  // other order ticks a tree that is about to be replaced.
+  if(data.level) setLevel(data.level);
+  buildLab();
+
   if(labKeys){
     labDone.clear();
     labKeys.forEach(key => labDone.add(key));
-    syncLab();
   }
+  syncLab();
 
   grades.clear();
   for(const [index, value] of next) grades.set(index, value);
@@ -1025,6 +1122,12 @@ function validateData(){
     if(card.bottomUp && !REFERENCES.bottomUp.sections[card.bottomUp]){
       problems.push(where + ': "' + card.bottomUp + '" is not in references.js');
     }
+    // A misspelt level is the one mistake here that hides rather than shows:
+    // it silently demotes the card to the full deck, which is exactly what a
+    // missing level does on purpose, so nothing looks wrong.
+    if(card.level !== undefined && !LEVELS.includes(card.level)){
+      problems.push(where + ': "' + card.level + '" is not a level — use ' + LEVELS.join(', '));
+    }
   });
 
   let step = 0;
@@ -1039,6 +1142,9 @@ function validateData(){
       if(!Array.isArray(entry[field]) || !entry[field].length){
         problems.push(where + ': "' + field + '" should be a list of lines in [ ]');
       }
+    }
+    if(entry.level !== undefined && !LEVELS.includes(entry.level)){
+      problems.push(where + ': "' + entry.level + '" is not a level — use ' + LEVELS.join(', '));
     }
   });
 
@@ -1098,6 +1204,7 @@ el.searchClear.onclick = () => { clearSearch(); applySearch(''); el.search.focus
 // switches
 for(const b of el.view.children)  b.onclick = () => applyView(b.dataset.view);
 for(const b of el.theme.children) b.onclick = () => applyTheme(b.dataset.theme);
+for(const b of el.level.children) b.onclick = () => applyLevel(b.dataset.level);
 
 // the session gate
 el.gResume.onclick = resumeSession;
@@ -1147,6 +1254,7 @@ document.addEventListener('keydown', e => {
     case 'a': case 'A': grade('again'); break;
     case 'd': case 'D': if(flipped) openDetails(); break;
     case 's': case 'S': shuffle(); break;
+    case 'l': case 'L': cycleLevel(); break;
     case 't': case 'T': cycleTheme(); break;
     case '/':           e.preventDefault(); el.search.focus(); break;
   }
@@ -1155,7 +1263,9 @@ document.addEventListener('keydown', e => {
 // Counts are read from the data, so adding a card or a step needs no edit here.
 el.blurb.innerHTML =
   DECK.length + ' cards in ' + STAGES.length + ' stages, plus a ' + LAB_STEPS.length +
-  '-step lab you run in a real terminal. Flip a card, then hit <b>details</b> for a figure, ' +
+  '-step lab you run in a real terminal. New to git? Set the switch to ' +
+  '<b>basics</b> and both halves shrink to the minimum worth knowing. ' +
+  'Flip a card, then hit <b>details</b> for a figure, ' +
   'the fine print, and links into the exact section of <i>Pro Git</i> and Wiegley’s ' +
   '<i>Git from the Bottom Up</i>. The ' +
   '<a href="https://github.com/adonnen/git-basics-drill#readme" target="_blank" ' +
@@ -1182,6 +1292,10 @@ validateData();
 // carries is the first one painted. Its marks wait behind the gate.
 const stored = recall();
 applyTheme(stored?.theme || 'auto');
+// The level is set before buildLab rather than through applyLevel, which would
+// build the lab a second time. Default 'all': someone arriving for the first
+// time should see the whole thing and choose to narrow it.
+setLevel(stored?.level || 'all');
 buildChips();
 buildLab();
 render();

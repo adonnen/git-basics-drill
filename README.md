@@ -67,7 +67,9 @@ keeps any card containing at least one of your terms, so `rebase stash` shows
 cards about either — useful when you know the word but not the stage. The
 **stage chips** narrow to one lane, so you can drill just merging, or just the
 undo family. Use them together to search within a stage; the count beside the
-box tells you how many cards survived.
+box tells you how many cards survived. Both compose with the [level
+switch](#levels) as well, so a stage holding no basics cards says so rather
+than looking broken.
 
 The row of dots at the bottom is one node per card — green for solid, rust for
 revisit, amber ring for where you are. It follows the filters, so it always
@@ -84,6 +86,7 @@ shows the set you are working through. Click any dot to jump there.
 | `d` | open the details pop-up |
 | `/` | jump to the keyword box (`esc` clears it) |
 | `s` | shuffle the deck |
+| `l` | cycle the level — basics, intermediate, all |
 | `t` | cycle the theme |
 | `⌘/ctrl-s` | save progress |
 
@@ -130,6 +133,45 @@ Everything the lab creates lives in two or three directories; the closing
 steps of acts VII and VIII delete them.
 
 You need git and a shell: Terminal on macOS or Linux, **Git Bash** on Windows.
+
+---
+
+## Levels
+
+![The level switch](docs/ui-levels.svg)
+
+The deck is the right size for someone coming back to it and the wrong size for
+someone starting. The third switch in the top right cuts both halves down to a
+first pass: **basics** is 49 cards and 31 steps, **intermediate** adds the rest
+of the everyday material, and **all** is everything. It sits with the view and
+theme switches rather than with the card filters, because it governs the lab
+too and those filters hide in the lab view.
+
+The levels nest instead of sitting side by side, so choosing intermediate shows
+the basics cards as well. That is what lets any one of them stand on its own: an
+intermediate card leaning on a basics idea is no use with the basics card
+hidden. One consequence worth knowing — under that rule an *advanced* position
+and *all* would select the same cards, so the switch has three positions rather
+than four.
+
+Basics is the minimum you could work with and nothing beyond it: making a
+repository, staging, committing, reading status, branching, merging, rebasing,
+pushing and pulling against a remote, and resolving one real conflict by hand.
+
+The lab is the half where this is harder than it looks. Its steps run in order
+against a single repository, so the steps a level keeps have to remain a
+sequence that works — each one finding the state it expects. Some steps are
+therefore in basics while teaching nothing a beginner asked for. *Add the first
+real source file* is one: it writes the two lines act IV later puts in conflict,
+far enough apart that git reports two conflicts rather than one. Acts VI and VII
+keep nothing at basics and are not drawn at all, and the numerals keep their
+gaps — I, II, III, IV, V, VIII — which is honest about the lab being larger than
+the pass you are taking through it.
+
+The level is remembered with the rest of your session and travels in progress
+files. A file saved at one level opens at another without losing anything: ticks
+and grades for hidden material stay in the file and reappear when you widen the
+switch.
 
 ---
 
@@ -260,6 +302,7 @@ existing card. No web development needed — a card is a block of plain text:
 ```js
 {
   stage:    "02 branching",
+  level:    "intermediate",
   question: "How do you rename the branch you are on?",
   answer: [
     "Renames your local label only.",
@@ -279,6 +322,14 @@ existing card. No web development needed — a card is a block of plain text:
   bottomUp: "the-beauty-of-commits"
 },
 ```
+
+`level` is optional and takes `"basics"` or `"intermediate"` — see
+[Levels](#levels). Leaving it off is a real choice rather than an oversight: an
+untagged card appears only in the full deck, which is the safe direction, since
+a card nobody has classified stays out of a beginner's first pass. The test for
+basics is not whether a card is useful but whether someone in their first month
+would meet it *and* whether every idea it leans on is basics too. That second
+half is the one that catches people.
 
 Every line goes in `"double quotes"`, separated by commas. Five marks work in
 `question`, `answer`, `detail` and lab tasks:
@@ -335,6 +386,7 @@ Same shape, in [`data/lab.js`](data/lab.js):
 ```js
 {
   title: "Delete the merged branch",
+  level: "basics",
   task: [
     "Remove the branch label using the form that refuses to delete unmerged",
     "work. Confirm the commits survived it."
@@ -349,6 +401,14 @@ Same shape, in [`data/lab.js`](data/lab.js):
 Write tasks as requirements rather than commands — the reader should have to
 know the tool to get there. `solution` lines are shown exactly as typed, so
 comments and indentation line up.
+
+`level` works as it does on a card, with one extra obligation that is easy to
+miss. The lab's steps run in order against one repository, so before you move a
+step down a level, read what its solution *produces* rather than only what it
+teaches: a level's steps have to remain a sequence that works, with every step
+finding the state it expects and none of them destroying state a later one
+needs. `node tools/check.js` will tell you if an act has been emptied, but it
+cannot tell you that step 14 now expects a branch step 9 used to make.
 
 Act dividers are entries with an `act` instead of a task, and `optional: true`
 gives the act its OPTIONAL badge:

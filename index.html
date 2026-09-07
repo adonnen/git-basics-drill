@@ -27,6 +27,13 @@
           <button data-theme="light">light</button>
           <button data-theme="dark">dark</button>
         </span>
+        <!-- The level switch belongs here rather than with the filters below:
+             those hide in the lab view, and this one governs the lab too. -->
+        <span class="seg" id="level" role="group" aria-label="Difficulty level">
+          <button data-level="basics">basics</button>
+          <button data-level="intermediate">interm.</button>
+          <button data-level="all">all</button>
+        </span>
       </div>
 
       <!-- All three buttons are here from the first paint. Revealing one later
@@ -97,7 +104,7 @@
       </div>
 
       <div class="graph" id="graph" aria-label="Progress"></div>
-      <div class="keys">space flip · ← → move · <span style="color:var(--green)">g</span> got it · <span style="color:var(--rust)">a</span> again · <span style="color:var(--amber)">d</span> details · s shuffle · <span style="color:var(--amber)">/</span> search · t theme · ⌘/ctrl-s save</div>
+      <div class="keys">space flip · ← → move · <span style="color:var(--green)">g</span> got it · <span style="color:var(--rust)">a</span> again · <span style="color:var(--amber)">d</span> details · s shuffle · <span style="color:var(--amber)">/</span> search · <span style="color:var(--amber)">l</span> level · t theme · ⌘/ctrl-s save</div>
     </div>
   </section>
 

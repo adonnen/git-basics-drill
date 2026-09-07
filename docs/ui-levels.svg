@@ -1,0 +1,97 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 620 438" width="620" height="438" role="img" aria-label="Sketch of the difficulty level switch">
+  <title>Sketch of the difficulty level switch</title>
+  <defs>
+    <filter id="rough" x="-5%" y="-5%" width="110%" height="110%">
+      <feTurbulence type="fractalNoise" baseFrequency="0.035" numOctaves="3" seed="7" result="n"/>
+      <feDisplacementMap in="SourceGraphic" in2="n" scale="2.2" xChannelSelector="R" yChannelSelector="G"/>
+    </filter>
+  </defs>
+  <style>
+    .ink   { fill:none; stroke:#2f2a24; stroke-width:2; stroke-linecap:round; stroke-linejoin:round; }
+    .thin  { fill:none; stroke:#2f2a24; stroke-width:1.3; stroke-linecap:round; }
+    .fade  { fill:none; stroke:#9a9086; stroke-width:1.3; stroke-linecap:round; }
+    .fill  { fill:#f0ebe0; stroke:#2f2a24; stroke-width:2; }
+    .amber { fill:#e0a458; stroke:#2f2a24; stroke-width:1.5; }
+    .green { fill:#7fb069; stroke:#2f2a24; stroke-width:1.5; }
+    .rust  { fill:#c0674f; stroke:#2f2a24; stroke-width:1.5; }
+    .paper { fill:#fffdf7; stroke:#2f2a24; stroke-width:2.4; }
+    text   { font-family:'Comic Sans MS','Bradley Hand','Segoe Print','Chalkboard SE',cursive; fill:#2f2a24; }
+    .t     { font-size:13px; }
+    .s     { font-size:11px; fill:#6a6355; }
+    .lbl   { font-size:12px; fill:#a5641b; }
+    .mono  { font-family:ui-monospace,Menlo,Consolas,monospace; font-size:10.5px; fill:#6a6355; }
+    .head  { font-size:16px; }
+  </style>
+  <rect width="620" height="438" fill="#f5f2ea"/>
+  <g filter="url(#rough)">
+
+    <text class="head" x="30" y="34">Levels</text>
+    <text class="s" x="30" y="54">one switch, both views — it narrows the deck and the lab together</text>
+
+    <!-- the switch itself, sitting with view and theme rather than with the
+         card filters: those hide in the lab view, and this must not. -->
+    <rect class="fill" x="358" y="18" width="232" height="26" rx="4"/>
+    <line class="thin" x1="424" y1="18" x2="424" y2="44"/>
+    <line class="thin" x1="530" y1="18" x2="530" y2="44"/>
+    <rect class="amber" x="358" y="18" width="66" height="26" rx="4"/>
+    <text class="s" x="370" y="36">basics</text>
+    <text class="s" x="436" y="36">intermediate</text>
+    <text class="s" x="548" y="36">all</text>
+    <path class="fade" d="M348 62 C 366 62, 380 54, 388 46"/>
+    <text class="lbl" x="132" y="66">sits beside the view and theme switches, never with the card filters →</text>
+
+    <!-- cumulative nesting -->
+    <rect class="paper" x="30" y="92" width="342" height="196" rx="8"/>
+    <text class="t" x="46" y="114">all</text>
+    <text class="mono" x="250" y="114">165 cards · 65 steps</text>
+
+    <rect class="fill" x="52" y="126" width="298" height="146" rx="7"/>
+    <text class="t" x="68" y="148">intermediate</text>
+    <text class="mono" x="238" y="148">156 cards · 61 steps</text>
+
+    <rect class="amber" x="74" y="160" width="254" height="96" rx="6"/>
+    <text class="t" x="90" y="182">basics</text>
+    <text class="mono" x="212" y="182">49 cards · 31 steps</text>
+    <text class="s" x="90" y="206">init · add · commit · status</text>
+    <text class="s" x="90" y="224">branch · merge · rebase</text>
+    <text class="s" x="90" y="242">push · pull · one real conflict</text>
+
+    <path class="fade" d="M396 176 C 380 176, 372 176, 334 190"/>
+    <text class="lbl" x="402" y="150">the levels nest.</text>
+    <text class="lbl" x="402" y="168">picking one shows</text>
+    <text class="lbl" x="402" y="186">everything inside it</text>
+    <text class="lbl" x="402" y="204">too — which is what</text>
+    <text class="lbl" x="402" y="222">lets any of the three</text>
+    <text class="lbl" x="402" y="240">stand on its own.</text>
+
+    <!-- what it does to the lab -->
+    <text class="t" x="30" y="326">In the lab, whole acts go quiet</text>
+
+    <rect class="amber" x="30" y="340" width="30" height="22" rx="3"/>
+    <text class="s" x="40" y="355">I</text>
+    <rect class="amber" x="66" y="340" width="34" height="22" rx="3"/>
+    <text class="s" x="76" y="355">II</text>
+    <rect class="amber" x="106" y="340" width="38" height="22" rx="3"/>
+    <text class="s" x="116" y="355">III</text>
+    <rect class="amber" x="150" y="340" width="36" height="22" rx="3"/>
+    <text class="s" x="160" y="355">IV</text>
+    <rect class="amber" x="192" y="340" width="32" height="22" rx="3"/>
+    <text class="s" x="202" y="355">V</text>
+
+    <!-- VI and VII: struck through, no basics steps survive in either -->
+    <rect class="fill" x="230" y="340" width="36" height="22" rx="3" opacity="0.45"/>
+    <text class="s" x="240" y="355" opacity="0.45">VI</text>
+    <line class="fade" x1="234" y1="351" x2="262" y2="351"/>
+    <rect class="fill" x="272" y="340" width="42" height="22" rx="3" opacity="0.45"/>
+    <text class="s" x="280" y="355" opacity="0.45">VII</text>
+    <line class="fade" x1="276" y1="351" x2="310" y2="351"/>
+
+    <rect class="amber" x="320" y="340" width="44" height="22" rx="3"/>
+    <text class="s" x="330" y="355">VIII</text>
+
+    <path class="fade" d="M272 378 C 272 370, 272 368, 272 364"/>
+    <text class="lbl" x="30" y="394">acts VI and VII keep no basics steps, so they are hidden — and the numerals</text>
+    <text class="lbl" x="30" y="410">keep their gaps, which is honest about the lab being larger than this pass.</text>
+    <text class="s" x="30" y="430">act VIII stops being optional at basics: the minimum includes pushing and pulling.</text>
+  </g>
+</svg>

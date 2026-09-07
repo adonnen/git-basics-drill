@@ -150,8 +150,10 @@ globalThis.api = {
   serialize, deserialize, applyTheme, renderLines, renderInline,
   remember, recall, forget, openGate, resumeSession, newSession, gateOpen, STORE_KEY,
   ALIASES, openAlias, closeAlias, aliasOpen,
+  LEVELS, applyLevel, setLevel, buildLab, labSteps, labProgressText, actGroups,
   get filter(){ return filter; }, set filter(v){ filter = v; },
-  get theme(){ return theme; }
+  get theme(){ return theme; },
+  get level(){ return level; }
 };`;
 
 try {
@@ -315,6 +317,54 @@ const staged = api.visible().length;
 check(staged > 0 && staged < total, 'the stage filter narrows the deck');
 api.filter = 'all';
 
+/* ---------------------------------------------------------------- levels
+   The whole claim of the feature is set containment: basics inside
+   intermediate inside all. That is checked directly rather than by counting,
+   because counts can agree while membership is wrong. */
+
+console.log('\nlevels');
+
+const at = name => { api.applyLevel(name); return api.visible().slice(); };
+const basicsCards = at('basics');
+const midCards    = at('intermediate');
+const allCards    = at('all');
+
+check(allCards.length === total, 'the full deck is what "all" shows');
+check(basicsCards.length > 0 && basicsCards.length < allCards.length,
+  'basics narrows the deck — ' + basicsCards.length + ' of ' + allCards.length + ' cards');
+check(basicsCards.every(i => midCards.includes(i)), 'every basics card is also in intermediate');
+check(midCards.every(i => allCards.includes(i)), 'every intermediate card is also in the full deck');
+check(basicsCards.every(i => api.DECK[i].level === 'basics'),
+  'nothing above basics leaks into the basics deck');
+
+// An untagged card belongs to the full deck only. That is the fail-safe
+// direction and it has to stay that way: the alternative is a card nobody
+// classified turning up in a beginner's first pass.
+const untagged = api.DECK.filter(c => c.level === undefined);
+check(untagged.length === 0 || !basicsCards.some(i => api.DECK[i].level === undefined),
+  untagged.length + ' untagged cards, none of them shown at basics');
+
+// The lab is the half that can break: its steps run in order, in one
+// repository, so a level's steps have to remain a sequence someone can follow.
+api.applyLevel('basics');
+const basicsSteps = api.labSteps().length;
+const emptyActs = api.actGroups.filter(g => g.boxes.length === 0).length;
+check(emptyActs === 0, 'no act is drawn with nothing under it at basics');
+check(basicsSteps > 0 && basicsSteps < api.LAB_STEPS.length,
+  'basics narrows the lab — ' + basicsSteps + ' of ' + api.LAB_STEPS.length + ' steps');
+
+// buildStep parks a checkbox on the entry; a rebuild at a narrower level must
+// not leave excluded steps holding one that is no longer in the document.
+const stale = api.LAB_STEPS.filter(s => s.box && api.labSteps().indexOf(s) === -1);
+check(stale.length === 0, 'excluded steps keep no checkbox from the previous build');
+
+check(api.labProgressText().includes('of ' + basicsSteps),
+  'the step counter reports the level, not the whole lab');
+
+api.applyLevel('all');
+check(api.labSteps().length === api.LAB_STEPS.length, 'switching back restores every step');
+check(api.visible().length === total, 'switching back restores every card');
+
 /* ----------------------------------------------------------------- views */
 
 console.log('\nviews');
@@ -344,6 +394,32 @@ api.deserialize(saved);
 check(api.grades.size === 2, 'card grades survive a save and load');
 check(api.labDone.size === 1, 'lab ticks survive a save and load');
 check(api.theme === 'light', 'the theme survives a save and load');
+check(api.level === 'all', 'the level survives a save and load');
+
+/* A file written at one level, opened at another. This is the case most likely
+   to break later, because the fix for it is a non-change: the counts a progress
+   file is measured against describe the whole lab, never the level's view of
+   it. Narrow them and a file full of ticks above the current level restores
+   nothing and reports itself as coming from an older deck. */
+api.applyLevel('all');
+api.grades.clear();
+api.labDone.clear();
+api.LAB_STEPS.forEach(step => api.labDone.add(step.key));   // every step ticked
+api.DECK.forEach((_, i) => api.grades.set(i, 'got'));
+const wideFile = api.serialize();
+
+api.applyLevel('basics');
+api.deserialize(wideFile);
+check(!api.el.pStatus.className.includes('err'),
+  'a file saved at "all" loads at basics without reporting a failure');
+check(api.labDone.size === api.LAB_STEPS.length,
+  'it keeps the ticks for steps this level does not show');
+check(api.grades.size === api.DECK.length,
+  'and the grades for cards this level does not show');
+api.applyLevel('all');
+api.grades.clear();
+api.labDone.clear();
+api.deserialize(saved);
 
 const legacy = JSON.parse(saved);
 delete legacy.lab;
