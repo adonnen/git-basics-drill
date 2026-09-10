@@ -2313,13 +2313,20 @@ const CARDS = [
     "branch — and the push after it succeeds, so the wreck lands on the server."
   ],
   detail: [
-    "The wreck’s shape depends on how your pull behaves. A merge-pull keeps both",
-    "chains, so every commit of yours now exists twice, joined by a merge",
-    "commit. A rebase-pull replays onto the old remote tip whatever it lacks —",
-    "which, after your rebase, includes the trunk’s own commits, so copies of",
-    "other people’s work end up on your branch under new hashes. What the",
-    "rejection called for was `--force-with-lease`. It tells the server: replace",
-    "the branch with mine, but only if it still points where my last fetch saw",
+    "With no pull mode configured, nothing happens: the pull stops with `fatal:",
+    "Need to specify how to reconcile divergent branches.` and prints the three",
+    "settings you can choose from. The trap needs `pull.rebase` already set, or",
+    "`--rebase` or `--no-rebase` on the command line. Which one you have decides",
+    "what gets built. A merge-pull keeps both chains, so every commit of yours",
+    "exists twice, joined by a merge commit. The ones that come back are the",
+    "original commit objects with their original hashes; the new hashes belong to",
+    "the copies your rebase made. A log sorted by date puts the two sets side by",
+    "side, which is what makes the duplication easy to miss. A rebase-pull",
+    "replays onto the old remote tip whatever it lacks, which after your rebase",
+    "includes the trunk’s own commits, so copies of other people’s work end up on",
+    "your branch under new hashes. What the rejection called for was",
+    "`--force-with-lease`. It tells the server: replace the branch with mine,",
+    "but only if it still points where my last fetch saw",
     "it — if anyone pushed in between, refuse (“stale info”). The old copies of",
     "your commits are deleted from the server, and that is not damage, it is the",
     "job: they are the leftovers of your rebase, and nothing you have not seen",
@@ -2370,22 +2377,37 @@ const CARDS = [
   level:    "intermediate",
   question: "The pull already happened: the branch holds copies of trunk commits, or your own commits twice. Clean it without picking commits apart by hand?",
   answer: [
-    "Rebase once more, onto the trunk’s remote-tracking ref, and this time",
-    "answer the rejection correctly:",
+    "The route depends on which of the two you have. For copies of trunk",
+    "commits, replay onto the trunk’s remote-tracking ref and answer the",
+    "rejection correctly:",
     "$ git rebase origin/main",
-    "$ git push --force-with-lease"
+    "$ git push --force-with-lease",
+    "For your own commits twice, rewind instead of replaying:",
+    "$ git reset --hard <the tip your rebase produced, from the reflog>"
   ],
   detail: [
-    "Rebase compares patches, not hashes. Any commit whose changes already exist",
-    "upstream is left out of the replay — git names each one as it drops it — so",
-    "what survives is exactly your own work. Confirm with",
-    "`git log origin/main..HEAD` before pushing. The reflog offers a second",
-    "route: the tip from right after your original rebase is still in there, and",
-    "a hard reset to it rewinds the branch instead of replaying it."
+    "Rebase compares patches, not hashes, so any commit whose changes already",
+    "exist upstream is left out of the replay and git names each one as it drops",
+    "it. That clears a branch holding copies of trunk work. It will not clear a",
+    "merge-pull. There the duplicates are not upstream at all: both chains sit on",
+    "your own branch, so both get replayed and the second copy of a commit meets",
+    "the first. Expect `CONFLICT (content)` where your commits",
+    "edited a file, `CONFLICT (add/add)` where they created one, and hand",
+    "resolution of exactly the work you were trying to avoid. The second route",
+    "starts in the reflog: the tip from right after your original rebase is still",
+    "in it, and a hard reset to that hash puts the branch back where the push",
+    "should have been forced. Either way, read `git log origin/main..HEAD` before",
+    "pushing."
   ],
   figure: [
-    "$ git rebase origin/main",
-    "dropping c5c0f3e Add licence -- patch contents already upstream",
+    "copies of trunk commits, cleared by the replay:",
+    "  $ git rebase origin/main",
+    "  dropping c5c0f3e Add licence -- patch contents already upstream",
+    "",
+    "your own commits twice, where the replay stops:",
+    "  $ git rebase origin/main",
+    "  CONFLICT (content): Merge conflict in src/runner.py",
+    "  $ git reset --hard 4ad0c11        ← the tip your rebase produced",
     "",
     "$ git log --oneline origin/main..HEAD    ← only your commits remain",
     "$ git push --force-with-lease"
@@ -2811,9 +2833,82 @@ const CARDS = [
 
 {
   stage:    "08 history edits",
+  level:    "intermediate",
+  question: "You wrote two commits on `task-queue`, and `git log --oneline main..HEAD` lists three. Where did the third come from?",
+  answer: [
+    "The branch was cut while you stood on `refactor`, so `refactor`’s commit",
+    "sits beneath yours and the range counts it too.",
+    "$ git log --oneline refactor..HEAD    # your own two, and nothing else",
+    "| main ── refactor ── skeleton ── tests    ← task-queue",
+    "|            └── you never wrote this one, and main..HEAD counts it"
+  ],
+  detail: [
+    "Nothing warns you at the time, and the two instruments you would reach for",
+    "stay silent. `git merge-base main HEAD` answers `main`’s own tip here,",
+    "exactly as it does for a branch cut correctly, because `main` is an ancestor",
+    "either way. The reflog writes the slip down as `branch: Created from HEAD`",
+    "and never records which branch that was. It names a start point only when",
+    "you passed one explicitly, which is the case where you did not make the",
+    "mistake. What does answer is `git branch --contains` on the third commit: it",
+    "lists every branch holding that commit, and the base you cut from is among",
+    "them."
+  ],
+  figure: [
+    "$ git log --oneline main..HEAD",
+    "9c8b7a6 Report queue depth        ← yours",
+    "7f8e9d0 Drain the queue           ← yours",
+    "1a2b3c4 Extract the retry loop    ← refactor's",
+    "",
+    "$ git reflog show task-queue | tail -1",
+    "1a2b3c4 task-queue@{2}: branch: Created from HEAD"
+  ],
+  proGit:   "Git-Tools-Revision-Selection",
+  bottomUp: "branching-and-the-power-of-rebase"
+},
+
+{
+  stage:    "08 history edits",
+  level:    "intermediate",
+  question: "Your branch sits on the wrong base, so you run `git rebase main`. It answers `Current branch task-queue is up to date.` What happened?",
+  answer: [
+    "Nothing happened, and the command was not wrong. `main` is already an",
+    "ancestor of the branch, so rebase has nothing to replay and stops before it",
+    "starts. `refactor`’s commit is still underneath you.",
+    "$ git log --oneline main..HEAD    # unchanged, still three"
+  ],
+  detail: [
+    "The reflog is the proof: no rebase entry was written and the tip is still",
+    "the commit you made last. Wait for `main` to move and the same command fails",
+    "the other way. Now it has something to replay, so it replays the base",
+    "branch’s commits as well, and they arrive on your branch as copies under new",
+    "hashes while the base branch keeps the originals. One command, two opposite",
+    "wrong answers, decided by whether the trunk happened to move in between.",
+    "Separating where the commits land from where the count starts is what",
+    "`--onto` is for."
+  ],
+  figure: [
+    "main has not moved:",
+    "  $ git rebase main",
+    "  Current branch task-queue is up to date.",
+    "  → exit 0, no reflog entry, nothing fixed",
+    "",
+    "main has moved:",
+    "  $ git rebase main",
+    "  Successfully rebased and updated refs/heads/task-queue.",
+    "  → refactor's commit replayed too, now a copy on your branch"
+  ],
+  proGit:   "Git-Branching-Rebasing",
+  bottomUp: "branching-and-the-power-of-rebase"
+},
+
+{
+  stage:    "08 history edits",
+  level:    "intermediate",
   question: "You branched off the wrong branch. Move your two commits onto `main`, leaving behind the branch you started from?",
   answer: [
     "$ git rebase --onto main refactor task-queue",
+    "Standing on the branch already, and sure of the count, say it by length:",
+    "$ git rebase --onto main HEAD~2",
     "| before  base ─ refactor ─ skeleton ─ tests   ← task-queue",
     "|",
     "| after   base ─ refactor",
@@ -2824,7 +2919,11 @@ const CARDS = [
     "counting at `refactor`, move `task-queue`. Git replays every commit that is",
     "in the branch but not in `refactor`, so the refactor work is cut away rather",
     "than carried along. Plain `git rebase main task-queue` counts from the",
-    "common ancestor instead, and moves the refactor commit too."
+    "common ancestor instead, and moves the refactor commit too. One misuse to",
+    "know: naming the same branch as both UPSTREAM and BRANCH asks for the",
+    "commits a branch has that it does not have, which is none of them, and git",
+    "reports `Successfully rebased` over a branch it has just emptied. The reflog",
+    "holds the old tip."
   ],
   figure: [
     "git rebase --onto NEWBASE UPSTREAM BRANCH",
@@ -2834,6 +2933,82 @@ const CARDS = [
     "                     └────────────────── where they land"
   ],
   proGit:   "Git-Branching-Rebasing",
+  bottomUp: "branching-and-the-power-of-rebase"
+},
+
+{
+  stage:    "08 history edits",
+  level:    "intermediate",
+  question: "The `--onto` replay finished without a single conflict, because your commits and the wrong base touched different files. What changed under you anyway?",
+  answer: [
+    "The base branch’s work has left your tree. It was never inside your commits:",
+    "you were standing on it, and the replay moved you off it.",
+    "$ git diff ORIG_HEAD --stat"
+  ],
+  detail: [
+    "A clean replay reports that the patches applied and reports nothing about",
+    "whether the result still works. Code of yours that called into the base",
+    "branch’s work is still valid text and now has nothing to call, so this is a",
+    "case to check by hand rather than by exit code: read the files the base",
+    "branch owned, or run the tests. Sharing a file with the base is not what",
+    "decides this. Two commits editing distant parts of one file replay just as",
+    "quietly. The question is whether your work depended on the base’s, and only",
+    "the dependent kind stops the replay and tells you. Where you find you did",
+    "depend on it, the branch was never independent, and it belongs on the base",
+    "branch until that one lands."
+  ],
+  figure: [
+    "$ git rebase --onto main refactor task-queue",
+    "Successfully rebased and updated refs/heads/task-queue.",
+    "",
+    "$ git diff ORIG_HEAD --stat",
+    " src/retry.py | 1 -",
+    " 1 file changed, 1 deletion(-)",
+    "",
+    "neither of your two commits ever touched src/retry.py"
+  ],
+  proGit:   "Git-Branching-Rebasing",
+  bottomUp: "branching-and-the-power-of-rebase"
+},
+
+{
+  stage:    "08 history edits",
+  level:    "intermediate",
+  question: "The same `--onto` stops on a conflict, and the `HEAD` side of the marker is empty. What is it telling you?",
+  answer: [
+    "The commit being replayed was written against lines only `refactor`",
+    "introduced. `HEAD` during a rebase is the new base, so the empty side is",
+    "`main`’s: it has nothing there to set against your version.",
+    "| <<<<<<< HEAD",
+    "| ||||||| parent of 30ee10f (Keep a week of retries)",
+    "| RETRY_AT = 3          ← the context the commit was written against",
+    "| =======",
+    "| RETRY_AT = 3",
+    "| RETRY_KEEP = 7        ← what the commit made of it",
+    "| >>>>>>> 30ee10f (Keep a week of retries)"
+  ],
+  detail: [
+    "An empty side means a missing base, not two versions in disagreement:",
+    "nobody edited that text on the trunk, the text was never there. Stage 06",
+    "covers the inversion this rests on: during a rebase `ours` is the branch",
+    "you are replaying onto and `theirs` is your own commit. The middle section",
+    "makes the gap readable and appears only with `merge.conflictStyle = zdiff3`;",
+    "`git show main:<file>` confirms the trunk never had those lines. Resolving",
+    "by hand means pasting the base branch’s work into your own commit, so",
+    "someone else’s change ends up under your name. Two honest exits: `--abort`,",
+    "and leave the branch based where it belongs; or land the base branch first",
+    "and then run a plain rebase, which drops the shared commit by itself."
+  ],
+  figure: [
+    "$ git rebase --onto main refactor task-queue",
+    "Auto-merging src/retry.py",
+    "CONFLICT (content): Merge conflict in src/retry.py",
+    "error: could not apply 30ee10f... Keep a week of retries",
+    "",
+    "$ git status --short",
+    "UU src/retry.py"
+  ],
+  proGit:   "Git-Tools-Advanced-Merging",
   bottomUp: "branching-and-the-power-of-rebase"
 },
 

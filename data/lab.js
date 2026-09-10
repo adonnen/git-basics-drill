@@ -1180,6 +1180,207 @@ const LAB = [
   ]
 },
 
+{
+  title: "Branch twice from the wrong place",
+  level: "intermediate",
+  task: [
+    "Three pieces of work are about to start, and two of them from the wrong",
+    "place. First cut `logging/rotation` from `main` and commit one line into",
+    "`src/log.py`:",
+    "| ROTATE_AT = 1_000_000",
+    "Now stay exactly where you are. Without going back to `main`, create",
+    "`queue/drain` and give it two commits, one per method, appended to",
+    "`src/queue.py`:",
+    "|     def drain(self):",
+    "|         while self.items:",
+    "|             yield self.items.pop(0)",
+    "|",
+    "|     def is_empty(self):",
+    "|         return not self.items",
+    "Then return to `logging/rotation` and make the same slip a second time:",
+    "create `logging/retention` from where you stand, and commit one line into",
+    "`src/log.py`:",
+    "| ROTATE_KEEP = 7",
+    "Two branches cut from a branch instead of from the trunk. The first shares",
+    "no file with its base. The second edits the line its base just added."
+  ],
+  solution: [
+    "git switch -c logging/rotation",
+    "echo \"ROTATE_AT = 1_000_000\" >> src/log.py",
+    "git commit -am \"Rotate the log at a million lines\"",
+    "",
+    "git switch -c queue/drain",
+    "# the slip: -c takes its start point from HEAD, and HEAD is not main",
+    "# append drain() to src/queue.py, then:",
+    "git commit -am \"Add Queue.drain\"",
+    "# append is_empty() to src/queue.py, then:",
+    "git commit -am \"Add Queue.is_empty\"",
+    "",
+    "git switch logging/rotation",
+    "git switch -c logging/retention",
+    "echo \"ROTATE_KEEP = 7\" >> src/log.py",
+    "git commit -am \"Keep a week of rotated logs\"",
+    "",
+    "git branch",
+    "# logging/retention, logging/rotation, main, queue/drain",
+    "# three topic branches at once. Until now this lab has never held",
+    "# more than one, which is why the question of where you are standing",
+    "# has never come up"
+  ]
+},
+
+{
+  title: "Count what the branch would land",
+  level: "intermediate",
+  task: [
+    "Stand on `queue/drain`. Before running anything, say from memory how many",
+    "commits you wrote on it. Now list what it would add to `main`, and compare",
+    "the two numbers. Then try the obvious repair, replaying the branch onto",
+    "`main`, and read the answer closely before believing it. Finish by finding",
+    "the one command that names the branch the stray commit really belongs to.",
+    "`git merge-base` and the reflog will each let you down on the way. Watch",
+    "them do it before you reach for the one that works."
+  ],
+  solution: [
+    "git switch queue/drain",
+    "",
+    "git log --oneline main..HEAD      # three of them, and you wrote two",
+    "git rev-list --count main..HEAD   # 3",
+    "",
+    "git rebase main",
+    "# Current branch queue/drain is up to date.",
+    "#   main is already an ancestor, so there is nothing to replay: exit 0,",
+    "#   no reflog entry, and the stray commit exactly where it was",
+    "",
+    "git merge-base main HEAD          # main's own tip ...",
+    "git rev-parse main                # ... the very same hash. No help:",
+    "#   main is the ancestor either way, cut correctly or not",
+    "",
+    "git reflog show queue/drain | tail -1",
+    "# ... queue/drain@{2}: branch: Created from HEAD",
+    "#   \"from HEAD\": the branch you were standing on is never written down.",
+    "#   it names a start point only when you passed one yourself, which is",
+    "#   the case where you did not make this mistake",
+    "",
+    "git log --oneline logging/rotation..HEAD   # your own two, and nothing else",
+    "git branch --contains $(git rev-list main..HEAD | tail -1)",
+    "# logging/retention, logging/rotation, queue/drain",
+    "#   the stray commit's real home, named at last"
+  ]
+},
+
+{
+  title: "Move the independent branch onto the trunk",
+  level: "intermediate",
+  task: [
+    "`queue/drain` shares no file with the branch it was cut from, so its two",
+    "commits can go onto `main` without a conflict. Replay them there and leave",
+    "`logging/rotation`'s commit behind. One command does it, and it has to be",
+    "told three separate things. Confirm the branch now adds exactly two commits,",
+    "and that `logging/rotation` still holds its own. Then read `src/log.py` and",
+    "account for what is missing."
+  ],
+  solution: [
+    "git rebase --onto main logging/rotation queue/drain",
+    "#   land them ON main, stop counting AT logging/rotation, move queue/drain",
+    "",
+    "git log --oneline main..HEAD              # two commits, new hashes",
+    "git log --oneline main..logging/rotation  # its own commit, untouched",
+    "",
+    "cat src/log.py                            # ROTATE_AT is no longer there",
+    "git diff ORIG_HEAD --stat",
+    "#  src/log.py | 1 -",
+    "#   neither of your two commits ever touched src/log.py. The line left",
+    "#   because you had been standing on the branch that added it, and the",
+    "#   replay is what stopped you standing there. A clean rebase reports",
+    "#   that the patches applied and reports nothing about whether the",
+    "#   result still runs. That part is yours to check"
+  ]
+},
+
+{
+  title: "The replay that stops",
+  level: "intermediate",
+  task: [
+    "Now the other one. `logging/retention` edits `src/log.py` directly beneath",
+    "the line its base added, so the same move will not go through cleanly.",
+    "Make it anyway. Read the conflict instead of resolving it: say what the",
+    "empty side of the marker means, and prove it against the trunk's own copy",
+    "of the file.",
+    "Then back out and leave the branch where it stood."
+  ],
+  solution: [
+    "git switch logging/retention",
+    "git rebase --onto main logging/rotation logging/retention",
+    "# CONFLICT (content): Merge conflict in src/log.py",
+    "# error: could not apply 582d87e... Keep a week of rotated logs",
+    "",
+    "git status --short             # UU src/log.py",
+    "",
+    "cat src/log.py",
+    "# <<<<<<< HEAD",
+    "# ||||||| parent of 582d87e (Keep a week of rotated logs)",
+    "# ROTATE_AT = 1_000_000",
+    "# =======",
+    "# ROTATE_AT = 1_000_000",
+    "# ROTATE_KEEP = 7",
+    "# >>>>>>> 582d87e (Keep a week of rotated logs)",
+    "#   (your hash will differ)",
+    "#   HEAD during a rebase is the branch you are replaying ONTO, so the",
+    "#   empty side is main's: it has no text there at all. That is a",
+    "#   missing base, not two versions in disagreement. The middle section",
+    "#   comes from the zdiff3 setting you made in act IV, and it shows the",
+    "#   context the commit was written against",
+    "",
+    "git show main:src/log.py       # three lines. ROTATE_AT was never here",
+    "",
+    "git rebase --abort",
+    "#   the conflict is the answer here. This branch was never independent,",
+    "#   so it belongs on logging/rotation until that one lands. Resolving by",
+    "#   hand would have meant pasting the base branch's work into your own",
+    "#   commit, under your name"
+  ]
+},
+
+{
+  title: "Land all three, and leave main alone",
+  level: "intermediate",
+  task: [
+    "Put the work away in the order the last two steps argued for. The",
+    "independent branch is ready now. The base branch goes next. Only then can",
+    "the branch that depended on it take a plain rebase. Watch what git does",
+    "with the commit it is already carrying. Every merge here should",
+    "fast-forward, and when you are finished `main` should be the only branch",
+    "left."
+  ],
+  solution: [
+    "git switch main",
+    "git merge queue/drain          # Fast-forward",
+    "git branch -d queue/drain",
+    "",
+    "git switch logging/rotation",
+    "git rebase main",
+    "git switch main",
+    "git merge logging/rotation     # Fast-forward",
+    "git branch -d logging/rotation",
+    "",
+    "git switch logging/retention",
+    "git rebase main",
+    "# warning: skipped previously applied commit ...",
+    "#   its base's commit is on main now, so the replay drops it and only",
+    "#   the branch's own work survives. Patch comparison again, working for",
+    "#   you this time. Act VIII meets the same mechanism after a bad pull",
+    "git log --oneline main..HEAD   # one commit: yours",
+    "",
+    "git switch main",
+    "git merge logging/retention    # Fast-forward",
+    "git branch -d logging/retention",
+    "",
+    "git branch                     # only main",
+    "git rev-list --merges --count main   # still 2, nothing here needed one"
+  ]
+},
+
 { act: "VI — optional: a file that should have been there from the start", optional: true },
 
 {
@@ -1443,8 +1644,10 @@ const LAB = [
   level: "intermediate",
   task: [
     "Take stock. Print the full history as a graph across all branches, list",
-    "every branch, and count how many commits the repository holds. You should",
-    "see a linear stretch, one fast-forward stretch, and two visible merges."
+    "every branch, and count how many commits the repository holds. Two merges",
+    "should be visible and everything else should be a straight line: every",
+    "other branch in this lab was either rebased before it landed or",
+    "fast-forwarded, and neither leaves a fork behind."
   ],
   solution: [
     "git log --oneline --graph --all --decorate",
