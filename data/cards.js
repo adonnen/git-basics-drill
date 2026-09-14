@@ -293,10 +293,12 @@ const CARDS = [
     "Git stores no rename anywhere. `mv` followed by `git add -A` produces a",
     "byte-identical result, and the `R` you see is inferred when the diff is",
     "displayed, by comparing content — which is why a rename carrying heavy",
-    "edits appears as a delete and an add instead. On macOS and Windows the",
-    "filesystem treats `Readme.md` and `README.md` as one name, so a plain `mv`",
-    "leaves git with nothing to see and `git mv` is the only way to record a",
-    "case-only rename. Two things in the figure's log command are new: the bare",
+    "edits appears as a delete and an add instead. Where the filesystem is",
+    "case-insensitive, which is the default on macOS and on Windows but not on",
+    "Linux, `Readme.md` and `README.md` are one name, so a plain `mv` leaves git",
+    "nothing to see and `git mv` is the only way to record a case-only rename. On",
+    "a case-sensitive filesystem the two are separate names and a plain `mv` shows",
+    "up on its own. Two things in the figure's log command are new: the bare",
     "`--` is a separator saying everything after it is a *path* rather than a",
     "branch — git needs the distinction because the two can share a name — and",
     "`--follow` carries the file's history through the rename by the same",
@@ -308,7 +310,8 @@ const CARDS = [
     "R  src/util.py -> src/utils.py",
     "",
     "git log --follow -- src/utils.py    ← history across the rename",
-    "git mv Readme.md README.md          ← the rename a plain mv hides"
+    "git mv Readme.md README.md          ← case-only rename; the one a",
+    "                                      case-insensitive filesystem hides"
   ],
   proGit:   "Git-Basics-Recording-Changes-to-the-Repository"
 },
@@ -1330,7 +1333,7 @@ const CARDS = [
   level:    "basics",
   question: "Get a working copy of a repository that already exists on a server?",
   answer: [
-    "$ git clone git@server.local:repos/taskrunner.git",
+    "$ git clone git@example.com:repos/taskrunner.git",
     "One command: creates the directory, initializes the repo, wires up `origin`,",
     "downloads all history, and checks out a tracking branch."
   ],
@@ -1363,16 +1366,16 @@ const CARDS = [
   ],
   detail: [
     "A repository can have several remotes: `origin` for your fork, `upstream`",
-    "for the project you forked from, `pi` for a self-hosted backup. Each is just",
-    "a label plus a URL, renameable with `git remote rename` and repointable with",
-    "`set-url`."
+    "for the project you forked from, `backup` for a second copy you also push",
+    "to. Each is just a label plus a URL, renameable with `git remote rename` and",
+    "repointable with `set-url`."
   ],
   figure: [
     "$ git remote -v",
     "origin  git@github.com:yourname/taskrunner.git (fetch)",
     "origin  git@github.com:yourname/taskrunner.git (push)",
-    "pi      git@server.local:repos/taskrunner.git (fetch)",
-    "pi      git@server.local:repos/taskrunner.git (push)"
+    "backup  git@example.com:repos/taskrunner.git (fetch)",
+    "backup  git@example.com:repos/taskrunner.git (push)"
   ],
   proGit:   "Git-Basics-Working-with-Remotes"
 },
@@ -1913,17 +1916,19 @@ const CARDS = [
     "theirs, and the merged result you are writing."
   ],
   detail: [
-    "`git mergetool --tool-help` lists what is actually installed — `vscode`,",
-    "`opendiff` and `vimdiff` are usually among them — and `merge.tool` makes",
-    "the choice stick. Save and exit and git stages that file for you — worth",
-    "remembering, since staging is what marks a conflict resolved, so a",
-    "half-finished pass through the tool still counts as done. Set",
-    "`mergetool.keepBackup false` unless you want a `.orig` copy of every file",
-    "left behind."
+    "`git mergetool --tool-help` prints two lists: the tools it can run here, and",
+    "the ones it knows of but cannot find. Which name falls in which list is a",
+    "fact about your platform: `vimdiff` travels with git everywhere, `winmerge`",
+    "is Windows, `opendiff` is Xcode on macOS. Read your own output instead of",
+    "copying a name out of someone else's. `merge.tool` then makes the choice",
+    "stick. Save and exit and git stages that file for you: staging is what",
+    "marks a conflict resolved, so a half-finished pass through the tool",
+    "still counts as done. Set `mergetool.keepBackup false` unless you want",
+    "a `.orig` copy of every file left behind."
   ],
   figure: [
-    "git mergetool --tool-help          what this machine has",
-    "git config --global merge.tool vscode",
+    "git mergetool --tool-help          what this machine can run",
+    "git config --global merge.tool <a name from that list>",
     "git config --global mergetool.keepBackup false",
     "",
     "  LOCAL ── ours      BASE ── ancestor      REMOTE ── theirs",
@@ -2421,18 +2426,20 @@ const CARDS = [
   level:    "basics",
   question: "The golden rule of rebase?",
   answer: [
-    "**Never rewrite history that exists on a shared branch.** Feature branches",
-    "you own: rewrite freely. Anything colleagues pull: append, don’t rewrite."
+    "**Never rewrite history another clone has already pulled.** Branches only",
+    "you hold: rewrite freely. Anything that has left your machine: append."
   ],
   detail: [
-    "The failure mode is concrete: a colleague who pulled the old chain and then",
-    "pulls again gets both versions of every commit, and their next merge drags",
-    "the duplicates into shared history. Repairing it means everyone resetting",
-    "their local branch by hand — an apology-email class of mistake."
+    "The failure mode is concrete: whoever pulled the old chain and then pulls",
+    "again gets both versions of every commit, and their next merge drags the",
+    "duplicates into shared history. Repairing it means every clone resetting its",
+    "branch by hand. Other people are not the boundary: your own second machine,",
+    "or a CI worker holding a cached copy, breaks in exactly the same way, so the",
+    "test is whether the commits have changed at all."
   ],
   figure: [
     "safe to rewrite      : your unpushed work, your solo branches",
-    "never rewrite        : main, dev, anything a colleague pulled",
+    "never rewrite        : main, dev, anything already pulled elsewhere",
     "undo on shared branch: git revert  (appends, never rewrites)"
   ],
   proGit:   "Git-Branching-Rebasing",
@@ -2715,9 +2722,9 @@ const CARDS = [
   ],
   detail: [
     "This is what collapses a long session of small increments into the two or",
-    "three commits a reviewer actually wants. On a branch where an AI assistant",
-    "has been committing in a tight loop, marking every incremental commit",
-    "`fixup` is usually the whole clean-up."
+    "three commits a reviewer actually wants. On a branch that is mostly",
+    "checkpoint commits, the saves you make so a day's work cannot evaporate,",
+    "marking every one of them `fixup` is usually the whole clean-up."
   ],
   figure: [
     "pick  F1  Add queue skeleton",
@@ -3568,7 +3575,7 @@ const CARDS = [
   level:    "basics",
   question: "Connect your local repo to that remote, then verify the wiring?",
   answer: [
-    "$ git remote add origin git@server.local:repos/taskrunner.git",
+    "$ git remote add origin git@example.com:repos/taskrunner.git",
     "$ git remote -v"
   ],
   detail: [
@@ -3578,8 +3585,8 @@ const CARDS = [
     "is only a conventional name; `git remote rename` changes it freely."
   ],
   figure: [
-    "git@server.local:/srv/repos/repo.git   absolute",
-    "git@server.local:repos/repo.git        relative to ~",
+    "git@example.com:/srv/repos/repo.git   absolute",
+    "git@example.com:repos/repo.git        relative to ~",
     "",
     "with an ~/.ssh/config Host alias:",
     "server:repos/project.git"
@@ -3668,9 +3675,9 @@ const CARDS = [
 {
   stage:    "11 remotes & server",
   level:    "basics",
-  question: "The Pi’s username or IP changed. Repoint the remote without re-cloning?",
+  question: "The host you push to has moved, or the login name on it changed. Repoint the remote without re-cloning?",
   answer: [
-    "$ git remote set-url origin git@newhost.local:repos/taskrunner.git"
+    "$ git remote set-url origin git@newhost.example.com:repos/taskrunner.git"
   ],
   detail: [
     "The URL is just a config value — nothing about your history depends on it,",
@@ -3681,7 +3688,7 @@ const CARDS = [
   figure: [
     "git remote set-url origin git@github.com:yourname/taskrunner.git   HTTPS → SSH",
     "git remote -v                                                    verify",
-    "git remote rename origin pi                                      rename"
+    "git remote rename origin backup                                  rename"
   ],
   proGit:   "Git-Basics-Working-with-Remotes"
 },
@@ -3718,8 +3725,8 @@ const CARDS = [
     "Polls every configured remote and deletes the stale remote-tracking refs."
   ],
   detail: [
-    "`--all` loops over every remote in your config — origin *and* the Pi —",
-    "where a bare `fetch` asks only the current branch’s remote. `--prune`",
+    "`--all` loops over every remote in your config, not just `origin`, where a",
+    "bare `fetch` asks only the current branch’s remote. `--prune`",
     "deletes the `origin/*` labels whose server branch is gone, which fetch",
     "never does on its own, so without it the cached view only ever grows.",
     "Local branches are untouched either way: this refreshes the cache and",
@@ -3730,7 +3737,7 @@ const CARDS = [
     "git fetch --all            every remote in .git/config",
     "git fetch --all --prune    …and drop refs deleted server-side",
     "",
-    "touches origin/* and pi/*  —  never your local branches"
+    "touches origin/* and backup/*  —  never your local branches"
   ],
   proGit:   "Git-Basics-Working-with-Remotes"
 },
@@ -3777,7 +3784,7 @@ const CARDS = [
   ],
   figure: [
     "ssh-keygen -lf ~/.ssh/id_ed25519.pub          your fingerprint",
-    "ssh git@server.local 'ssh-keygen -lf ~/.ssh/authorized_keys'",
+    "ssh git@example.com 'ssh-keygen -lf ~/.ssh/authorized_keys'",
     "",
     "ssh -v git@github.com 2>&1 | grep -i 'offering\\|accepted'",
     "    ↑ which key file actually authenticated"
@@ -3794,9 +3801,12 @@ const CARDS = [
     "`~/.ssh/config` naming it."
   ],
   detail: [
-    "The file must not be world-readable — `chmod 600 ~/.ssh/config` — or SSH",
-    "refuses to read it at all. Once the block exists, plain `ssh github.com` and",
-    "every git operation against that host use the key you named."
+    "Once the block exists, plain `ssh github.com` and every git operation",
+    "against that host use the key you named. One thing will stop the file being",
+    "read at all: SSH refuses a config that other accounts can write, and says so",
+    "with `Bad owner or permissions`. Others reading it is fine; others writing",
+    "it is not. How you take that write access away depends on the system, since",
+    "Unix carries it in the permission bits and Windows in the file's ACL."
   ],
   figure: [
     "Host github.com",
@@ -3805,7 +3815,7 @@ const CARDS = [
     "    IdentityFile ~/.ssh/github_personal",
     "    IdentitiesOnly yes",
     "",
-    "chmod 600 ~/.ssh/config"
+    "must be yours, and not writable by anyone else"
   ],
   proGit:   "Git-on-the-Server-Generating-Your-SSH-Public-Key"
 },
@@ -3842,24 +3852,39 @@ const CARDS = [
 {
   stage:    "12 ssh & auth",
   level:    "intermediate",
-  question: "Stop being asked for the key passphrase on every single push, on macOS?",
+  question: "Stop being asked for the key passphrase on every single push?",
   answer: [
-    "$ ssh-add --apple-use-keychain ~/.ssh/github_personal",
-    "Loads the key into the agent and stores the passphrase in the macOS",
-    "Keychain."
+    "Hand the decrypted key to an **agent**. `AddKeysToAgent yes` in",
+    "`~/.ssh/config` puts it there on first use, so the passphrase is asked once",
+    "per agent instead of once per push.",
+    "$ ssh-add -l      what the agent is holding right now"
   ],
   detail: [
-    "Add `UseKeychain yes` and `AddKeysToAgent yes` to the host block and the key",
-    "loads itself on first use after every login. `ssh-add -l` lists what the",
-    "agent currently holds, by fingerprint."
+    "The option is ignored in silence when no agent is running, so an unset",
+    "`SSH_AUTH_SOCK` hands back the prompt with nothing on screen to explain it,",
+    "which is what makes `ssh-add -l` the first thing to check. What differs",
+    "between the three systems is not the option but how far the agent outlives",
+    "your session. macOS can park the passphrase in the login Keychain, and the",
+    "flag that does it exists only in Apple's build: a Homebrew or Nix OpenSSH",
+    "earlier in `PATH` rejects it, and spelling out `/usr/bin/ssh-add` is the way",
+    "back. Linux leaves the agent to the desktop session, where GNOME Keyring or",
+    "KWallet asks once per login. Windows ships the agent as a service that stays",
+    "disabled until you turn it on, after which it holds keys in your account's",
+    "security context and survives a reboot. `AddKeysToAgent 8h` is the middle",
+    "setting, for when a key outliving the machine bothers you."
   ],
   figure: [
-    "ssh-add --apple-use-keychain ~/.ssh/github_personal",
-    "ssh-add -l          what the agent holds right now",
+    "~/.ssh/config: same on every system",
+    "Host *",
+    "    AddKeysToAgent yes",
     "",
-    "Host github.com",
-    "    UseKeychain yes",
-    "    AddKeysToAgent yes"
+    "macOS    ssh-add --apple-use-keychain ~/.ssh/github_personal",
+    "         Apple's build only; otherwise /usr/bin/ssh-add",
+    "Linux    the desktop session supplies the agent; the keyring",
+    "         asks once per login",
+    "Windows  in PowerShell as administrator, once:",
+    "         Get-Service ssh-agent | Set-Service -StartupType Automatic",
+    "         Start-Service ssh-agent"
   ],
   proGit:   "Git-Tools-Credential-Storage"
 },
@@ -3883,7 +3908,7 @@ const CARDS = [
     "Hi yourname! You've successfully authenticated, but GitHub",
     "does not provide shell access.        ← this IS success",
     "",
-    "$ ssh -T git@server.local exit   ← same test, your server"
+    "$ ssh -T git@example.com exit   ← same test, your server"
   ],
   proGit:   "Git-on-the-Server-Generating-Your-SSH-Public-Key"
 },
@@ -3957,9 +3982,11 @@ const CARDS = [
   ],
   figure: [
     "~/.gitignore_global        your machine's noise",
-    "    .DS_Store",
-    "    ._*",
-    "    *.swp",
+    "    .DS_Store              macOS",
+    "    ._*                    macOS",
+    "    Thumbs.db              Windows",
+    "    desktop.ini            Windows",
+    "    *.swp                  editors",
     "",
     "<repo>/.gitignore          the project's artifacts",
     "    build/",
@@ -4009,7 +4036,7 @@ const CARDS = [
     "already doing its job."
   ],
   figure: [
-    "git ls-files | grep DS_Store    ← is it actually tracked?",
+    "git ls-files .DS_Store          ← is it actually tracked?",
     "git rm --cached .DS_Store       ← untrack, keep on disk",
     "git rm .DS_Store                ← untrack AND delete"
   ],
@@ -4021,7 +4048,8 @@ const CARDS = [
   level:    "intermediate",
   question: "Where does the global gitconfig live on Windows — and the command that always finds it, on any OS?",
   answer: [
-    "`%USERPROFILE%\\.gitconfig`. But don’t hunt for it:",
+    "`%USERPROFILE%\\.gitconfig`, and `~/.gitconfig` on macOS and Linux. But",
+    "don’t hunt for it:",
     "$ git config --global --edit",
     "opens the right file wherever you are."
   ],
@@ -4338,10 +4366,11 @@ const CARDS = [
   ],
   figure: [
     "confirm the disk is right:",
-    "  git show origin/main:path/to/file > /tmp/a",
-    "  diff /tmp/a path/to/file          ← empty ⇒ editor is lying",
+    "  git status --porcelain -- path/to/file",
+    "  no output ⇒ disk matches git, so the editor is lying",
     "",
-    "reload:  VS Code \"Revert File\" · vim :e! · JetBrains Ctrl-Alt-Y"
+    "reload:  VS Code \"Revert File\" · vim :e!",
+    "         JetBrains \"Reload from Disk\""
   ],
   proGit:   "Appendix-A:-Git-in-Other-Environments-Graphical-Interfaces"
 },

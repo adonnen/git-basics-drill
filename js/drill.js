@@ -1277,12 +1277,17 @@ el.blurb.innerHTML =
 // rewrites that file. The tag itself is the only thing anyone maintains.
 (function(){
   if(typeof VERSION === 'undefined' || !VERSION) return;
-  const m = VERSION.match(/^rls_(\d+)_(\d+)_(\d+)(?:-(\d+)-g[0-9a-f]+)?$/);
+  // Two tag spellings are understood: "rls_0_0_3", and the conventional
+  // "v0.0.3" (the "v" optional) that a fork is far more likely to use. Either
+  // way `git describe` may append "-<n>-g<sha>" for commits past the tag.
+  const m = VERSION.match(
+    /^(?:rls_(\d+)_(\d+)_(\d+)|v?(\d+)\.(\d+)\.(\d+))(?:-(\d+)-g[0-9a-f]+)?$/);
+  const parts = m && (m[1] ? [m[1], m[2], m[3]] : [m[4], m[5], m[6]]);
   // A trailing "+" marks a build past the tag: v0.0.3+ was built from commits
   // newer than release 0.0.3 — the base it grew from, never the next number.
   const label =
-    !m ? 'an untagged copy (' + escapeHtml(VERSION) + ')'
-       : 'release v' + m[1] + '.' + m[2] + '.' + m[3] + (m[4] ? '+' : '');
+    !parts ? 'an untagged copy (' + escapeHtml(VERSION) + ')'
+           : 'release v' + parts.join('.') + (m[7] ? '+' : '');
   el.blurb.innerHTML += ' This copy is ' + label + '.';
 })();
 
