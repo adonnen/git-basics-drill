@@ -1769,8 +1769,10 @@ const CARDS = [
   ],
   detail: [
     "The result does not have to be either side — you are writing the final text,",
-    "and often it is a combination neither branch contains. Git never re-reads",
-    "the file to check your work, so a stray marker will be committed happily."
+    "and often it is a combination neither branch contains. Plain `git add`",
+    "never re-reads the file to check your work, so a stray marker will be",
+    "committed happily. `git add --resolved`, new in git 2.56, is the form",
+    "that looks."
   ],
   figure: [
     "<<<<<<< HEAD",
@@ -2008,15 +2010,26 @@ const CARDS = [
     "commit."
   ],
   detail: [
-    "Staging is the only signal git accepts — it does not re-read the file to",
-    "check whether you actually resolved anything. A stray `<<<<<<<` left behind",
-    "will be committed happily and break the build later, so grep for markers",
-    "before continuing."
+    "Staging is the only signal git accepts, and plain `git add` never re-reads",
+    "the file to check whether you actually resolved anything: a stray",
+    "`<<<<<<<` is committed happily and breaks the build later. Grep for markers",
+    "before continuing, or from git 2.56 let `git add --resolved` do the",
+    "looking. It stages only the files that were in conflict, and refuses",
+    "while any of them still holds a marker. Markers are all it knows,",
+    "though. A modify/delete or binary conflict never had any, so it is staged",
+    "as git left it, decided or not. A line that merely looks like a marker,",
+    "such as seven `=` under a Markdown heading, keeps `--resolved` refusing",
+    "until you stage that file with plain `git add`."
   ],
   figure: [
-    "git add src/runner.py",
-    "git status                       ← confirm nothing unmerged remains",
-    "grep -rn \"<<<<<<<\" src/          ← cheap insurance",
+    "                     a stray marker     your other edits",
+    "git add <file>       staged anyway      left alone",
+    "git add -A           staged anyway      swept into the merge,",
+    "                                        and gone if you --abort",
+    "git add --resolved   refused, and       left alone",
+    "  (git 2.56+)        nothing staged",
+    "",
+    "git status             ← confirm nothing unmerged remains",
     "git merge --continue"
   ],
   proGit:   "Git-Branching-Basic-Branching-and-Merging"
