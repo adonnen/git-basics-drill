@@ -60,7 +60,8 @@ A switch in the top right moves between them.
 
 Read the question, answer it in your head, then flip the card and grade
 yourself honestly. Cards you mark **again** come back for a second pass at the
-end; cards you mark **got it** do not.
+end; cards you mark **got it** do not. A card the lab practises says so at the
+foot of its answer, naming the act and the step; click the note to go there.
 
 Two filters sit above the card and compose with each other. The **keyword box**
 keeps any card containing at least one of your terms, so `rebase stash` shows
@@ -109,9 +110,13 @@ you have to know the tool to get there. The solution sits underneath, blurred an
 unselectable, until you press **show solution** — or click the blurred block
 itself.
 
-Acts I–VII build a repository from nothing and stay on your own machine. Two
-acts are marked **optional** and can be skipped without stranding the ones after
-them: VI puts a file into the repository's root commit, and VIII adds a remote.
+Acts I–VIII build a repository from nothing and stay on your own machine. VIII
+keeps a long-lived `release` branch beside `main`, one branching model among
+several, and works through getting a single fix into it: copying the fix with
+`cherry-pick -x`, paying for the copy at the next promotion, and making one
+fix that both branches take as the same commit. Two acts are marked
+**optional** and can be skipped without stranding the ones after them: VI
+puts a file into the repository's root commit, and IX adds a remote.
 That last one has you create a bare repository next door to act as the "server",
 so `push`, `pull`, tracking branches, `--force-with-lease`, pruning and tagging
 a release are all practised locally, with no account anywhere.
@@ -129,8 +134,8 @@ whose every step is ticked comes back folded when a whole session arrives at
 once: a reload you resume, or a progress file you load. Ticking the last box
 yourself leaves the act open, so the page never collapses under your cursor.
 
-Everything the lab creates lives in two or three directories; the closing
-steps of acts VII and VIII delete them.
+Everything the lab creates lives in two or three directories; the last step
+of act VII says how to delete them, and the last step of act IX does it.
 
 You need git and a shell: Terminal on macOS or Linux, **Git Bash** on Windows.
 
@@ -163,10 +168,10 @@ against a single repository, so the steps a level keeps have to remain a
 sequence that works — each one finding the state it expects. Some steps are
 therefore in basics while teaching nothing a beginner asked for. *Add the first
 real source file* is one: it writes the two lines act IV later puts in conflict,
-far enough apart that git reports two conflicts rather than one. Acts VI and VII
-keep nothing at basics and are not drawn at all, and the numerals keep their
-gaps — I, II, III, IV, V, VIII — which is honest about the lab being larger than
-the pass you are taking through it.
+far enough apart that git reports two conflicts rather than one. Acts VI, VII
+and VIII keep nothing at basics and are not drawn at all, and the numerals keep
+their gaps — I, II, III, IV, V, IX — which is honest about the lab being larger
+than the pass you are taking through it.
 
 The level is remembered with the rest of your session and travels in progress
 files. A file saved at one level opens at another without losing anything: ticks
@@ -366,6 +371,13 @@ graph — nothing to register anywhere.
 `data/references.js`. If the section you want is not listed there, add it there
 first.
 
+`lab` is optional too: the title of the lab step that practises the card,
+copied exactly from [`data/lab.js`](data/lab.js). The answer side then ends in a
+small footnote naming the act and the step, and clicking it opens the lab at
+that step. The console reports a title that matches no step, and a step above
+the card's own level, since a reader at that level would be sent somewhere the
+switch hides.
+
 Reload the page when you are done. **Open the browser console** (F12): every
 load checks the data and reports problems in plain language, naming the file and
 the card —
@@ -415,7 +427,7 @@ gives the act its OPTIONAL badge:
 
 ```js
 { act: "IV — divergence and a real conflict" },
-{ act: "VIII — optional: working with a remote", optional: true },
+{ act: "IX — optional: working with a remote", optional: true },
 ```
 
 Steps are numbered automatically, so inserting one renumbers the rest. An

@@ -25,7 +25,8 @@
        "after :  new-name"
      ],
      proGit:   "Git-Branching-Branch-Management",   required
-     bottomUp: "the-beauty-of-commits"              optional, may be left out
+     bottomUp: "the-beauty-of-commits",             optional, may be left out
+     lab:      "Delete the merged branch"           optional, see LAB FOOTNOTES
    },
 
    ---------------------------------------------------------------------------
@@ -58,8 +59,8 @@
 
      01 foundations     05 sync basics     09 cherry-picking     13 daily practice
      02 branching       06 conflicts       10 undo · reflog      14 gotchas
-     03 stashing        07 rebasing        11 remotes & server
-     04 merging         08 history edits   12 ssh & auth
+     03 stashing        07 rebasing        11 remotes & server   15 tags & releases
+     04 merging         08 history edits   12 ssh & auth         16 release branches
 
    Cards appear in the order they are written here, and stages in the order
    they first appear.
@@ -79,6 +80,19 @@
    month meet it, and does it need no idea that is itself above basics". The
    second half is the one that bites: a card is only basics if every concept it
    leans on is too.
+
+   ---------------------------------------------------------------------------
+   LAB FOOTNOTES
+   ---------------------------------------------------------------------------
+   A card the lab practises can name the step that does it, by the step's
+   title copied exactly from lab.js. The answer side then ends in a footnote
+   naming the act and the step, and clicking it opens the lab there.
+   Progress files already know a step by its title, so the footnote uses it
+   too and survives steps being renumbered or moved.
+
+   The step may not sit above the card's own level: a reader at that level
+   would be sent to a step the switch hides. The console reports both a title
+   that matches nothing and a step that is out of reach.
 
    ---------------------------------------------------------------------------
    IF SOMETHING GOES WRONG
@@ -1138,7 +1152,8 @@ const CARDS = [
     "both made the identical change →  taken once, no conflict",
     "both changed it, differently   →  conflict, your call"
   ],
-  proGit:   "Git-Branching-Basic-Branching-and-Merging"
+  proGit:   "Git-Branching-Basic-Branching-and-Merging",
+  lab:      "Promote again, and watch the copy meet its original"
 },
 
 {
@@ -3157,7 +3172,8 @@ const CARDS = [
     "                 \\",
     "release           C'        ← copy of C, new SHA, C stays on main"
   ],
-  proGit:   "Distributed-Git-Maintaining-a-Project"
+  proGit:   "Distributed-Git-Maintaining-a-Project",
+  lab:      "Carry one fix to the release, alone"
 },
 
 {
@@ -3252,7 +3268,8 @@ const CARDS = [
     "hotfix on main ──▶ pick onto release/1.2   (backport)",
     "dead branch    ──▶ pick the one good commit  (salvage)"
   ],
-  proGit:   "Distributed-Git-Maintaining-a-Project"
+  proGit:   "Distributed-Git-Maintaining-a-Project",
+  lab:      "Carry one fix to the release, alone"
 },
 
 {
@@ -4231,7 +4248,8 @@ const CARDS = [
     "git diff main...dev    B → D2      what dev changed",
     "git diff main dev      M1 → D2     dev's work, and M1 undone"
   ],
-  proGit:   "Git-Tools-Revision-Selection"
+  proGit:   "Git-Tools-Revision-Selection",
+  lab:      "Ask what the next promotion really brings"
 },
 
 {
@@ -4758,6 +4776,215 @@ const CARDS = [
     "the honest fix is v0.1.1"
   ],
   proGit:   "Git-Basics-Tagging"
+},
+
+{
+  stage:    "16 release branches",
+  level:    "intermediate",
+  question: "A fix sits on `main` above two commits that must not ship yet. Why can't merging `main` into `release` take the fix alone?",
+  answer: [
+    "A merge takes a commit together with everything behind it, and the fix's",
+    "parent is one of the unready commits, so all three come along. To move",
+    "the change alone, copy it onto `release`:",
+    "$ git cherry-pick -x <fix>",
+    "| main      … ── D1 ── D2 ── F",
+    "| release   … ── M ── F'          ← F's change, without D1 and D2"
+  ],
+  detail: [
+    "A commit's parent is part of what the commit is: its hash covers the",
+    "parent's hash, so any branch that contains F contains D1 and D2 as well.",
+    "A pull request is a merge too and has the same limit, which is why a fix",
+    "bound for a release travels on a branch of its own, cut from `release`.",
+    "The copy gets a new hash, and that has costs of its own; starting the fix",
+    "at the newest commit both branches contain avoids the copy altogether."
+  ],
+  figure: [
+    "main      A ── B ── D1 ── D2 ── F      F's parent is D2",
+    "release   A ── B ── M                  M: the last promotion",
+    "",
+    "git merge main          →  D1, D2 and F",
+    "git cherry-pick -x F    →  F' alone: F's change under a new hash"
+  ],
+  proGit:   "Distributed-Git-Maintaining-a-Project",
+  bottomUp: "the-beauty-of-commits",
+  lab:      "Carry one fix to the release, alone"
+},
+
+{
+  stage:    "16 release branches",
+  level:    "intermediate",
+  question: "Copy a fix onto `release` so that the copy says where it came from?",
+  answer: [
+    "$ git cherry-pick -x <fix>",
+    "`-x` ends the copy's message with a line naming the original:",
+    "| (cherry picked from commit 9550b19eba7071db57499681339db7eb6fcef120)"
+  ],
+  detail: [
+    "The copy is a new commit with a new hash, and that line is the only link",
+    "between the two that history keeps. `git log --grep` finds it, and it",
+    "explains the fix to whoever meets it twice. Use `-x` between branches",
+    "other people see. When the original sits on a private branch, its hash",
+    "points at a commit nobody else has, which is why git's own documentation",
+    "advises against `-x` there. That documentation also says the line is",
+    "added only when the pick applies cleanly, but git 2.56 adds it after a",
+    "conflicted pick and `git cherry-pick --continue` as well."
+  ],
+  figure: [
+    "$ git cherry-pick -x 9550b19",
+    "$ git log -1 --format=%B",
+    "Guard success_rate against an empty run",
+    "",
+    "(cherry picked from commit 9550b19eba7071db57499681339db7eb6fcef120)"
+  ],
+  proGit:   "Distributed-Git-Maintaining-a-Project",
+  lab:      "Carry one fix to the release, alone"
+},
+
+{
+  stage:    "16 release branches",
+  level:    "intermediate",
+  question: "The next promotion brings a fix's original to a `release` that already holds its copy. Does that merge conflict?",
+  answer: [
+    "No, as long as neither branch has touched those lines again: since the",
+    "merge base, both sides made the same change, and git takes an identical",
+    "change once. `git cherry` shows the overlap beforehand:",
+    "$ git cherry -v release main"
+  ],
+  detail: [
+    "`git log release..main` still lists the original, because a range",
+    "compares commits and the copy is a different commit. `git cherry`",
+    "compares the changes instead, and marks the original with a minus. The",
+    "quiet merge has a condition: if either branch edits those lines again",
+    "before the promotion, the two sides no longer agree, and the merge stops",
+    "with a conflict over a fix that is already on both."
+  ],
+  figure: [
+    "$ git cherry -v release main",
+    "+ a8fd19a… Add a CSV export",
+    "+ de3cc06… Announce the CSV export",
+    "- 9550b19… Guard success_rate against an empty run",
+    "",
+    "+  new to release",
+    "-  release already has this change, as a copy"
+  ],
+  proGit:   "Git-Branching-Basic-Branching-and-Merging",
+  lab:      "Promote again, and watch the copy meet its original"
+},
+
+{
+  stage:    "16 release branches",
+  question: "`main` reverted a fix that `release` holds as a copy. After the next promotion, which branch still has the fix?",
+  answer: [
+    "`release`, and silently. Since the merge base, `main`'s fix and its",
+    "revert cancel out, so `main` changed nothing there; the merge keeps the",
+    "one side that moved, which is the copy. Revert the copy too:",
+    "$ git revert <copy>"
+  ],
+  detail: [
+    "Nothing conflicts and nothing warns: the promotion arrives as a merge",
+    "commit that leaves the copy untouched. Every later change to a copied fix",
+    "has to be made on both branches, which is the standing price of the copy.",
+    "To find the copies, list what `release` holds that `main` does not,",
+    "merges aside: `git log --no-merges main..release`."
+  ],
+  figure: [
+    "since the merge base:",
+    "  main      the fix, then its revert   →  no change",
+    "  release   the copy                   →  the fix",
+    "",
+    "a three-way merge keeps the side that moved:",
+    "release keeps the fix, and nothing conflicts"
+  ],
+  proGit:   "Git-Tools-Advanced-Merging",
+  lab:      "Watch a revert stay behind"
+},
+
+{
+  stage:    "16 release branches",
+  question: "Make one fix that `main` and `release` both take as the same commit?",
+  answer: [
+    "Start it at the newest commit both branches already contain, then merge",
+    "it into each:",
+    "$ git switch -c fix/precision $(git merge-base main release)",
+    "Both merges bring the fix and nothing else, and the merge base moves up",
+    "to the fix."
+  ],
+  detail: [
+    "Everything up to the merge base is already on both branches, so a branch",
+    "started there brings only its own commits, and neither merge drags",
+    "unready work along. Afterwards the next promotion does not list the fix,",
+    "a revert of it travels like any other change, and there is no copy to",
+    "drift. The cost is foresight: the choice comes before the fix is written,",
+    "and the fix is written against the older code at the merge base, which",
+    "for a release fix is the code that ships. Both merges have to be real",
+    "merge commits; squashing either one writes a copy after all."
+  ],
+  figure: [
+    "release      ─────────── M ──────────────── P2",
+    "                         ↑                  ↑",
+    "fix/precision            ├── F ─────────────┤",
+    "                         │                  ↓",
+    "main         ── A ── B ──┴── D1 ── D2 ────── P1",
+    "",
+    "B   the merge base: main's last promotion",
+    "P1  the fix merged into main",
+    "P2  the same F merged into release"
+  ],
+  proGit:   "Git-Branching-Branching-Workflows",
+  lab:      "Fix once, and merge the fix into both"
+},
+
+{
+  stage:    "16 release branches",
+  question: "A shared fix branch was squashed into `main` and merged into `release`. What did the squash undo?",
+  answer: [
+    "The sharing. `git merge --squash` stages the branch's changes for one new",
+    "commit of your own, so `main` holds a copy, and the next promotion lists",
+    "the fix again, exactly as after a cherry-pick."
+  ],
+  detail: [
+    "A squash commit has a single parent and no link to the branch, so as far",
+    "as history goes the branch was never merged, and the merge base stays",
+    "where it was. Hosting services offer squash and rebase as ways to merge a",
+    "pull request, and for a shared fix both write new commits. When one fix",
+    "has to reach two branches as the same commit, both of its pull requests",
+    "need a merge commit."
+  ],
+  figure: [
+    "git merge --no-ff fix    →  F itself, under a merge commit",
+    "git merge --squash fix   →  a new commit holding F's change: a copy",
+    "",
+    "squashed into main, merged into release:",
+    "git log release..main    →  the squash commit, the fix all over again"
+  ],
+  proGit:   "Distributed-Git-Maintaining-a-Project"
+},
+
+{
+  stage:    "16 release branches",
+  question: "The fix went into `release` first. Bring it to `main` without making a copy?",
+  answer: [
+    "Merge `release` into `main`. The fix arrives as itself, along with",
+    "anything else `release` holds that `main` does not:",
+    "$ git switch main",
+    "$ git merge release"
+  ],
+  detail: [
+    "This is the direction the rest of the stage avoids, and some models build",
+    "on it: git-flow starts a hotfix from its production branch and merges the",
+    "hotfix into both. The cost here is what comes along: the merge commits",
+    "`release` collected come back into `main`'s history, and anything made",
+    "only for the release, a version bump say, arrives too unless it is",
+    "reverted on `main`. Fixing `main` first avoids that, and pays with a copy",
+    "or with the foresight of a fix started at the merge base."
+  ],
+  figure: [
+    "main first     →  cherry-pick: a copy on release",
+    "               →  a branch from the merge base: one commit, two merges",
+    "release first  →  merge release into main: one commit, and release's",
+    "                  own history with it"
+  ],
+  proGit:   "Git-Branching-Branching-Workflows"
 }
 
 ];

@@ -38,6 +38,7 @@ const el = {
   stage:$('stage'), summary:$('summary'), graph:$('graph'),
   pane:$('pane'), face:$('face'), eyebrow:$('eyebrow'), text:$('cardText'),
   path:$('cardPath'), count:$('cardCount'), hint:$('hint'), details:$('detailsBtn'),
+  labNote:$('labNote'),
   // details modal
   backdrop:$('backdrop'), mStage:$('mStage'), mTitle:$('mTitle'), mText:$('mText'),
   mFigure:$('mFigure'), mLink1:$('mLink1'), mLink2:$('mLink2'), mClose:$('mClose'),
@@ -166,6 +167,7 @@ const DECK = CARDS.map(card => ({
   figure:   (card.figure || []).join('\n'),
   proGit:   card.proGit,
   bottomUp: card.bottomUp || null,
+  lab:      card.lab || null,
   key:      hashKey('card|' + card.stage + '|' + card.question),
   hay:      [card.stage, card.question, ...(card.answer || []),
              ...(card.detail || []), ...(card.figure || [])]
@@ -188,6 +190,18 @@ const RANK   = { basics:0, intermediate:1, all:2 };
 const rankOf = item => RANK[item.level] ?? RANK.all;
 
 LAB_STEPS.forEach(step => { step.key = hashKey('lab|' + step.title); });
+
+/* A card can name the lab step that practises it. It names the step by title,
+   as progress files do, so the link survives the lab being renumbered or
+   reordered. */
+const labStepFor = card =>
+  card.lab ? LAB_STEPS.find(step => step.title === card.lab) : undefined;
+
+/** The act a step belongs to: the nearest divider above it in lab.js. */
+function actOf(step){
+  for(let i = LAB.indexOf(step); i >= 0; i--) if(LAB[i].act) return LAB[i];
+  return null;
+}
 
 let view      = 'cards';   // 'cards' | 'lab'
 let deckPanel = 'stage';   // which cards-view panel is current: 'stage' | 'summary'
@@ -382,6 +396,7 @@ function drawCard(){
     el.path.textContent = '~/git-drill/';
     el.count.textContent = '0/0';
     el.details.hidden = true;
+    el.labNote.hidden = true;
     return;
   }
   el.path.textContent    = '~/git-drill/' + card.stage.replace(/[· ]+/g, '-') + '.card';
@@ -392,6 +407,19 @@ function drawCard(){
   el.text.innerHTML      = flipped ? card.answer : card.question;
   el.hint.textContent    = flipped ? 'space — back to question' : 'space — flip';
   el.details.hidden      = !flipped;
+  syncLabNote(card);
+}
+
+/* The answer side of a card the lab practises ends in a footnote that names
+   the step and leads to it. Step numbers change with the level, so the note
+   names the act and the title, which do not. */
+function syncLabNote(card){
+  const step = flipped ? labStepFor(card) : undefined;
+  el.labNote.hidden = !step;
+  if(!step) return;
+  const act = actOf(step);
+  el.labNote.textContent =
+    'lab · act ' + (act ? act.act.split(' ')[0] : '?') + ' · ' + step.title + ' →';
 }
 
 function render(){ syncChips(); syncSearchCount(); drawGraph(); drawCard(); }
@@ -790,6 +818,17 @@ function buildLab(){
   syncActTallies();
 }
 
+/** Leave the deck for the lab and bring one step into view, unfolding its act
+    if it was folded. A step the current level does not draw has no box. */
+function openLabStep(step){
+  if(!step) return;
+  applyView('lab');
+  if(!step.box) return;
+  const group = actGroups.find(g => g.boxes.includes(step.box));
+  if(group) setActFolded(group, false);
+  step.box.closest('.step')?.scrollIntoView?.({ block: 'start' });
+}
+
 function syncLabCount(){
   const counter = $('labCount');
   if(counter) counter.innerHTML = labProgressText();
@@ -1128,6 +1167,17 @@ function validateData(){
     if(card.level !== undefined && !LEVELS.includes(card.level)){
       problems.push(where + ': "' + card.level + '" is not a level — use ' + LEVELS.join(', '));
     }
+    // A footnote names its step by title, so a typo or a renamed step would
+    // drop it without a sound. A step above the card's level would send the
+    // reader to something the level switch hides.
+    if(card.lab !== undefined){
+      const step = typeof card.lab === 'string' ? labStepFor(card) : undefined;
+      if(!step){
+        problems.push(where + ': "lab" names no step in lab.js; copy the title exactly');
+      } else if(rankOf(step) > rankOf(card)){
+        problems.push(where + ': "lab" names a step above the card\'s own level');
+      }
+    }
   });
 
   let step = 0;
@@ -1175,6 +1225,7 @@ el.pane.onkeydown  = e => {
   if(e.key === 'Enter'){ e.preventDefault(); flip(); }
 };
 el.details.onclick = e => { e.stopPropagation(); openDetails(); };   // don't also flip
+el.labNote.onclick = e => { e.stopPropagation(); openLabStep(labStepFor(current())); };
 $('prev').onclick  = () => move(-1);
 $('next').onclick  = () => move(1);
 $('got').onclick   = () => grade('got');

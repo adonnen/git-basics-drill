@@ -32,6 +32,7 @@ const REFERENCES = {
       "Git-Basics-Working-with-Remotes": "2.5 — Working with Remotes",
       "Git-Branching-Basic-Branching-and-Merging": "3.2 — Basic Branching and Merging",
       "Git-Branching-Branch-Management": "3.3 — Branch Management",
+      "Git-Branching-Branching-Workflows": "3.4 — Branching Workflows",
       "Git-Branching-Branches-in-a-Nutshell": "3.1 — Branches in a Nutshell",
       "Git-Branching-Rebasing": "3.6 — Rebasing",
       "Git-Branching-Remote-Branches": "3.5 — Remote Branches",

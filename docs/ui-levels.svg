@@ -78,7 +78,7 @@
     <rect class="amber" x="192" y="340" width="32" height="22" rx="3"/>
     <text class="s" x="202" y="355">V</text>
 
-    <!-- VI and VII: struck through, no basics steps survive in either -->
+    <!-- VI, VII and VIII: struck through, no basics steps survive in any of them -->
     <rect class="fill" x="230" y="340" width="36" height="22" rx="3" opacity="0.45"/>
     <text class="s" x="240" y="355" opacity="0.45">VI</text>
     <line class="fade" x1="234" y1="351" x2="262" y2="351"/>
@@ -86,12 +86,16 @@
     <text class="s" x="280" y="355" opacity="0.45">VII</text>
     <line class="fade" x1="276" y1="351" x2="310" y2="351"/>
 
-    <rect class="amber" x="320" y="340" width="44" height="22" rx="3"/>
-    <text class="s" x="330" y="355">VIII</text>
+    <rect class="fill" x="320" y="340" width="44" height="22" rx="3" opacity="0.45"/>
+    <text class="s" x="330" y="355" opacity="0.45">VIII</text>
+    <line class="fade" x1="324" y1="351" x2="360" y2="351"/>
+
+    <rect class="amber" x="370" y="340" width="34" height="22" rx="3"/>
+    <text class="s" x="380" y="355">IX</text>
 
     <path class="fade" d="M272 378 C 272 370, 272 368, 272 364"/>
-    <text class="lbl" x="30" y="394">acts VI and VII keep no basics steps, so they are hidden — and the numerals</text>
+    <text class="lbl" x="30" y="394">acts VI, VII and VIII keep no basics steps, so they are hidden — and the numerals</text>
     <text class="lbl" x="30" y="410">keep their gaps, which is honest about the lab being larger than this pass.</text>
-    <text class="s" x="30" y="430">act VIII stops being optional at basics: the minimum includes pushing and pulling.</text>
+    <text class="s" x="30" y="430">act IX stops being optional at basics: the minimum includes pushing and pulling.</text>
   </g>
 </svg>

@@ -2,8 +2,8 @@
    lab.js — the hands-on exercise.
 
    A list of steps the reader works through in a real terminal. Everything up
-   to act VII stays on the reader's own machine with no remote. Two acts are
-   optional: VI rewrites the repository's root commit, and VIII adds a remote,
+   to act VIII stays on the reader's own machine with no remote. Two acts are
+   optional: VI rewrites the repository's root commit, and IX adds a remote,
    still locally, using a bare repository as the "server".
 
    ---------------------------------------------------------------------------
@@ -36,7 +36,7 @@
    A divider is a step with an "act" instead of a task:
 
      { act: "IV — divergence and a real conflict" },
-     { act: "VIII — optional: working with a remote", optional: true },
+     { act: "IX — optional: working with a remote", optional: true },
 
    Steps are numbered automatically, so inserting one renumbers the rest.
 
@@ -66,7 +66,7 @@
    So before moving a step down a level, check what its solution *produces*, not
    only what it teaches. The acts that end up empty at a level are hidden, and
    the numerals keep their gaps — at basics the reader sees I, II, III, IV, V,
-   VIII, which is honest about the lab being larger than this pass through it.
+   IX, which is honest about the lab being larger than this pass through it.
    ============================================================================= */
 
 const LAB = [
@@ -1426,7 +1426,7 @@ const LAB = [
     "# warning: skipped previously applied commit ...",
     "#   its base's commit is on main now, so the replay drops it and only",
     "#   the branch's own work survives. Patch comparison again, working for",
-    "#   you this time. Act VIII meets the same mechanism after a bad pull",
+    "#   you this time. Act IX meets the same mechanism after a bad pull",
     "git log --oneline main..HEAD   # one commit: yours",
     "",
     "git switch main",
@@ -1712,12 +1712,299 @@ const LAB = [
     "git branch -a                  # only main",
     "git rev-list --count HEAD      # total commits",
     "",
-    "# when you are done, the whole exercise is disposable:",
+    "# the next act goes on in this same repository. When you are done with",
+    "# the lab, the whole exercise is disposable:",
     "#   cd .. && rm -rf taskrunner"
   ]
 },
 
-{ act: "VIII — optional: working with a remote", optional: true },
+{ act: "VIII — a release branch beside main" },
+
+{
+  title: "Keep a release branch, and promote main into it",
+  level: "intermediate",
+  task: [
+    "Some teams keep a second long-lived branch, `release`, that takes in",
+    "`main` only by merge, and only when `main` is ready to ship. It is one",
+    "branching model among several, and this act works through what it costs.",
+    "Put a label named `release` on `main`'s tip without leaving `main`. Then",
+    "add this `src/report.py` to `main` and commit it:",
+    "| def success_rate(results):",
+    "|     \"\"\"Share of tasks that returned a true value.\"\"\"",
+    "|     return sum(1 for r in results if r) / len(results)",
+    "|",
+    "|",
+    "| def summary(results):",
+    "|     \"\"\"One line for the end of a run.\"\"\"",
+    "|     return f\"{len(results)} tasks, {success_rate(results):.0%} succeeded\"",
+    "Now promote it: merge `main` into `release` so that the graph records the",
+    "promotion even though a fast-forward would do. Finish back on `main`."
+  ],
+  solution: [
+    "git branch release             # a label on main's tip; you stay on main",
+    "",
+    "cat > src/report.py <<'EOF'",
+    "def success_rate(results):",
+    "    \"\"\"Share of tasks that returned a true value.\"\"\"",
+    "    return sum(1 for r in results if r) / len(results)",
+    "",
+    "",
+    "def summary(results):",
+    "    \"\"\"One line for the end of a run.\"\"\"",
+    "    return f\"{len(results)} tasks, {success_rate(results):.0%} succeeded\"",
+    "EOF",
+    "git add src/report.py && git commit -m \"Add a run summary\"",
+    "",
+    "git switch release",
+    "git merge --no-ff main -m \"Promote main to release\"",
+    "git switch main",
+    "",
+    "git log --oneline --graph --all -4",
+    "# *   65208c7 Promote main to release",
+    "# |\\",
+    "# | * 52dd3e8 Add a run summary",
+    "# |/",
+    "#   (your hashes will differ.) Act V's --no-ff again: each promotion",
+    "#   stays visible as a merge commit, and release moves only when",
+    "#   something is merged into it"
+  ]
+},
+
+{
+  title: "Let main run ahead of the release",
+  level: "intermediate",
+  task: [
+    "Commit two pieces of work to `main` that are not ready to ship: a new",
+    "`src/export.py`, then a line in `README.md` announcing it.",
+    "| def to_csv(results):",
+    "|     return \",\".join(str(r) for r in results)",
+    "Then ask git which commits the next promotion would bring."
+  ],
+  solution: [
+    "cat > src/export.py <<'EOF'",
+    "def to_csv(results):",
+    "    return \",\".join(str(r) for r in results)",
+    "EOF",
+    "git add src/export.py && git commit -m \"Add a CSV export\"",
+    "",
+    "printf '\\nResults can be exported as CSV.\\n' >> README.md",
+    "git commit -am \"Announce the CSV export\"",
+    "",
+    "git log --oneline release..main",
+    "# de3cc06 Announce the CSV export",
+    "# a8fd19a Add a CSV export",
+    "#   act V's range: what main has and release lacks, which is exactly",
+    "#   what a merge would carry across"
+  ]
+},
+
+{
+  title: "Carry one fix to the release, alone",
+  level: "intermediate",
+  task: [
+    "A run with no tasks crashes the release: `success_rate([])` divides by",
+    "zero. The rule here is that a fix goes into `main` first, so commit one",
+    "there, as a guard just below the docstring:",
+    "|     if not results:",
+    "|         return 0.0",
+    "`release` needs the fix now, and the two commits from the last step must",
+    "not come with it. A merge cannot do that: it brings a commit together with",
+    "everything behind it. Copy the fix instead, onto a branch",
+    "`hotfix/empty-run` cut from `release`, with `git cherry-pick` and the",
+    "option that records where the copy came from. Read the copy's message.",
+    "Then merge the branch into `release` with a merge commit, the way a pull",
+    "request would, and delete it. Finally ask the last step's question again,",
+    "and account for the answer."
+  ],
+  solution: [
+    "# edit src/report.py so that success_rate reads:",
+    "#     \"\"\"Share of tasks that returned a true value.\"\"\"",
+    "#     if not results:",
+    "#         return 0.0",
+    "#     return sum(1 for r in results if r) / len(results)",
+    "git commit -am \"Guard success_rate against an empty run\"",
+    "git log --oneline -1           # note the hash: this is the fix",
+    "",
+    "git switch -c hotfix/empty-run release",
+    "git cherry-pick -x <the-fix-hash>",
+    "git log -1 --format=%B",
+    "# Guard success_rate against an empty run",
+    "#",
+    "# (cherry picked from commit 9550b19eba7071db57499681339db7eb6fcef120)",
+    "#   -x wrote that line. The copy is a new commit with a hash of its own,",
+    "#   and the line is the only link back to the original",
+    "",
+    "git switch release",
+    "git merge --no-ff hotfix/empty-run -m \"Merge hotfix/empty-run\"",
+    "git branch -d hotfix/empty-run",
+    "git switch main",
+    "",
+    "git log --oneline release..main",
+    "# 9550b19 Guard success_rate against an empty run",
+    "# de3cc06 Announce the CSV export",
+    "# a8fd19a Add a CSV export",
+    "#   three now, the fix among them: release holds a copy under another",
+    "#   hash, and a range compares commits, not changes"
+  ]
+},
+
+{
+  title: "Ask what the next promotion really brings",
+  level: "intermediate",
+  task: [
+    "The range lists three commits, and `release` already has one of them in",
+    "content. `git cherry` compares `main`'s commits with `release` by content",
+    "rather than by identity: ask it. Then compare two diffs. The three-dot",
+    "form, `git diff release...main`, is what a pull-request page shows; the",
+    "two-tip form, `git diff release main`, compares the branches as they",
+    "stand. Only one of them mentions the fix."
+  ],
+  solution: [
+    "git cherry -v release main",
+    "# + a8fd19a… Add a CSV export",
+    "# + de3cc06… Announce the CSV export",
+    "# - 9550b19… Guard success_rate against an empty run",
+    "#   minus: release already holds this change, under another hash.",
+    "#   Plus: new to release",
+    "",
+    "git diff --stat release...main",
+    "#  README.md     | 2 ++",
+    "#  src/export.py | 2 ++",
+    "#  src/report.py | 2 ++        ← the fix, measured from the merge base",
+    "",
+    "git diff --stat release main",
+    "#  README.md     | 2 ++",
+    "#  src/export.py | 2 ++        ← no src/report.py: both tips agree on it"
+  ]
+},
+
+{
+  title: "Promote again, and watch the copy meet its original",
+  level: "intermediate",
+  task: [
+    "The two commits are ready now. Before you merge, say whether the fix will",
+    "conflict with its own copy. Then promote `main` into `release` as before,",
+    "count the guards in the result, and find both versions of the fix in the",
+    "history."
+  ],
+  solution: [
+    "git switch release",
+    "git merge --no-ff main -m \"Promote main to release\"",
+    "# Merge made by the 'ort' strategy.",
+    "#  README.md     | 2 ++",
+    "#  src/export.py | 2 ++",
+    "#   no conflict, and no src/report.py: since the merge base, both sides",
+    "#   made the SAME change there, and a three-way merge takes an identical",
+    "#   change once",
+    "",
+    "grep -c 'if not results' src/report.py     # 1",
+    "git log --oneline --all --grep='empty run'",
+    "# 9550b19 Guard success_rate against an empty run",
+    "# d278e37 Guard success_rate against an empty run",
+    "#   one change under two identities, both in release's history now",
+    "",
+    "git switch main"
+  ]
+},
+
+{
+  title: "Watch a revert stay behind",
+  task: [
+    "A second bug: `summary` reports `1 tasks`. Fix it on `main`, so that the",
+    "function picks the noun first:",
+    "|     noun = \"task\" if len(results) == 1 else \"tasks\"",
+    "|     return f\"{len(results)} {noun}, {success_rate(results):.0%} succeeded\"",
+    "Carry the fix to `release` the way you carried the last one. Then the team",
+    "changes its mind: something downstream parses that line, so the wording",
+    "has to stay as it was. Revert the fix on `main` the safe way, and promote.",
+    "Compare `src/report.py` on the two branches, then put `release` right."
+  ],
+  solution: [
+    "# edit src/report.py: those two lines replace summary's return",
+    "git commit -am \"Say 1 task, not 1 tasks\"",
+    "",
+    "git switch -c hotfix/one-task release",
+    "git cherry-pick -x main        # a branch name works: its tip is the fix",
+    "git switch release",
+    "git merge --no-ff hotfix/one-task -m \"Merge hotfix/one-task\"",
+    "git branch -d hotfix/one-task",
+    "",
+    "git switch main",
+    "git revert --no-edit HEAD",
+    "",
+    "git switch release",
+    "git merge --no-ff main -m \"Promote main to release\"",
+    "# Merge made by the 'ort' strategy.",
+    "#   and no file list at all. Since the merge base, main's fix and its",
+    "#   revert cancel out, so main changed nothing there, and the merge",
+    "#   keeps the only side that moved: release, with its copy of the fix",
+    "",
+    "git diff main release -- src/report.py",
+    "# -    return f\"{len(results)} tasks, {success_rate(results):.0%} succeeded\"",
+    "# +    noun = \"task\" if len(results) == 1 else \"tasks\"",
+    "# +    return f\"{len(results)} {noun}, {success_rate(results):.0%} succeeded\"",
+    "#   the revert never reached the copy, and nothing conflicted to say so",
+    "",
+    "git log --oneline --no-merges main..release",
+    "# fce0adb Say 1 task, not 1 tasks",
+    "# d278e37 Guard success_rate against an empty run",
+    "#   release's own commits, merges aside: the two copies",
+    "git revert --no-edit fce0adb                 # the copy: use your hash",
+    "git diff main release -- src/report.py       # empty: the branches agree",
+    "",
+    "git switch main"
+  ]
+},
+
+{
+  title: "Fix once, and merge the fix into both",
+  task: [
+    "Both fixes so far were copies. The third reaches both branches as the",
+    "same commit. First let `main` run ahead again, with an unready function",
+    "appended to `src/export.py`:",
+    "| def to_tsv(results):",
+    "|     return \"\\t\".join(str(r) for r in results)",
+    "Now the bug: `summary` rounds 99.6% up to 100%. Start `fix/precision` at",
+    "the newest commit that `main` and `release` both contain, show one",
+    "decimal place, and commit. Merge the branch into `main`, then into",
+    "`release`, each with a merge commit. Then ask what the next promotion",
+    "would bring, and which commit is now the newest one both contain."
+  ],
+  solution: [
+    "cat >> src/export.py <<'EOF'",
+    "",
+    "",
+    "def to_tsv(results):",
+    "    return \"\\t\".join(str(r) for r in results)",
+    "EOF",
+    "git commit -am \"Add a TSV export\"",
+    "",
+    "git switch -c fix/precision $(git merge-base main release)",
+    "#   act V's merge base, put to work: everything up to it is already on",
+    "#   both branches, so this branch brings its own commit and nothing else",
+    "# edit src/report.py: {success_rate(results):.1%} in summary's return",
+    "git commit -am \"Show the success rate to one decimal place\"",
+    "",
+    "git switch main",
+    "git merge --no-ff fix/precision -m \"Merge fix/precision\"",
+    "git switch release",
+    "git merge --no-ff fix/precision -m \"Merge fix/precision\"",
+    "git branch -d fix/precision",
+    "git switch main",
+    "",
+    "git log --oneline release..main",
+    "# ce73b55 Merge fix/precision",
+    "# 09d6233 Add a TSV export",
+    "#   no fix in the list: release holds that very commit, not a copy",
+    "",
+    "git log --oneline -1 $(git merge-base main release)",
+    "# a558363 Show the success rate to one decimal place",
+    "#   the merge base moved up to the fix. No later promotion can bring it",
+    "#   twice, and a revert of it would travel like any other change"
+  ]
+},
+
+{ act: "IX — optional: working with a remote", optional: true },
 
 {
   title: "Make a \"server\" on your own machine",

@@ -151,6 +151,10 @@ globalThis.api = {
   remember, recall, forget, openGate, resumeSession, newSession, gateOpen, STORE_KEY,
   ALIASES, openAlias, closeAlias, aliasOpen,
   LEVELS, applyLevel, setLevel, buildLab, labSteps, labProgressText, actGroups,
+  drawCard, labStepFor, actOf, openLabStep,
+  get flipped(){ return flipped; }, set flipped(v){ flipped = v; },
+  get pos(){ return pos; }, set pos(v){ pos = v; },
+  get view(){ return view; },
   get filter(){ return filter; }, set filter(v){ filter = v; },
   get theme(){ return theme; },
   get level(){ return level; }
@@ -294,6 +298,39 @@ check((api.renderLines(['$ one', '$ two']).match(/cmdline/g) || []).length === 1
 
 const withDrawings = api.DECK.filter(c => c.answer.includes('class="drawing"')).length;
 pass(withDrawings + ' cards show a drawing on the card itself');
+
+/* ---------------------------------------------------------- lab footnotes
+   A card can name the lab step that practises it. validateData() above has
+   already refused a title that matches no step and a step above the card's
+   level; this checks what the reader sees: a note on the answer side only,
+   naming the act as well as the step, and leading into the lab. */
+
+console.log('\nlab footnotes');
+const noted = api.DECK.map((_, i) => i).filter(i => api.DECK[i].lab);
+check(noted.length > 0, noted.length + ' cards name a lab step');
+
+const showCard = (deckIndex, side) => {
+  api.pos = api.visible().indexOf(deckIndex);
+  api.flipped = side === 'answer';
+  api.drawCard();
+};
+const firstNoted = noted[0];
+const notedStep = api.labStepFor(api.DECK[firstNoted]);
+showCard(firstNoted, 'question');
+check(api.el.labNote.hidden, 'the question side shows no footnote');
+showCard(firstNoted, 'answer');
+check(!api.el.labNote.hidden && api.el.labNote.textContent.includes(notedStep.title),
+      'the answer side names the step');
+check(api.el.labNote.textContent.includes('act ' + api.actOf(notedStep).act.split(' ')[0] + ' '),
+      'and the act it sits in');
+showCard(api.visible().find(i => !api.DECK[i].lab), 'answer');
+check(api.el.labNote.hidden, 'a card naming no step shows no footnote');
+
+api.openLabStep(notedStep);
+check(api.view === 'lab', 'the footnote leads into the lab');
+api.applyView('cards');
+api.flipped = false;
+api.pos = 0;
 
 /* --------------------------------------------------------------- filters */
 
