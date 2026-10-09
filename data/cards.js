@@ -129,7 +129,8 @@ const CARDS = [
     "└── src/             ← your working copy"
   ],
   proGit:   "Git-Basics-Getting-a-Git-Repository",
-  bottomUp: "directory-content-tracking"
+  bottomUp: "directory-content-tracking",
+  lab:      "Create the repository"
 },
 
 {
@@ -157,7 +158,8 @@ const CARDS = [
     "",
     "git config --list --show-origin   ← who set what"
   ],
-  proGit:   "Getting-Started-First-Time-Git-Setup"
+  proGit:   "Getting-Started-First-Time-Git-Setup",
+  lab:      "Set an identity for this repository only"
 },
 
 {
@@ -181,7 +183,8 @@ const CARDS = [
     "?? src/scratch.py   ← untracked"
   ],
   proGit:   "Git-Basics-Recording-Changes-to-the-Repository",
-  bottomUp: "meet-the-middle-man"
+  bottomUp: "meet-the-middle-man",
+  lab:      "Your first commit"
 },
 
 {
@@ -206,7 +209,8 @@ const CARDS = [
     "git add -A         the whole repo, wherever you are standing"
   ],
   proGit:   "Git-Basics-Recording-Changes-to-the-Repository",
-  bottomUp: "meet-the-middle-man"
+  bottomUp: "meet-the-middle-man",
+  lab:      "Your first commit"
 },
 
 {
@@ -237,7 +241,8 @@ const CARDS = [
     "  tests/test_api.py      left alone"
   ],
   proGit:   "Git-Basics-Recording-Changes-to-the-Repository",
-  bottomUp: "meet-the-middle-man"
+  bottomUp: "meet-the-middle-man",
+  lab:      "Stage a directory, then take one file back out"
 },
 
 {
@@ -264,7 +269,8 @@ const CARDS = [
     "git add .         ✓         ✓           ✓       only below you"
   ],
   proGit:   "Git-Basics-Recording-Changes-to-the-Repository",
-  bottomUp: "meet-the-middle-man"
+  bottomUp: "meet-the-middle-man",
+  lab:      "Stage the tracked changes only"
 },
 
 {
@@ -327,7 +333,8 @@ const CARDS = [
     "git mv Readme.md README.md          ← case-only rename; the one a",
     "                                      case-insensitive filesystem hides"
   ],
-  proGit:   "Git-Basics-Recording-Changes-to-the-Repository"
+  proGit:   "Git-Basics-Recording-Changes-to-the-Repository",
+  lab:      "Rename a file in a way git records"
 },
 
 {
@@ -349,7 +356,8 @@ const CARDS = [
     "git commit                  editor: subject, blank line, body",
     "git commit -a -m \"…\"        auto-stage tracked files (skips the index)"
   ],
-  proGit:   "Git-Basics-Recording-Changes-to-the-Repository"
+  proGit:   "Git-Basics-Recording-Changes-to-the-Repository",
+  lab:      "Your first commit"
 },
 
 {
@@ -374,7 +382,8 @@ const CARDS = [
     "              └─ debug prints   ──▶ left unstaged, committed later"
   ],
   proGit:   "Git-Tools-Interactive-Staging",
-  bottomUp: "meet-the-middle-man"
+  bottomUp: "meet-the-middle-man",
+  lab:      "Stage a directory, then take one file back out"
 },
 
 {
@@ -399,7 +408,8 @@ const CARDS = [
     "  e  edit the hunk by hand"
   ],
   proGit:   "Git-Tools-Interactive-Staging",
-  bottomUp: "meet-the-middle-man"
+  bottomUp: "meet-the-middle-man",
+  lab:      "Stage only the first change"
 },
 
 {
@@ -426,7 +436,8 @@ const CARDS = [
     "+added line"
   ],
   proGit:   "Git-Tools-Interactive-Staging",
-  bottomUp: "meet-the-middle-man"
+  bottomUp: "meet-the-middle-man",
+  lab:      "Stage only the first change"
 },
 
 {
@@ -513,7 +524,8 @@ const CARDS = [
     "Update>> 1-2       ← then a blank line: “updated 2 paths”"
   ],
   proGit:   "Git-Tools-Interactive-Staging",
-  bottomUp: "meet-the-middle-man"
+  bottomUp: "meet-the-middle-man",
+  lab:      "Stage whole files from a menu"
 },
 
 {
@@ -589,7 +601,8 @@ const CARDS = [
     "a1b2c3d Initial commit: project description"
   ],
   proGit:   "Git-Basics-Viewing-the-Commit-History",
-  bottomUp: "a-commit-by-any-other-name"
+  bottomUp: "a-commit-by-any-other-name",
+  lab:      "Read the history two ways"
 },
 
 {
@@ -611,7 +624,8 @@ const CARDS = [
     "git show main:src/runner.py  that file, as main has it",
     "git log -p -3              the last three commits, with diffs"
   ],
-  proGit:   "Git-Basics-Viewing-the-Commit-History"
+  proGit:   "Git-Basics-Viewing-the-Commit-History",
+  lab:      "Read the history two ways"
 },
 
 {
@@ -695,7 +709,8 @@ const CARDS = [
     "         both labels on the same commit — until you commit"
   ],
   proGit:   "Git-Branching-Branches-in-a-Nutshell",
-  bottomUp: "the-beauty-of-commits"
+  bottomUp: "the-beauty-of-commits",
+  lab:      "Branch and switch in one command"
 },
 
 {
@@ -719,7 +734,8 @@ const CARDS = [
     "git branch --sort=-committerdate        most recent first"
   ],
   proGit:   "Git-Branching-Branch-Management",
-  bottomUp: "the-beauty-of-commits"
+  bottomUp: "the-beauty-of-commits",
+  lab:      "Branch and switch in one command"
 },
 
 {
@@ -785,7 +801,8 @@ const CARDS = [
     "",
     "(the push commands are stage 05 material — here, just the shape)"
   ],
-  proGit:   "Git-Branching-Branch-Management"
+  proGit:   "Git-Branching-Branch-Management",
+  lab:      "The fetch that fails over a branch you never touched"
 },
 
 {
@@ -810,7 +827,8 @@ const CARDS = [
     "Deleted branch feature/scrapped (was 5e6f7a8).",
     "                    ↑ still recoverable from the reflog"
   ],
-  proGit:   "Git-Branching-Branch-Management"
+  proGit:   "Git-Branching-Branch-Management",
+  lab:      "Merge it back, then delete the branch"
 },
 
 {
@@ -884,7 +902,8 @@ const CARDS = [
     "$ git switch main             # check something on the trunk",
     "$ git switch -                # back to feature/task-queue"
   ],
-  proGit:   "Git-Branching-Branches-in-a-Nutshell"
+  proGit:   "Git-Branching-Branches-in-a-Nutshell",
+  lab:      "Park an edit, switch away, and bring it back"
 },
 
 {
@@ -907,7 +926,8 @@ const CARDS = [
     "HEAD^2    the SECOND parent — only merge commits have one"
   ],
   proGit:   "Git-Tools-Revision-Selection",
-  bottomUp: "a-commit-by-any-other-name"
+  bottomUp: "a-commit-by-any-other-name",
+  lab:      "Collapse three commits into one"
 },
 
 {
@@ -934,7 +954,8 @@ const CARDS = [
     "git stash push -a -m \"note\"    + ignored"
   ],
   proGit:   "Git-Tools-Stashing-and-Cleaning",
-  bottomUp: "stashing-and-the-reflog"
+  bottomUp: "stashing-and-the-reflog",
+  lab:      "Park an edit, switch away, and bring it back"
 },
 
 {
@@ -972,7 +993,8 @@ const CARDS = [
     "$ git stash pop            # applied, and dropped from the list"
   ],
   proGit:   "Git-Tools-Stashing-and-Cleaning",
-  bottomUp: "stashing-and-the-reflog"
+  bottomUp: "stashing-and-the-reflog",
+  lab:      "Park an edit, switch away, and bring it back"
 },
 
 {
@@ -1020,7 +1042,8 @@ const CARDS = [
     "$ git stash show -p stash@{1}    full diff, applies nothing"
   ],
   proGit:   "Git-Tools-Stashing-and-Cleaning",
-  bottomUp: "stashing-and-the-reflog"
+  bottomUp: "stashing-and-the-reflog",
+  lab:      "Stash again, this time with untracked files"
 },
 
 {
@@ -1043,7 +1066,8 @@ const CARDS = [
     "-a         + ignored files too   ← usually too much"
   ],
   proGit:   "Git-Tools-Stashing-and-Cleaning",
-  bottomUp: "stashing-and-the-reflog"
+  bottomUp: "stashing-and-the-reflog",
+  lab:      "Stash again, this time with untracked files"
 },
 
 {
@@ -1091,7 +1115,8 @@ const CARDS = [
     "git merge main         feature catches up; main unchanged"
   ],
   proGit:   "Git-Branching-Basic-Branching-and-Merging",
-  bottomUp: "branching-and-the-power-of-rebase"
+  bottomUp: "branching-and-the-power-of-rebase",
+  lab:      "Merge it back, then delete the branch"
 },
 
 {
@@ -1118,7 +1143,8 @@ const CARDS = [
     "                         ↑",
     "                    main, feature"
   ],
-  proGit:   "Git-Branching-Basic-Branching-and-Merging"
+  proGit:   "Git-Branching-Basic-Branching-and-Merging",
+  lab:      "Merge it back, then delete the branch"
 },
 
 {
@@ -1185,7 +1211,8 @@ const CARDS = [
     "$ echo $?          # 1 — the real merge would stop and ask",
     "$ git status -sb   # clean: nothing on disk was touched"
   ],
-  proGit:   "Git-Tools-Advanced-Merging"
+  proGit:   "Git-Tools-Advanced-Merging",
+  lab:      "Ask git what the merge would do — before running it"
 },
 
 {
@@ -1217,7 +1244,8 @@ const CARDS = [
     "            D───E          (feature)"
   ],
   proGit:   "Git-Branching-Basic-Branching-and-Merging",
-  bottomUp: "branching-and-the-power-of-rebase"
+  bottomUp: "branching-and-the-power-of-rebase",
+  lab:      "Land it with the branch shape preserved"
 },
 
 {
@@ -1268,7 +1296,8 @@ const CARDS = [
     "git log --first-parent main   ← follows parent 1 only"
   ],
   proGit:   "Git-Branching-Basic-Branching-and-Merging",
-  bottomUp: "the-beauty-of-commits"
+  bottomUp: "the-beauty-of-commits",
+  lab:      "Resolve, finish, and inspect the merge commit"
 },
 
 {
@@ -1289,7 +1318,8 @@ const CARDS = [
     "git branch -d feature/task-queue     ← safe delete, refuses if unmerged",
     "git push origin --delete feature/task-queue   ← and on the remote"
   ],
-  proGit:   "Git-Branching-Branch-Management"
+  proGit:   "Git-Branching-Branch-Management",
+  lab:      "Merge it back, then delete the branch"
 },
 
 {
@@ -1344,7 +1374,8 @@ const CARDS = [
     "",
     "git remote -v      the names and URLs yours knows"
   ],
-  proGit:   "Git-Basics-Working-with-Remotes"
+  proGit:   "Git-Basics-Working-with-Remotes",
+  lab:      "Connect and make the first push"
 },
 
 {
@@ -1371,7 +1402,8 @@ const CARDS = [
     "  git fetch                          all history",
     "  git switch -c main --track …       a tracking branch"
   ],
-  proGit:   "Git-Basics-Getting-a-Git-Repository"
+  proGit:   "Git-Basics-Getting-a-Git-Repository",
+  lab:      "Clone it as if you were someone else"
 },
 
 {
@@ -1396,7 +1428,8 @@ const CARDS = [
     "backup  git@example.com:repos/taskrunner.git (fetch)",
     "backup  git@example.com:repos/taskrunner.git (push)"
   ],
-  proGit:   "Git-Basics-Working-with-Remotes"
+  proGit:   "Git-Basics-Working-with-Remotes",
+  lab:      "Connect and make the first push"
 },
 
 {
@@ -1421,7 +1454,8 @@ const CARDS = [
     "step 1  safe — updates origin/main only",
     "step 2  real integration — fast-forward, merge commit, or conflict"
   ],
-  proGit:   "Git-Basics-Working-with-Remotes"
+  proGit:   "Git-Basics-Working-with-Remotes",
+  lab:      "See what is incoming before you take it"
 },
 
 {
@@ -1447,7 +1481,8 @@ const CARDS = [
     "git fetch",
     "git log HEAD..origin/main --oneline    ← what is about to arrive"
   ],
-  proGit:   "Git-Basics-Working-with-Remotes"
+  proGit:   "Git-Basics-Working-with-Remotes",
+  lab:      "See what is incoming before you take it"
 },
 
 {
@@ -1473,7 +1508,8 @@ const CARDS = [
     " ! [rejected]  main -> main (fetch first)",
     "   ↑ the remote has commits you don't — pull, then push"
   ],
-  proGit:   "Git-Basics-Working-with-Remotes"
+  proGit:   "Git-Basics-Working-with-Remotes",
+  lab:      "Push a change from the clone"
 },
 
 {
@@ -1500,7 +1536,8 @@ const CARDS = [
     "$ git push",
     " ! [rejected]  main -> main (fetch first)"
   ],
-  proGit:   "Git-Basics-Working-with-Remotes"
+  proGit:   "Git-Basics-Working-with-Remotes",
+  lab:      "Collide on the trunk, then recover"
 },
 
 {
@@ -1523,7 +1560,8 @@ const CARDS = [
     "$ git status -sb",
     "## feature/task-queue...origin/feature/task-queue [ahead 2]"
   ],
-  proGit:   "Git-Branching-Remote-Branches"
+  proGit:   "Git-Branching-Remote-Branches",
+  lab:      "Connect and make the first push"
 },
 
 {
@@ -1551,7 +1589,8 @@ const CARDS = [
     "$ git push -u origin HEAD      ← HEAD = the branch you are on",
     "$ git push                     ← every time after"
   ],
-  proGit:   "Git-Branching-Remote-Branches"
+  proGit:   "Git-Branching-Remote-Branches",
+  lab:      "Push a new branch without retyping its name"
 },
 
 {
@@ -1646,7 +1685,8 @@ const CARDS = [
     "",
     "ahead/behind is measured against the cache, not the server"
   ],
-  proGit:   "Git-Branching-Remote-Branches"
+  proGit:   "Git-Branching-Remote-Branches",
+  lab:      "See what is incoming before you take it"
 },
 
 {
@@ -1692,7 +1732,8 @@ const CARDS = [
     "",
     "rebase-pull: … ── origin work ── your commits'   (linear)"
   ],
-  proGit:   "Git-Branching-Rebasing"
+  proGit:   "Git-Branching-Rebasing",
+  lab:      "Collide on the trunk, then recover"
 },
 
 {
@@ -1814,7 +1855,8 @@ const CARDS = [
     "Unmerged paths:",
     "        both modified:   src/runner.py"
   ],
-  proGit:   "Git-Branching-Basic-Branching-and-Merging"
+  proGit:   "Git-Branching-Basic-Branching-and-Merging",
+  lab:      "Trigger the conflict and read it"
 },
 
 {
@@ -1842,7 +1884,8 @@ const CARDS = [
     "grep -rn \"<<<<<<<\" src/    ← cheap insurance before continuing"
   ],
   proGit:   "Git-Branching-Basic-Branching-and-Merging",
-  bottomUp: "branching-and-the-power-of-rebase"
+  bottomUp: "branching-and-the-power-of-rebase",
+  lab:      "Trigger the conflict and read it"
 },
 
 {
@@ -1877,7 +1920,8 @@ const CARDS = [
     "both raised it, so neither side is standing still: a real decision",
     "without the middle section it could have been one of them reverting"
   ],
-  proGit:   "Git-Tools-Advanced-Merging"
+  proGit:   "Git-Tools-Advanced-Merging",
+  lab:      "See what both sides started from"
 },
 
 {
@@ -1904,7 +1948,8 @@ const CARDS = [
     "  <<<<<<< HEAD          ← main   (ours — the new base)",
     "  >>>>>>> your commit   ← YOUR work (theirs)"
   ],
-  proGit:   "Git-Tools-Advanced-Merging"
+  proGit:   "Git-Tools-Advanced-Merging",
+  lab:      "The replay that stops"
 },
 
 {
@@ -1932,7 +1977,8 @@ const CARDS = [
     "",
     "then: git add <file>  and  --continue"
   ],
-  proGit:   "Git-Tools-Advanced-Merging"
+  proGit:   "Git-Tools-Advanced-Merging",
+  lab:      "Take one whole side, and see what it costs"
 },
 
 {
@@ -1963,7 +2009,8 @@ const CARDS = [
     "  -X theirs  →  their hunk, plus both clean changes",
     "  -s ours    →  your file exactly as it was"
   ],
-  proGit:   "Git-Tools-Advanced-Merging"
+  proGit:   "Git-Tools-Advanced-Merging",
+  lab:      "Decide the winner before the merge starts"
 },
 
 {
@@ -2025,7 +2072,8 @@ const CARDS = [
     "++QUEUE_DEPTH = 24     ← neither: yours",
     "  RETRIES = 1          ← agreed, so unmarked"
   ],
-  proGit:   "Git-Tools-Advanced-Merging"
+  proGit:   "Git-Tools-Advanced-Merging",
+  lab:      "Mix the two sides, then abandon the merge"
 },
 
 {
@@ -2054,7 +2102,8 @@ const CARDS = [
     "git checkout --merge src/runner.py                ← markers, as before",
     "git checkout --conflict=zdiff3 src/runner.py      ← with the base too"
   ],
-  proGit:   "Git-Tools-Advanced-Merging"
+  proGit:   "Git-Tools-Advanced-Merging",
+  lab:      "Take one whole side, and see what it costs"
 },
 
 {
@@ -2090,7 +2139,8 @@ const CARDS = [
     "git status             ← confirm nothing unmerged remains",
     "git merge --continue"
   ],
-  proGit:   "Git-Branching-Basic-Branching-and-Merging"
+  proGit:   "Git-Branching-Basic-Branching-and-Merging",
+  lab:      "Resolve, finish, and inspect the merge commit"
 },
 
 {
@@ -2114,7 +2164,8 @@ const CARDS = [
     "git reset --hard ORIG_HEAD     ← fallback: ORIG_HEAD is set by",
     "                                 merge, rebase, reset and pull"
   ],
-  proGit:   "Git-Tools-Advanced-Merging"
+  proGit:   "Git-Tools-Advanced-Merging",
+  lab:      "Mix the two sides, then abandon the merge"
 },
 
 {
@@ -2218,7 +2269,8 @@ const CARDS = [
     "             main"
   ],
   proGit:   "Git-Branching-Rebasing",
-  bottomUp: "branching-and-the-power-of-rebase"
+  bottomUp: "branching-and-the-power-of-rebase",
+  lab:      "Rebase onto the trunk and watch the hashes change"
 },
 
 {
@@ -2246,7 +2298,8 @@ const CARDS = [
     "content identical · identity different"
   ],
   proGit:   "Git-Branching-Rebasing",
-  bottomUp: "branching-and-the-power-of-rebase"
+  bottomUp: "branching-and-the-power-of-rebase",
+  lab:      "Rebase onto the trunk and watch the hashes change"
 },
 
 {
@@ -2271,7 +2324,8 @@ const CARDS = [
     "",
     "$ git push --force-with-lease"
   ],
-  proGit:   "Git-Branching-Rebasing"
+  proGit:   "Git-Branching-Rebasing",
+  lab:      "Rebase a pushed branch and push it again"
 },
 
 {
@@ -2328,7 +2382,8 @@ const CARDS = [
     "              git reset --hard ORIG_HEAD             after — stage 10"
   ],
   proGit:   "Git-Branching-Rebasing",
-  bottomUp: "branching-and-the-power-of-rebase"
+  bottomUp: "branching-and-the-power-of-rebase",
+  lab:      "Preview the rebase before you run it"
 },
 
 {
@@ -2376,7 +2431,8 @@ const CARDS = [
     "",
     "           ✗ not a fast-forward — F3 is not an ancestor of F3'"
   ],
-  proGit:   "Git-Branching-Remote-Branches"
+  proGit:   "Git-Branching-Remote-Branches",
+  lab:      "Rebase a pushed branch and push it again"
 },
 
 {
@@ -2418,7 +2474,8 @@ const CARDS = [
     "   server holds F2, as fetched  →  replaced by F2', old copies deleted",
     "   server moved meanwhile       →  ! [rejected] (stale info)"
   ],
-  proGit:   "Git-Branching-Rebasing"
+  proGit:   "Git-Branching-Rebasing",
+  lab:      "Follow the bad hint, and watch what it builds"
 },
 
 {
@@ -2445,7 +2502,8 @@ const CARDS = [
     "stage 13 takes the two-dot syntax apart properly"
   ],
   proGit:   "Git-Tools-Revision-Selection",
-  bottomUp: "a-commit-by-any-other-name"
+  bottomUp: "a-commit-by-any-other-name",
+  lab:      "Take the stray commit back out"
 },
 
 {
@@ -2489,7 +2547,8 @@ const CARDS = [
     "$ git push --force-with-lease"
   ],
   proGit:   "Git-Branching-Rebasing",
-  bottomUp: "stashing-and-the-reflog"
+  bottomUp: "stashing-and-the-reflog",
+  lab:      "Take the stray commit back out"
 },
 
 {
@@ -2543,7 +2602,8 @@ const CARDS = [
     "old chain:  … ── A ── B     where origin/topic (and you) stood",
     "new chain:  … ── A'── B'    where the server points now"
   ],
-  proGit:   "Git-Branching-Remote-Branches"
+  proGit:   "Git-Branching-Remote-Branches",
+  lab:      "Watch the force-push arrive"
 },
 
 {
@@ -2575,7 +2635,8 @@ const CARDS = [
     "any +  →  git rebase origin/topic    (the - lines drop out on their own)"
   ],
   proGit:   "Git-Branching-Rebasing",
-  bottomUp: "branching-and-the-power-of-rebase"
+  bottomUp: "branching-and-the-power-of-rebase",
+  lab:      "Sort your copy, then follow the rewrite"
 },
 
 {
@@ -2602,7 +2663,8 @@ const CARDS = [
     "git log dev..HEAD   ← just your commits",
     "git log             ← everything your branch contains"
   ],
-  proGit:   "Git-Branching-Rebasing"
+  proGit:   "Git-Branching-Rebasing",
+  lab:      "Rebase onto the trunk and watch the hashes change"
 },
 
 {
@@ -2623,7 +2685,8 @@ const CARDS = [
     "git commit --amend                     opens editor, old text loaded"
   ],
   proGit:   "Git-Tools-Rewriting-History",
-  bottomUp: "doing-a-soft-reset"
+  bottomUp: "doing-a-soft-reset",
+  lab:      "Commit the remainder, then fix its message"
 },
 
 {
@@ -2647,7 +2710,8 @@ const CARDS = [
     "$ git fixit"
   ],
   proGit:   "Git-Tools-Rewriting-History",
-  bottomUp: "doing-a-soft-reset"
+  bottomUp: "doing-a-soft-reset",
+  lab:      "Repair the last commit, keep the rest"
 },
 
 {
@@ -2681,7 +2745,8 @@ const CARDS = [
     "tree after      start(), untouched — commit it separately"
   ],
   proGit:   "Git-Tools-Rewriting-History",
-  bottomUp: "doing-a-soft-reset"
+  bottomUp: "doing-a-soft-reset",
+  lab:      "Repair the last commit, keep the rest"
 },
 
 {
@@ -2705,7 +2770,8 @@ const CARDS = [
     "               C          orphaned — reachable via reflog only"
   ],
   proGit:   "Git-Tools-Rewriting-History",
-  bottomUp: "doing-a-soft-reset"
+  bottomUp: "doing-a-soft-reset",
+  lab:      "Commit the remainder, then fix its message"
 },
 
 {
@@ -2756,7 +2822,8 @@ const CARDS = [
     "# p pick · r reword · s squash · f fixup · d drop · e edit"
   ],
   proGit:   "Git-Tools-Rewriting-History",
-  bottomUp: "interactive-rebasing"
+  bottomUp: "interactive-rebasing",
+  lab:      "Clean up the branch with an interactive rebase"
 },
 
 {
@@ -2806,7 +2873,8 @@ const CARDS = [
     "result:  (F1+F2+F3) ── F4"
   ],
   proGit:   "Git-Tools-Rewriting-History",
-  bottomUp: "interactive-rebasing"
+  bottomUp: "interactive-rebasing",
+  lab:      "Clean up the branch with an interactive rebase"
 },
 
 {
@@ -2828,7 +2896,8 @@ const CARDS = [
     "       Add overflow counter"
   ],
   proGit:   "Git-Tools-Rewriting-History",
-  bottomUp: "interactive-rebasing"
+  bottomUp: "interactive-rebasing",
+  lab:      "Clean up the branch with an interactive rebase"
 },
 
 {
@@ -2941,7 +3010,8 @@ const CARDS = [
     "1a2b3c4 task-queue@{2}: branch: Created from HEAD"
   ],
   proGit:   "Git-Tools-Revision-Selection",
-  bottomUp: "branching-and-the-power-of-rebase"
+  bottomUp: "branching-and-the-power-of-rebase",
+  lab:      "Count what the branch would land"
 },
 
 {
@@ -2976,7 +3046,8 @@ const CARDS = [
     "  → refactor's commit replayed too, now a copy on your branch"
   ],
   proGit:   "Git-Branching-Rebasing",
-  bottomUp: "branching-and-the-power-of-rebase"
+  bottomUp: "branching-and-the-power-of-rebase",
+  lab:      "Count what the branch would land"
 },
 
 {
@@ -3011,7 +3082,8 @@ const CARDS = [
     "                     └────────────────── where they land"
   ],
   proGit:   "Git-Branching-Rebasing",
-  bottomUp: "branching-and-the-power-of-rebase"
+  bottomUp: "branching-and-the-power-of-rebase",
+  lab:      "Move the independent branch onto the trunk"
 },
 
 {
@@ -3046,7 +3118,8 @@ const CARDS = [
     "neither of your two commits ever touched src/retry.py"
   ],
   proGit:   "Git-Branching-Rebasing",
-  bottomUp: "branching-and-the-power-of-rebase"
+  bottomUp: "branching-and-the-power-of-rebase",
+  lab:      "Move the independent branch onto the trunk"
 },
 
 {
@@ -3087,7 +3160,8 @@ const CARDS = [
     "UU src/retry.py"
   ],
   proGit:   "Git-Tools-Advanced-Merging",
-  bottomUp: "branching-and-the-power-of-rebase"
+  bottomUp: "branching-and-the-power-of-rebase",
+  lab:      "The replay that stops"
 },
 
 {
@@ -3118,7 +3192,8 @@ const CARDS = [
     "  5 commits, 0 merges         7 commits, 2 merges"
   ],
   proGit:   "Git-Tools-Rewriting-History",
-  bottomUp: "branching-and-the-power-of-rebase"
+  bottomUp: "branching-and-the-power-of-rebase",
+  lab:      "Put a licence into the very first commit"
 },
 
 {
@@ -3145,7 +3220,8 @@ const CARDS = [
     "         └─ same changes, same messages, new identities"
   ],
   proGit:   "Git-Tools-Rewriting-History",
-  bottomUp: "a-commit-by-any-other-name"
+  bottomUp: "a-commit-by-any-other-name",
+  lab:      "Put a licence into the very first commit"
 },
 
 {
@@ -3291,7 +3367,8 @@ const CARDS = [
     "working tree ─────── unchanged ──────▶  your edits survive"
   ],
   proGit:   "Git-Basics-Undoing-Things",
-  bottomUp: "doing-a-mixed-reset"
+  bottomUp: "doing-a-mixed-reset",
+  lab:      "Stage a directory, then take one file back out"
 },
 
 {
@@ -3339,7 +3416,8 @@ const CARDS = [
     "-n  dry run      -d  include directories",
     "-f  do it        -x  ignored files too (usually too much)"
   ],
-  proGit:   "Git-Tools-Stashing-and-Cleaning"
+  proGit:   "Git-Tools-Stashing-and-Cleaning",
+  lab:      "Remove untracked clutter — carefully"
 },
 
 {
@@ -3424,7 +3502,8 @@ const CARDS = [
     "         … ── ABC         (HEAD)"
   ],
   proGit:   "Git-Tools-Reset-Demystified",
-  bottomUp: "doing-a-soft-reset"
+  bottomUp: "doing-a-soft-reset",
+  lab:      "Collapse three commits into one"
 },
 
 {
@@ -3451,7 +3530,8 @@ const CARDS = [
     "",
     "git revert -m 1 <merge-sha>   ← reverting a merge"
   ],
-  proGit:   "Git-Basics-Undoing-Things"
+  proGit:   "Git-Basics-Undoing-Things",
+  lab:      "Undo a commit by adding history, not removing it"
 },
 
 {
@@ -3473,7 +3553,8 @@ const CARDS = [
     "unpushed, nobody has it  ──▶ reset  (rewrite)",
     "pushed, colleagues pulled ──▶ revert (append)"
   ],
-  proGit:   "Git-Tools-Reset-Demystified"
+  proGit:   "Git-Tools-Reset-Demystified",
+  lab:      "Undo a commit by adding history, not removing it"
 },
 
 {
@@ -3575,7 +3656,8 @@ const CARDS = [
     "set by: merge · rebase · reset · pull",
     "holds only ONE position — the reflog holds the rest"
   ],
-  proGit:   "Git-Internals-Maintenance-and-Data-Recovery"
+  proGit:   "Git-Internals-Maintenance-and-Data-Recovery",
+  lab:      "Decide the winner before the merge starts"
 },
 
 {
@@ -3610,7 +3692,8 @@ const CARDS = [
     "git restore --source=X -SW file       both at once"
   ],
   proGit:   "Git-Basics-Undoing-Things",
-  bottomUp: "to-reset-or-not-to-reset"
+  bottomUp: "to-reset-or-not-to-reset",
+  lab:      "Take one file back to an older commit"
 },
 
 {
@@ -3640,7 +3723,8 @@ const CARDS = [
     "normal repo = working tree + .git/",
     "bare repo   = the contents of .git/, and nothing else"
   ],
-  proGit:   "Git-on-the-Server-Getting-Git-on-a-Server"
+  proGit:   "Git-on-the-Server-Getting-Git-on-a-Server",
+  lab:      "Make a \"server\" on your own machine"
 },
 
 {
@@ -3664,7 +3748,8 @@ const CARDS = [
     "with an ~/.ssh/config Host alias:",
     "server:repos/project.git"
   ],
-  proGit:   "Git-Basics-Working-with-Remotes"
+  proGit:   "Git-Basics-Working-with-Remotes",
+  lab:      "Connect and make the first push"
 },
 
 {
@@ -3691,7 +3776,8 @@ const CARDS = [
     "",
     "empty output ⇒ remote has no commits yet"
   ],
-  proGit:   "Git-Basics-Working-with-Remotes"
+  proGit:   "Git-Basics-Working-with-Remotes",
+  lab:      "Connect and make the first push"
 },
 
 {
@@ -3717,7 +3803,8 @@ const CARDS = [
     "git init  +  remote add  +  pull",
     "     ↑ for starting something new — not for connecting"
   ],
-  proGit:   "Git-Basics-Getting-a-Git-Repository"
+  proGit:   "Git-Basics-Getting-a-Git-Repository",
+  lab:      "Clone it as if you were someone else"
 },
 
 {
@@ -3786,7 +3873,8 @@ const CARDS = [
     "",
     "git config --global fetch.prune true   make it automatic"
   ],
-  proGit:   "Git-Branching-Remote-Branches"
+  proGit:   "Git-Branching-Remote-Branches",
+  lab:      "Tidy up the server"
 },
 
 {
@@ -3812,7 +3900,8 @@ const CARDS = [
     "",
     "touches origin/* and backup/*  —  never your local branches"
   ],
-  proGit:   "Git-Basics-Working-with-Remotes"
+  proGit:   "Git-Basics-Working-with-Remotes",
+  lab:      "Tidy up the server"
 },
 
 {
@@ -4035,7 +4124,8 @@ const CARDS = [
     "",
     "git config --global push.useForceIfIncludes true"
   ],
-  proGit:   "Git-Branching-Remote-Branches"
+  proGit:   "Git-Branching-Remote-Branches",
+  lab:      "Rebase a pushed branch and push it again"
 },
 
 {
@@ -4089,7 +4179,8 @@ const CARDS = [
     "!keep.o         re-include one file",
     "doc/**/*.pdf    glob across directories"
   ],
-  proGit:   "Git-Basics-Recording-Changes-to-the-Repository"
+  proGit:   "Git-Basics-Recording-Changes-to-the-Repository",
+  lab:      "Keep junk out of the repository"
 },
 
 {
@@ -4113,7 +4204,8 @@ const CARDS = [
     "git rm --cached .DS_Store       ← untrack, keep on disk",
     "git rm .DS_Store                ← untrack AND delete"
   ],
-  proGit:   "Git-Basics-Recording-Changes-to-the-Repository"
+  proGit:   "Git-Basics-Recording-Changes-to-the-Repository",
+  lab:      "Untrack a file without deleting it"
 },
 
 {
@@ -4163,7 +4255,8 @@ const CARDS = [
     "",
     "git config --get --show-origin pull.rebase"
   ],
-  proGit:   "Customizing-Git-Git-Configuration"
+  proGit:   "Customizing-Git-Git-Configuration",
+  lab:      "Set an identity for this repository only"
 },
 
 {
@@ -4215,7 +4308,8 @@ const CARDS = [
     "git log main...dev  →  both sides' unique commits"
   ],
   proGit:   "Git-Tools-Revision-Selection",
-  bottomUp: "a-commit-by-any-other-name"
+  bottomUp: "a-commit-by-any-other-name",
+  lab:      "Let main run ahead of the release"
 },
 
 {
@@ -4280,7 +4374,8 @@ const CARDS = [
     "git reflog show feature/task-queue                     the creation, recorded"
   ],
   proGit:   "Git-Tools-Revision-Selection",
-  bottomUp: "a-commit-by-any-other-name"
+  bottomUp: "a-commit-by-any-other-name",
+  lab:      "Count what the branch would land"
 },
 
 {
@@ -4351,7 +4446,8 @@ const CARDS = [
     "git log -- . ':(exclude)vendor/'          everything but vendor",
     "git log --follow -- src/core/runner.py      follow across renames"
   ],
-  proGit:   "Git-Basics-Viewing-the-Commit-History"
+  proGit:   "Git-Basics-Viewing-the-Commit-History",
+  lab:      "Take one file back to an older commit"
 },
 
 {
@@ -4393,7 +4489,8 @@ const CARDS = [
     "-S 'X' -m                       … and merge diffs are searched too"
   ],
   proGit:   "Git-Tools-Searching",
-  bottomUp: "a-commit-by-any-other-name"
+  bottomUp: "a-commit-by-any-other-name",
+  lab:      "Trace one line back, and one value that vanished"
 },
 
 {
@@ -4423,7 +4520,8 @@ const CARDS = [
     "",
     ".git-blame-ignore-revs        the formatting sweeps to skip"
   ],
-  proGit:   "Git-Tools-Debugging-with-Git"
+  proGit:   "Git-Tools-Debugging-with-Git",
+  lab:      "Trace one line back, and one value that vanished"
 },
 
 {
@@ -4611,7 +4709,8 @@ const CARDS = [
     "origin/hotfix       ← you hold it; dead on the server",
     "origin/hotfix/typo  ← the server offers it; blocked by the line above"
   ],
-  proGit:   "Git-Internals-Git-References"
+  proGit:   "Git-Internals-Git-References",
+  lab:      "The fetch that fails over a branch you never touched"
 },
 
 {
@@ -4640,7 +4739,8 @@ const CARDS = [
     "git show v0.1.0              the tag’s story, then the commit"
   ],
   proGit:   "Git-Basics-Tagging",
-  bottomUp: "a-commit-by-any-other-name"
+  bottomUp: "a-commit-by-any-other-name",
+  lab:      "Cut a release the server knows about"
 },
 
 {
@@ -4694,7 +4794,8 @@ const CARDS = [
     "",
     "git ls-remote origin             a refs/tags/ line ⇒ the server has it"
   ],
-  proGit:   "Git-Basics-Tagging"
+  proGit:   "Git-Basics-Tagging",
+  lab:      "Cut a release the server knows about"
 },
 
 {
@@ -4722,7 +4823,8 @@ const CARDS = [
     "                   └─ the last release reachable from here"
   ],
   proGit:   "Distributed-Git-Maintaining-a-Project",
-  bottomUp: "a-commit-by-any-other-name"
+  bottomUp: "a-commit-by-any-other-name",
+  lab:      "Cut a release the server knows about"
 },
 
 {
