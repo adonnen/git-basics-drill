@@ -1118,8 +1118,11 @@ const CARDS = [
   ],
   detail: [
     "Anywhere only one side moved away from the ancestor, git takes that side",
-    "silently. A conflict arises only where both sides changed the same region,",
-    "which is why most merges finish without asking you anything.",
+    "silently. A conflict arises only where both sides changed the same region",
+    "and ended up with different text: two sides that made the identical change",
+    "agree, and git takes it once. That is why most merges finish without",
+    "asking you anything, and why a fix copied onto another branch can meet its",
+    "original in a later merge without a fight.",
     "`git merge-base` prints the ancestor it will use."
   ],
   figure: [
@@ -1131,8 +1134,9 @@ const CARDS = [
     "",
     "C = the ancestor — git merge-base main feature prints it",
     "",
-    "only one side changed a line  →  taken automatically",
-    "both sides changed it         →  conflict, your call"
+    "only one side changed a line   →  taken automatically",
+    "both made the identical change →  taken once, no conflict",
+    "both changed it, differently   →  conflict, your call"
   ],
   proGit:   "Git-Branching-Basic-Branching-and-Merging"
 },
@@ -1559,6 +1563,45 @@ const CARDS = [
     "$ git push                     ← just works, upstream created",
     "",
     "git --version                  ← needs 2.37 or newer"
+  ],
+  proGit:   "Git-Branching-Remote-Branches"
+},
+
+{
+  stage:    "05 sync basics",
+  level:    "intermediate",
+  question: "You cut `fix/queue-full` from `origin/main`, committed, and `git push` refuses: the upstream branch “does not match the name of your current branch”. Which of the two pushes it suggests do you not want?",
+  answer: [
+    "The first suggestion, `git push origin HEAD:main`, puts your commit",
+    "straight onto `main`. Take the second, with `-u` so it sticks:",
+    "$ git push -u origin HEAD",
+    "Starting from `origin/main` made it the branch's upstream, and a plain",
+    "push refuses to send a branch to an upstream with another name."
+  ],
+  detail: [
+    "A remote-tracking branch as the start point sets up tracking by default,",
+    "so the new branch follows `origin/main` without asking, and `git status`",
+    "reports it ahead of `origin/main`: true, and misleading. On a shared",
+    "trunk the first suggestion skips review entirely, unless the server",
+    "protects the branch. `-u` replaces the upstream, after which a plain push",
+    "goes where you meant. `push.autoSetupRemote` does not help: it acts only",
+    "when a branch has no upstream at all, and this one has an upstream, just",
+    "the wrong one. `git switch --no-track -c fix/queue-full origin/main`",
+    "avoids the pairing from the start."
+  ],
+  figure: [
+    "$ git switch -c fix/queue-full origin/main",
+    "branch 'fix/queue-full' set up to track 'origin/main'.",
+    "$ git push",
+    "fatal: The upstream branch of your current branch does not match",
+    "the name of your current branch.  To push to the upstream branch",
+    "on the remote, use",
+    "",
+    "    git push origin HEAD:main      ← straight onto main",
+    "",
+    "To push to the branch of the same name on the remote, use",
+    "",
+    "    git push origin HEAD           ← what you meant"
   ],
   proGit:   "Git-Branching-Remote-Branches"
 },
@@ -4156,6 +4199,39 @@ const CARDS = [
   ],
   proGit:   "Git-Tools-Revision-Selection",
   bottomUp: "a-commit-by-any-other-name"
+},
+
+{
+  stage:    "13 daily practice",
+  level:    "intermediate",
+  question: "`git log main...dev` and `git diff main...dev` both take three dots. Do they ask the same question?",
+  answer: [
+    "No. `log` lists the commits unique to either side. `diff` shows what `dev`",
+    "changed since it left `main`, measured from their merge base, and ignores",
+    "whatever `main` did meanwhile.",
+    "| log   main...dev   commits on either side, not on both",
+    "| diff  main...dev   merge base → dev: dev's own work"
+  ],
+  detail: [
+    "GitHub's pull-request page shows exactly this three-dot diff, so a review",
+    "covers the branch's own work and not the trunk's. Its blind spot is a",
+    "change both branches already hold, such as a fix copied across with",
+    "`cherry-pick`: the merge base predates the copy, so the three-dot diff",
+    "still lists the change. `git diff main dev`, with a space or two dots,",
+    "compares the two tips as they stand: `dev`'s work, plus whatever `main`",
+    "did meanwhile shown as undone. A change both sides hold cancels out of",
+    "it, which the three-dot form cannot show you."
+  ],
+  figure: [
+    "        ┌── D1 ── D2      (dev)",
+    "A ── B ─┤",
+    "        └── M1            (main)",
+    "",
+    "git log  main...dev    D1 D2 M1    unique to either side",
+    "git diff main...dev    B → D2      what dev changed",
+    "git diff main dev      M1 → D2     dev's work, and M1 undone"
+  ],
+  proGit:   "Git-Tools-Revision-Selection"
 },
 
 {
