@@ -56,7 +56,8 @@
 
     # The graph, decorated, across every branch. The one to learn first: you
     # debug history far faster when you can see its shape.
-    #   --all       every branch and tag, not just the one you are on
+    #   --all       every ref, not just the branch you are on: branches, tags,
+    #               remote branches, the stash, and refs other programs keep
     #   --oneline   one line per commit: short hash and subject
     #   --graph     the ASCII rails on the left showing branch and merge
     #   --decorate  the (HEAD -> main, origin/main) labels on the tips

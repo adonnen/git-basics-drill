@@ -2,9 +2,10 @@
    lab.js — the hands-on exercise.
 
    A list of steps the reader works through in a real terminal. Everything up
-   to act VIII stays on the reader's own machine with no remote. Two acts are
-   optional: VI rewrites the repository's root commit, and IX adds a remote,
-   still locally, using a bare repository as the "server".
+   to act IX stays on the reader's own machine with no remote. Three acts are
+   optional: VI rewrites the repository's root commit, IX looks at the refs
+   behind the branch names, and X adds a remote, still locally, using a bare
+   repository as the "server".
 
    ---------------------------------------------------------------------------
    THE SHAPE OF A STEP
@@ -36,7 +37,7 @@
    A divider is a step with an "act" instead of a task:
 
      { act: "IV — divergence and a real conflict" },
-     { act: "IX — optional: working with a remote", optional: true },
+     { act: "X — optional: working with a remote", optional: true },
 
    Steps are numbered automatically, so inserting one renumbers the rest.
 
@@ -66,7 +67,7 @@
    So before moving a step down a level, check what its solution *produces*, not
    only what it teaches. The acts that end up empty at a level are hidden, and
    the numerals keep their gaps — at basics the reader sees I, II, III, IV, V,
-   IX, which is honest about the lab being larger than this pass through it.
+   X, which is honest about the lab being larger than this pass through it.
    ============================================================================= */
 
 const LAB = [
@@ -1426,7 +1427,7 @@ const LAB = [
     "# warning: skipped previously applied commit ...",
     "#   its base's commit is on main now, so the replay drops it and only",
     "#   the branch's own work survives. Patch comparison again, working for",
-    "#   you this time. Act IX meets the same mechanism after a bad pull",
+    "#   you this time. Act X meets the same mechanism after a bad pull",
     "git log --oneline main..HEAD   # one commit: yours",
     "",
     "git switch main",
@@ -2004,7 +2005,149 @@ const LAB = [
   ]
 },
 
-{ act: "IX — optional: working with a remote", optional: true },
+{ act: "IX — optional: under the branch names", optional: true },
+
+{
+  title: "Read a branch straight off the disk",
+  level: "intermediate",
+  task: [
+    "A branch name is a *ref*: a name stored under `.git` that holds one",
+    "commit hash. Print the file that says which branch you are on and the",
+    "file that holds `main`'s hash. Then ask git for `main`'s hash the usual",
+    "way and compare the two."
+  ],
+  solution: [
+    "cat .git/HEAD                 # ref: refs/heads/main",
+    "cat .git/refs/heads/main      # forty hex characters: main's commit",
+    "git rev-parse main            # the same forty",
+    "ls .git/refs/heads            # main  release: one file per branch",
+    "",
+    "# no file there? git gc packs refs into a single file, .git/packed-refs,",
+    "# and a repository in the newer reftable format keeps none as files at",
+    "# all. Both are normal; git rev-parse --show-ref-format says which"
+  ]
+},
+
+{
+  title: "Make a branch by writing its ref",
+  task: [
+    "If a branch is only a ref, writing the ref should be enough to make one.",
+    "Create a branch called `scratch` at your current commit with the",
+    "low-level command that writes refs, not with `git branch` or",
+    "`git switch`, and check that `git branch` lists it. Then delete it the",
+    "same way. `git help -a` lists the low-level commands."
+  ],
+  solution: [
+    "git update-ref refs/heads/scratch HEAD",
+    "git branch                    # main, release, scratch",
+    "cat .git/refs/heads/scratch   # the same hash as main",
+    "",
+    "git update-ref -d refs/heads/scratch",
+    "git branch                    # main, release",
+    "",
+    "# update-ref asks no questions. Pointed at refs/heads/main it would move",
+    "# main without a word, but git branch main refuses:",
+    "# fatal: a branch named 'main' already exists"
+  ]
+},
+
+{
+  title: "Leave commits where no branch command looks",
+  task: [
+    "Some AI agents in editors save a checkpoint after each chat turn: a",
+    "commit made without moving any branch, kept alive by a ref in the agent's",
+    "own folder, such as `refs/agents/<session>/checkpoints/turn/<n>`. Make",
+    "two of your own. Write a commit with HEAD's snapshot and HEAD as its",
+    "parent, and point `refs/agents/demo/checkpoints/turn/0` at it; then a",
+    "second commit on top of that one, under `turn/1`. No `git commit` and no",
+    "`git switch`: the low-level commands again. Then compare what",
+    "`git branch`, `git status`, the `--all` graph and `git for-each-ref` each",
+    "report."
+  ],
+  solution: [
+    "C0=$(git commit-tree -p HEAD -m \"checkpoint turn 0\" \"HEAD^{tree}\")",
+    "git update-ref refs/agents/demo/checkpoints/turn/0 $C0",
+    "C1=$(git commit-tree -p $C0 -m \"checkpoint turn 1\" \"HEAD^{tree}\")",
+    "git update-ref refs/agents/demo/checkpoints/turn/1 $C1",
+    "#   commit-tree writes a commit and prints its hash, and moves nothing.",
+    "#   \"HEAD^{tree}\" is the snapshot HEAD already holds, quoted so the",
+    "#   shell leaves the ^ and the braces alone",
+    "",
+    "git branch                    # main, release: nothing new",
+    "git status -sb                # ## main: nothing changed anywhere",
+    "git log --oneline --graph --all -3",
+    "# * d4103d8 checkpoint turn 1",
+    "# * 5f7e4d2 checkpoint turn 0",
+    "#   no label on either, since no branch points there. (your hashes will",
+    "#   differ.)",
+    "git for-each-ref --format='%(refname)'",
+    "# refs/agents/demo/checkpoints/turn/0",
+    "# refs/agents/demo/checkpoints/turn/1",
+    "# refs/heads/main",
+    "# refs/heads/release",
+    "",
+    "# --all starts at every ref under refs/, so the graph finds them;",
+    "# git branch reads only refs/heads/. Add --clear-decorations to the log",
+    "# to see the refs' names on the two commits"
+  ]
+},
+
+{
+  title: "Hide them from the graph, two ways",
+  task: [
+    "Draw the `--all` graph again without the checkpoints: once by naming the",
+    "folder to leave out, once by naming only what you want to see. Then find",
+    "out what happens when the exclusion comes after `--all`, and when it",
+    "names the folder without a wildcard."
+  ],
+  solution: [
+    "git log --oneline --graph --exclude='refs/agents/*' --all -3",
+    "git log --oneline --graph --branches --remotes --tags HEAD -3",
+    "#   neither shows the checkpoints: both start at your newest commit on a",
+    "#   branch",
+    "",
+    "git log --oneline --graph --all --exclude='refs/agents/*' -3",
+    "#   the checkpoints are back: --exclude applies only to the next --all,",
+    "#   --branches, --tags or --remotes",
+    "git log --oneline --graph --exclude=refs/agents --all -3",
+    "#   back again: without a wildcard the pattern must match a whole ref",
+    "#   name, and no ref is called refs/agents",
+    "",
+    "# zsh needs the quotes: it stops at an unquoted * with \"no matches found\".",
+    "# An alias needs none, since git splits it itself"
+  ]
+},
+
+{
+  title: "Delete the folder, and watch the commits outlive it",
+  task: [
+    "Keep the hash of `turn/0` in a shell variable. Then delete every ref",
+    "under `refs/agents/` in one command, without typing their names. Show",
+    "that git still has the commit, then make git throw it away for good and",
+    "show that it is gone."
+  ],
+  solution: [
+    "KEEP=$(git rev-parse refs/agents/demo/checkpoints/turn/0)",
+    "",
+    "git for-each-ref --format='delete %(refname)' refs/agents | git update-ref --stdin",
+    "git for-each-ref refs/agents  # prints nothing: the refs are gone",
+    "git cat-file -t $KEEP         # commit: no ref, but still stored",
+    "",
+    "# --prune=now drops the checkpoints without the usual two-week wait.",
+    "# Use it only on a repository nothing else is writing to: close any",
+    "# editor that has it open",
+    "git gc --prune=now",
+    "git cat-file -t $KEEP",
+    "# fatal: git cat-file: could not get object info",
+    "",
+    "# nothing kept them longer: they never moved HEAD, and a ref in a",
+    "# program's own folder gets no reflog by default. gc packed your branch",
+    "# files too: cat .git/refs/heads/main now fails, the case the first step",
+    "# of this act warned about"
+  ]
+},
+
+{ act: "X — optional: working with a remote", optional: true },
 
 {
   title: "Make a \"server\" on your own machine",

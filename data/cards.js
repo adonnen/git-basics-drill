@@ -643,7 +643,10 @@ const CARDS = [
     "follows, so any flag you would type on the command line works there too —",
     "and flags you add at the call site are appended to the expansion. An alias",
     "beginning with `!` runs a shell command instead of a git subcommand, which",
-    "is how a guarded alias like `git nuke` gets its confirmation prompt."
+    "is how a guarded alias like `git nuke` gets its confirmation prompt.",
+    "`--all` starts at every ref, not only at branches, so commits that other",
+    "programs keep under refs of their own show up too; stage 14 shows how to",
+    "leave them out."
   ],
   figure: [
     "[alias]",
@@ -855,7 +858,45 @@ const CARDS = [
     "dev   feature/task-queue   main"
   ],
   proGit:   "Git-Branching-Branches-in-a-Nutshell",
-  bottomUp: "the-beauty-of-commits"
+  bottomUp: "the-beauty-of-commits",
+  lab:      "Read a branch straight off the disk"
+},
+
+{
+  stage:    "02 branching",
+  question: "A branch is a ref under `refs/heads/`. What else can live under `refs/`, and what does git do with a folder it has no command for?",
+  answer: [
+    "Any folder name is allowed, and the folder decides which commands see a",
+    "ref: `heads/` for `git branch`, `tags/` for `git tag`, `remotes/` for",
+    "`git branch -r`. A ref in any other folder still keeps its commits alive,",
+    "but no everyday command shows it. To see it, ask git for every ref:",
+    "$ git for-each-ref --format='%(refname)'",
+    "$ git log --oneline --graph --all"
+  ],
+  detail: [
+    "Git itself keeps two refs outside those folders: `refs/stash` points at",
+    "your newest stash and `refs/notes/commits` holds your notes. Other",
+    "programs add folders of their own. GitHub keeps every pull request as",
+    "`refs/pull/<n>/head`, and some AI agents in editors keep one checkpoint",
+    "commit per chat turn under refs such as",
+    "`refs/agents/<session>/checkpoints/turn/<n>`. A program keeps its",
+    "commits under refs because garbage collection deletes commits that",
+    "nothing reaches. Neither push nor clone copies these refs by default;",
+    "`git push --mirror` does."
+  ],
+  figure: [
+    "$ git for-each-ref --format='%(refname)'",
+    "refs/agents/demo/checkpoints/turn/0   ← no everyday command shows it",
+    "refs/heads/main                       ← git branch",
+    "refs/heads/release",
+    "refs/notes/commits                    ← git notes list",
+    "refs/remotes/origin/main              ← git branch -r",
+    "refs/stash                            ← git stash list",
+    "refs/tags/v0.1.0                      ← git tag"
+  ],
+  proGit:   "Git-Internals-Git-References",
+  bottomUp: "a-commit-by-any-other-name",
+  lab:      "Leave commits where no branch command looks"
 },
 
 {
@@ -3638,6 +3679,37 @@ const CARDS = [
 
 {
   stage:    "10 undo · reflog",
+  question: "Delete every ref under `refs/agents/` in one command. When are the commits they held actually gone?",
+  answer: [
+    "Have `for-each-ref` print one delete instruction per ref, and let",
+    "`update-ref` apply them all together:",
+    "$ git for-each-ref --format='delete %(refname)' refs/agents | git update-ref --stdin",
+    "The commits stay stored until a garbage collection finds them unreachable",
+    "and older than its grace period, two weeks by default."
+  ],
+  detail: [
+    "A deleted branch's commits usually live on in the HEAD reflog for thirty",
+    "days, because you made them while standing on the branch. A program's",
+    "checkpoints never moved HEAD, and a ref in a program's own folder gets no",
+    "reflog by default. So the delete leaves them unreachable at once,",
+    "protected only by the grace period. `git gc --prune=now` skips it. Close",
+    "the program that wrote the refs first: it may be writing objects at that",
+    "moment, and whatever it meant to restore from those refs is gone with",
+    "them."
+  ],
+  figure: [
+    "$ git cat-file -t 5f7e4d2     ← a checkpoint whose ref is gone",
+    "commit",
+    "$ git gc --prune=now",
+    "$ git cat-file -t 5f7e4d2",
+    "fatal: Not a valid object name 5f7e4d2"
+  ],
+  proGit:   "Git-Internals-Maintenance-and-Data-Recovery",
+  lab:      "Delete the folder, and watch the commits outlive it"
+},
+
+{
+  stage:    "10 undo · reflog",
   question: "What is `ORIG_HEAD`, and when does it save you?",
   answer: [
     "A ref git sets to your previous position before any big move — merge,",
@@ -4675,6 +4747,40 @@ const CARDS = [
   ],
   proGit:   "Git-Basics-Viewing-the-Commit-History",
   bottomUp: "a-commit-by-any-other-name"
+},
+
+{
+  stage:    "14 gotchas",
+  level:    "intermediate",
+  question: "`git lg` suddenly draws dozens of commits that sit on no branch, and `git branch` lists nothing new. Where do they come from?",
+  answer: [
+    "From refs in a folder of their own. `--all` starts at every ref under",
+    "`refs/`, not only at branches, and some program has started keeping",
+    "commits there. Count the refs per folder, then leave the new folder out,",
+    "with the exclusion written before `--all`:",
+    "$ git for-each-ref --format='%(refname)' | cut -d/ -f1-2 | sort | uniq -c",
+    "$ git log --oneline --graph --exclude='refs/agents/*' --all"
+  ],
+  detail: [
+    "A common source is an AI agent in the editor that keeps one checkpoint",
+    "commit per chat turn, under refs such as",
+    "`refs/agents/<session>/checkpoints/turn/<n>`. The graph draws them with",
+    "no label because `--decorate` names only HEAD, branches, remote branches,",
+    "tags and the stash; add `--clear-decorations` to see every name. Three",
+    "mistakes break the filter: an `--exclude` written after `--all` excludes",
+    "nothing, `refs/agents` without the `/*` matches nothing, and zsh stops",
+    "at an unquoted `*` with `no matches found`. Quote it at the prompt; an",
+    "alias needs no quotes. To keep out folders that do not exist yet, name",
+    "what to show instead: `--branches --remotes --tags HEAD`."
+  ],
+  figure: [
+    "git log --exclude='refs/agents/*' --all     one folder out",
+    "git log --branches --remotes --tags HEAD    only these in",
+    "",
+    "git log --all --exclude='refs/agents/*'     excludes nothing",
+    "git log --exclude=refs/agents --all         excludes nothing"
+  ],
+  proGit:   "Git-Internals-Git-References"
 },
 
 {
