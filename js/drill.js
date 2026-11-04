@@ -41,7 +41,7 @@ const el = {
   labNote:$('labNote'),
   // details modal
   backdrop:$('backdrop'), mStage:$('mStage'), mTitle:$('mTitle'), mText:$('mText'),
-  mFigure:$('mFigure'), mLink1:$('mLink1'), mLink2:$('mLink2'), mClose:$('mClose'),
+  mFigure:$('mFigure'), mLink1:$('mLink1'), mLink2:$('mLink2'), mLink3:$('mLink3'), mClose:$('mClose'),
   // alias pop-up
   aliasPop:$('aliasPop'), aTitle:$('aTitle'), aNote:$('aNote'),
   aExpands:$('aExpands'), aHow:$('aHow'), aClose:$('aClose'),
@@ -167,6 +167,7 @@ const DECK = CARDS.map(card => ({
   figure:   (card.figure || []).join('\n'),
   proGit:   card.proGit,
   bottomUp: card.bottomUp || null,
+  manual:   card.manual || null,
   lab:      card.lab || null,
   key:      hashKey('card|' + card.stage + '|' + card.question),
   hay:      [card.stage, card.question, ...(card.answer || []),
@@ -499,6 +500,12 @@ function openDetails(){
   setLink(el.mLink2,
           section ? bottomUp.base + section.path : null,
           section ? 'Git from the Bottom Up — ' + section.title : null);
+
+  const manual = REFERENCES.manual;
+  const page   = card.manual && manual.sections[card.manual];
+  setLink(el.mLink3,
+          page ? manual.base + card.manual : null,
+          page ? 'git manual — ' + page : null);
 
   el.backdrop.hidden = false;
   el.mClose.focus();
@@ -1160,6 +1167,9 @@ function validateData(){
     }
     if(card.bottomUp && !REFERENCES.bottomUp.sections[card.bottomUp]){
       problems.push(where + ': "' + card.bottomUp + '" is not in references.js');
+    }
+    if(card.manual && !REFERENCES.manual.sections[card.manual]){
+      problems.push(where + ': "' + card.manual + '" is not in references.js');
     }
     // A misspelt level is the one mistake here that hides rather than shows:
     // it silently demotes the card to the full deck, which is exactly what a

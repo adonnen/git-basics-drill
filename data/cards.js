@@ -2472,7 +2472,7 @@ const CARDS = [
     "",
     "           ✗ not a fast-forward — F3 is not an ancestor of F3'"
   ],
-  proGit:   "Git-Branching-Remote-Branches",
+  proGit:   "Git-Branching-Rebasing",
   lab:      "Rebase a pushed branch and push it again"
 },
 
@@ -4184,10 +4184,20 @@ const CARDS = [
   ],
   detail: [
     "It is a compare-and-swap: expected value, new value, abort on mismatch. The",
-    "one hole is that a background fetch — an IDE polling in the corner — updates",
-    "your tracking ref without you seeing the commits, so the check passes",
-    "anyway; `push.useForceIfIncludes=true` closes it by also requiring the",
-    "remote tip to be reachable from your branch."
+    "expected value is your `origin/feature`. In this example a colleague pushed",
+    "T1 after your last fetch, and you rebased onto the updated trunk:",
+    "| server:  C1 ── F1 ── T1    ← feature",
+    "| yours:   C1 ── F1          ← origin/feature",
+    "|            \\",
+    "|             C2 ── F1'      ← feature (HEAD)",
+    "Plain `--force` replaces the server’s branch with yours, and T1 is lost. The",
+    "lease compares the server’s `feature` (T1) with your `origin/feature` (F1),",
+    "sees that they differ, and refuses with “stale info”. The weak spot is a",
+    "fetch that runs in the background, for example in your editor. It moves",
+    "`origin/feature` to T1, so the check passes even though T1 is not in your",
+    "branch. `push.useForceIfIncludes=true` fixes this: the push then also needs",
+    "T1 to have been part of your branch at some point, as the reflog records.",
+    "The next card shows how that works."
   ],
   figure: [
     "--force            overwrite whatever is there",
@@ -4196,8 +4206,107 @@ const CARDS = [
     "",
     "git config --global push.useForceIfIncludes true"
   ],
-  proGit:   "Git-Branching-Remote-Branches",
+  proGit:   "Git-Branching-Rebasing",
+  manual:   "git-push#Documentation/git-push.txt---force-with-lease",
   lab:      "Rebase a pushed branch and push it again"
+},
+
+{
+  stage:    "13 daily practice",
+  level:    "intermediate",
+  question: "Your `--force-with-lease` went through, and a colleague’s commit is now gone from the server. How did the lease allow that, and which option would have stopped it?",
+  answer: [
+    "A fetch ran in the background, for example in your editor, and moved",
+    "`origin/feature` to their commit. The lease only compares the server with",
+    "`origin/feature`, and the two matched. `--force-if-includes` adds the",
+    "missing check: the server’s commit must have been in your branch at some",
+    "point.",
+    "$ git push --force-with-lease --force-if-includes",
+    "$ git config --global push.useForceIfIncludes true"
+  ],
+  detail: [
+    "The lease checks against `origin/feature`, and every fetch updates it,",
+    "whether you run the fetch or your editor does. Before the fetch, the server",
+    "has T1 and your clone does not:",
+    "| server:  C1 ── F1 ── T1    ← feature",
+    "| yours:   C1 ── F1          ← origin/feature",
+    "|            \\",
+    "|             C2 ── F1'      ← feature (HEAD)",
+    "After the fetch your branch is the same, but the lease check now passes:",
+    "| yours:   C1 ── F1 ── T1    ← origin/feature",
+    "|            \\",
+    "|             C2 ── F1'      ← feature (HEAD)",
+    "A push with only `--force-with-lease` would now replace F1 and T1 on the",
+    "server with F1'. `--force-if-includes` also looks at the reflog of",
+    "`feature`, the list of every commit the branch has pointed at: here C1, F1",
+    "and F1'. T1 cannot be reached from any of them, so git refuses the push with",
+    "`remote ref updated since checkout`. If you reset to `origin/feature` and",
+    "redo the rebase, the same push works, because the reset added T1 to the",
+    "reflog:",
+    "| yours:   C1 ── F1 ── T1       ← origin/feature",
+    "|            \\",
+    "|             C2 ── F1'── T1'   ← feature (HEAD)",
+    "The check asks whether T1 was ever in your branch, not whether it is in what",
+    "you push. If you merge T1 and then reset it away again, the push still passes",
+    "and deletes T1. `--force-if-includes` has no effect without the lease, or with",
+    "`--force-with-lease=<ref>:<expect>`, where you give the expected commit",
+    "yourself. Plain `-f` turns off both checks. The option was added in git 2.30."
+  ],
+  figure: [
+    "                             lease alone   + --force-if-includes",
+    "nobody else pushed           passes        passes",
+    "pushed, not fetched          stale info    stale info",
+    "pushed, fetched, not merged  passes  ✗     refused",
+    "pushed, merged or rebased    passes        passes",
+    "merged, then reset away      passes  ✗     passes  ✗",
+    "",
+    "✗  the server loses a commit someone else pushed"
+  ],
+  proGit:   "Git-Branching-Rebasing",
+  bottomUp: "stashing-and-the-reflog",
+  manual:   "git-push#Documentation/git-push.txt---force-if-includes",
+  lab:      "Force-push after a background fetch"
+},
+
+{
+  stage:    "13 daily practice",
+  level:    "intermediate",
+  question: "Nobody else works on your branch, so a plain `--force` can’t hurt anyone. What is wrong with that reasoning?",
+  answer: [
+    "Working alone protects you from one problem: nobody else has the old",
+    "commits, so rewriting them cannot break anyone else’s clone. It does not stop the",
+    "server from getting new commits while you work. Only the lease checks for",
+    "those, at the moment you push:",
+    "$ git push --force-with-lease --force-if-includes"
+  ],
+  detail: [
+    "The first problem is the one the golden rule in stage 07 covers: a clone",
+    "that still has the old commits merges them back in. The second can happen",
+    "even when you work alone. New commits can come from a hosting site’s *Update",
+    "branch* button, a suggestion committed from a review, a formatting bot, or",
+    "your other computer. Here a bot pushed B1 while you were rebasing:",
+    "| server:  C1 ── F1 ── B1    ← feature",
+    "| yours:   C1 ── F1          ← origin/feature",
+    "|            \\",
+    "|             C2 ── F1'      ← feature (HEAD)",
+    "Plain `--force` deletes B1 without any warning. The lease refuses, unless a",
+    "background fetch has already moved `origin/feature` to B1, and",
+    "`--force-if-includes` refuses in that case too. So the golden rule tells you",
+    "whether you may rewrite at all, and the two push checks make sure the",
+    "server’s latest commit has been in your branch before you overwrite it."
+  ],
+  figure: [
+    "problem                        what protects you",
+    "a clone with the old commits   the golden rule: never rewrite",
+    "                               what another clone has pulled",
+    "new commits on the server      --force-with-lease,",
+    "                               with --force-if-includes",
+    "",
+    "working alone removes only the first problem"
+  ],
+  proGit:   "Git-Branching-Rebasing",
+  manual:   "git-push#Documentation/git-push.txt---force-with-lease",
+  lab:      "Force-push after a background fetch"
 },
 
 {

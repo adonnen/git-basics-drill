@@ -1,12 +1,13 @@
 /* =============================================================================
-   references.js — the two books a card can link to, and the aliases.
+   references.js — the two books and the manual a card can link to, and the
+   aliases.
 
    A card names a section with a short key instead of a full URL, so the same
    section can be reused by many cards and fixed in one place if it moves.
 
    To add a section, put a new line in the right "sections" list, then use its
-   key as a card's `proGit` or `bottomUp` field. If a card names a key that is
-   not here, the browser console says so on the next reload.
+   key as a card's `proGit`, `bottomUp` or `manual` field. If a card names a
+   key that is not here, the browser console says so on the next reload.
 
    ALIASES, at the foot of this file, is what makes `git lg` in a card's text
    into something you can click. Its expansions are copied from
@@ -69,6 +70,17 @@ const REFERENCES = {
       "stashing-and-the-reflog": { title: "Stashing and the reflog", path: "4-Stashing-and-the-reflog.html" },
       "the-beauty-of-commits": { title: "The beauty of commits", path: "1-Repository/5-the-beauty-of-commits.html" },
       "to-reset-or-not-to-reset": { title: "To reset, or not to reset", path: "3-Reset/1-to-reset-or-not-to-reset.html" }
+    }
+  },
+
+  // git's own manual, for features newer than both books. A key is a page
+  // name and the anchor git-scm.com gives the option on it. If the anchor
+  // has moved, the link still opens the right page, just at the top.
+  manual: {
+    base: "https://git-scm.com/docs/",
+    sections: {
+      "git-push#Documentation/git-push.txt---force-if-includes": "git push --force-if-includes",
+      "git-push#Documentation/git-push.txt---force-with-lease": "git push --force-with-lease"
     }
   }
 

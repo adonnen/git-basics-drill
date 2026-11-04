@@ -9,7 +9,8 @@ the repository holds everything it needs, and it works offline and signed out.
   to cutting a release
 - **A multi-step lab** you run in a terminal, against a real repository
 - Every card links into the exact section of *Pro Git* and, where it goes
-  deeper, of Wiegley's *Git from the Bottom Up*
+  deeper, of Wiegley's *Git from the Bottom Up*; where both books predate the
+  feature, into git's own manual
 
 ---
 
@@ -287,7 +288,7 @@ git-basics-drill/
 ├── css/drill.css       every style, in ten commented sections
 ├── js/drill.js         the engine — you should not need to edit this
 ├── data/
-│   ├── references.js   the books' sections and the aliases cards link to
+│   ├── references.js   the sources' sections and the aliases cards link to
 │   ├── cards.js        the flashcards        ← add cards here
 │   ├── lab.js          the lab steps         ← add steps here
 │   │                   these three are plain lists of text, see below
@@ -368,9 +369,10 @@ Reuse an existing `stage` to add to that stage. Write a new one and a new stage
 appears by itself, with its own filter chip and its own gap in the progress
 graph — nothing to register anywhere.
 
-`proGit` is required and `bottomUp` optional; both are keys into
-`data/references.js`. If the section you want is not listed there, add it there
-first.
+`proGit` is required, and `bottomUp` and `manual` are optional; all three are
+keys into `data/references.js`. `manual` is for features newer than both books:
+a page of git's own documentation on git-scm.com, with the anchor of the option.
+If the section you want is not in `data/references.js`, add it there first.
 
 `lab` is optional too: the title of the lab step that practises the card,
 copied exactly from [`data/lab.js`](data/lab.js). The answer side then ends in a
@@ -474,8 +476,11 @@ prose nor its diagrams may be adapted into a card. Git from the Bottom Up
 ([jwiegley/git-from-the-bottom-up](https://github.com/jwiegley/git-from-the-bottom-up))
 is CC BY 4.0 and would allow it with credit — but that attribution duty would
 outlive the MIT notice and follow every fork, so the tidier habit is to describe
-what git does and draw the shape yourself. Both licences are in those
-repositories if you want to check rather than take this on trust.
+what git does and draw the shape yourself. git's manual is GPL-2.0 like the rest
+of git ([git/git](https://github.com/git/git)), so the Pro Git rule holds there
+too: quote what git prints, describe what it does, and leave the manual's
+sentences where they are. The licences are in those repositories if you want to
+check rather than take this on trust.
 
 ---
 
@@ -514,9 +519,13 @@ your time:
 - **Pro Git**, Chacon & Straub — <https://git-scm.com/book/en/v2>
 - **Git from the Bottom Up**, John Wiegley — <https://jwiegley.github.io/git-from-the-bottom-up/>
 
-The deck is not a substitute for either. It is a way of finding out which parts
-you have retained. Cards link to a section of one or both books; that
-is a bibliography, and no text or figure from either is reproduced here.
+For features newer than both books, a few cards link to git's own manual instead:
+<https://git-scm.com/docs>.
+
+The deck is not a substitute for either book. It is a way of finding out which
+parts you have retained. Cards link to a section of one or both books, and a few
+to the manual; that is a bibliography, and no text or figure from any of them is
+reproduced here.
 
 The repository itself is part of the lesson: it is the author's own attempt to
 learn the git basics it drills, vibe-coded into existence with Claude — the

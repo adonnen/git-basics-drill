@@ -149,7 +149,7 @@ globalThis.api = {
   visible, applySearch, applyView, showSummary, restart,
   serialize, deserialize, applyTheme, renderLines, renderInline,
   remember, recall, forget, openGate, resumeSession, newSession, gateOpen, STORE_KEY,
-  ALIASES, openAlias, closeAlias, aliasOpen,
+  ALIASES, openAlias, closeAlias, aliasOpen, openDetails, closeDetails,
   LEVELS, applyLevel, setLevel, buildLab, labSteps, labProgressText, actGroups,
   drawCard, labStepFor, actOf, openLabStep,
   get flipped(){ return flipped; }, set flipped(v){ flipped = v; },
@@ -329,6 +329,27 @@ check(api.el.labNote.hidden, 'a card naming no step shows no footnote');
 api.openLabStep(notedStep);
 check(api.view === 'lab', 'the footnote leads into the lab');
 api.applyView('cards');
+api.flipped = false;
+api.pos = 0;
+
+/* -------------------------------------------------------- details pop-up
+   The fine print links every card to Pro Git, and to Git from the Bottom Up
+   and git's own manual when the card names a section there. The manual link
+   is the one most often absent, so both sides of it are checked. */
+
+console.log('\ndetails pop-up');
+const cited = api.visible().filter(i => api.DECK[i].manual);
+check(cited.length > 0, cited.length + ' cards cite the manual');
+showCard(cited[0], 'answer');
+api.openDetails();
+check(!api.el.mLink3.hidden &&
+      api.el.mLink3.href === api.REFERENCES.manual.base + api.DECK[cited[0]].manual,
+      'a card citing the manual links to its page and anchor');
+api.closeDetails();
+showCard(api.visible().find(i => !api.DECK[i].manual), 'answer');
+api.openDetails();
+check(api.el.mLink3.hidden, 'a card citing no manual page shows no manual link');
+api.closeDetails();
 api.flipped = false;
 api.pos = 0;
 
