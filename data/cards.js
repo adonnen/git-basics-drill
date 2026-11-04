@@ -542,7 +542,12 @@ const CARDS = [
     "holds a raw commit hash (a *SHA*, the forty-character name every commit",
     "carries) instead, which is why commits made there belong to no branch and",
     "survive only in the reflog — git’s local journal of everywhere HEAD has",
-    "been, covered in stage 10."
+    "been, covered in stage 10. When you commit on `main`, the new commit gets",
+    "C2 as its parent and `main` moves to it. HEAD moves too, because it points",
+    "at `main`, not at a commit:",
+    "| before:  C1 ── C2          ← main (HEAD)",
+    "| after:   C1 ── C2 ── C3    ← main (HEAD)",
+    "Stage 14 shows the detached case."
   ],
   figure: [
     "attached:",
@@ -703,7 +708,13 @@ const CARDS = [
     "The branch is created at HEAD unless you name a start point, and any",
     "uncommitted changes you are carrying come along untouched — which makes this",
     "the correct escape from a detached HEAD before you commit anything you would",
-    "rather keep."
+    "rather keep. Right after `switch -c`, both branches point at the same commit,",
+    "and HEAD is on the new one:",
+    "| C1 ── C2      ← main, feature/task-queue (HEAD)",
+    "Your next commit moves only the branch HEAD is on:",
+    "| C1 ── C2      ← main",
+    "|         \\",
+    "|          F1   ← feature/task-queue (HEAD)"
   ],
   figure: [
     "before:  main ──▶ C4                    (HEAD ▶ main)",
@@ -820,7 +831,15 @@ const CARDS = [
     "“Merged” is judged relative to your current HEAD, so run the check against",
     "the trunk you care about — `git branch --merged dev` — before any bulk",
     "cleanup. Deleting a branch never deletes commits; it removes a label, and",
-    "the commits stay reachable through the reflog for weeks."
+    "the commits stay reachable through the reflog for weeks. In this example",
+    "`feature/done` is already part of `main`, and X1 and X2 are only on",
+    "`feature/scrapped`:",
+    "| C1 ── C2 ── C3      ← main (HEAD), feature/done",
+    "|         \\",
+    "|          X1 ── X2   ← feature/scrapped",
+    "`git branch -d feature/done` works, because `main` still contains C3.",
+    "`-D feature/scrapped` leaves X1 and X2 without a branch. Git prints the old",
+    "tip’s hash, so you can create the branch again if you need it."
   ],
   figure: [
     "$ git branch -d feature/scrapped",
@@ -958,7 +977,14 @@ const CARDS = [
   detail: [
     "The two differ only at merge commits, which have several parents: `^1` and",
     "`^2` pick between them, while `~` always follows the first. This notation is",
-    "what makes `rebase -i HEAD~5` and `reset --hard HEAD~1` readable."
+    "what makes `rebase -i HEAD~5` and `reset --hard HEAD~1` readable. On a merge",
+    "commit they lead to different commits:",
+    "| C1 ── C2 ── C3 ── M     ← main (HEAD)",
+    "|         \\         │",
+    "|          F1 ── F2─┘",
+    "|",
+    "| HEAD^  = HEAD~1 = C3    HEAD~2   = C2",
+    "| HEAD^2 = F2             HEAD^2~1 = F1"
   ],
   figure: [
     "HEAD      where you are",
@@ -1146,7 +1172,15 @@ const CARDS = [
     "Direction is the thing people get backwards. The merge modifies the branch",
     "you are currently on and leaves the other one untouched — so merging main",
     "into your feature branch updates the feature and does nothing to main, which",
-    "is exactly what you want mid-development."
+    "is exactly what you want mid-development. If you are on `main`, the merge",
+    "commit goes on `main` and `feature` does not move:",
+    "| C1 ── C2 ── C3 ── M     ← main (HEAD)",
+    "|         \\         │",
+    "|          F1 ── F2─┘     ← feature",
+    "If you are on `feature`, you get the opposite:",
+    "| C1 ── C2 ── C3 ──────┐   ← main",
+    "|         \\            │",
+    "|          F1 ── F2 ── M   ← feature (HEAD)"
   ],
   figure: [
     "git switch main",
@@ -1432,7 +1466,15 @@ const CARDS = [
     "This is the command `init` plus `remote add` plus `pull` was trying to",
     "approximate — and the reason that sequence fails is that `init` leaves the",
     "branch unborn, so there is nothing for `pull` to merge into. Use `clone` for",
-    "anything that already exists, `init` only for something that does not exist yet."
+    "anything that already exists, `init` only for something that does not exist yet.",
+    "Every branch on the server becomes a remote-tracking branch in your clone,",
+    "but only the default branch gets a local branch. Cloning a server that has",
+    "`main` and `dev` gives you:",
+    "| C1 ── C2 ── C3      ← main (HEAD), origin/main",
+    "|         \\",
+    "|          D1         ← origin/dev",
+    "plus `origin/HEAD`, which records the server’s default branch. Run",
+    "`git switch dev` when you want a local `dev` as well."
   ],
   figure: [
     "git clone <url>   does all of this at once:",
@@ -1486,7 +1528,18 @@ const CARDS = [
     "The two halves carry very different risk. Fetch touches nothing you can see",
     "and can never conflict, which is why it is safe to run at any moment. The",
     "integration is a real merge with everything that implies — it can",
-    "fast-forward, build a merge commit, or stop dead on a conflict."
+    "fast-forward, build a merge commit, or stop dead on a conflict. Say you",
+    "committed L1 while a colleague pushed S1. The fetch moves only",
+    "`origin/main`:",
+    "| C1 ── C2 ── L1          ← main (HEAD)",
+    "|         \\",
+    "|          S1             ← origin/main",
+    "Then the merge step merges `origin/main` into your branch:",
+    "| C1 ── C2 ── L1 ── M     ← main (HEAD)",
+    "|         \\         │",
+    "|          S1 ──────┘     ← origin/main",
+    "If you had no local commit L1, there is nothing to merge, and the second step",
+    "just moves `main` forward to S1."
   ],
   figure: [
     "git pull  ≡  git fetch  +  git merge origin/main",
@@ -1539,7 +1592,12 @@ const CARDS = [
     "Push sends the branch you are on and nothing else — other local branches",
     "stay local until pushed individually. It refuses when the remote holds",
     "commits you do not, because accepting would orphan them; the fix is to fetch",
-    "and integrate first, then push."
+    "and integrate first, then push. A successful push also updates your",
+    "`origin/main`, because git now knows where the server’s branch is:",
+    "| before:  C3 ── C4 ── C5   ← main (HEAD)",
+    "|          ↑",
+    "|          origin/main",
+    "| after:   C3 ── C4 ── C5   ← main (HEAD), origin/main"
   ],
   figure: [
     "before:  local main ──▶ C5      remote main ──▶ C3",
@@ -1568,7 +1626,15 @@ const CARDS = [
     "for `--force-with-lease` only when *you* deliberately rewrote history and",
     "the rejection is the expected consequence. It is the guarded force,",
     "overwriting only while the remote still matches your last-fetched view of",
-    "it; stage 13 sets it against plain `--force`."
+    "it; stage 13 sets it against plain `--force`. Here you committed L1 while a",
+    "colleague pushed S1:",
+    "| server:  C1 ── C2 ── S1     ← main",
+    "| yours:   C1 ── C2 ── L1     ← main (HEAD)",
+    "`git pull` fetches S1 and merges it into your branch. Your branch now",
+    "contains the server’s commit, so the push is a normal fast-forward:",
+    "| yours:   C1 ── C2 ── L1 ── M     ← main (HEAD)",
+    "|                  \\         │",
+    "|                   S1 ──────┘     ← origin/main"
   ],
   figure: [
     "rejected, you did NOT rewrite  →  git pull, then push",
@@ -1714,7 +1780,16 @@ const CARDS = [
     "only as fresh as your last fetch — which is why `git status` can cheerfully",
     "report “up to date” while the server has moved. It is also the hole in",
     "`--force-with-lease`: a background fetch updates the cache without you ever",
-    "seeing the commits."
+    "seeing the commits. Here the server got two new commits after your last",
+    "fetch:",
+    "| server:  C1 ── C2 ── C3 ── C4   ← main",
+    "| yours:   C1 ── C2               ← main (HEAD), origin/main",
+    "`git status` compares `main` with `origin/main`. Both point at C2, so it says",
+    "up to date. Once `git fetch` has updated `origin/main`, the same command says",
+    "behind 2:",
+    "| yours:   C1 ── C2 ── C3 ── C4   ← origin/main",
+    "|                ↑",
+    "|                main (HEAD)"
   ],
   figure: [
     "remote main     the server — live, authoritative",
@@ -1978,7 +2053,14 @@ const CARDS = [
     "The inversion is logical once you see the mechanics — a rebase checks out",
     "the target branch and applies your commits on top, so from git’s position",
     "your work is the incoming side. It still catches almost everyone the first",
-    "time, and it is the reason to read the marker labels rather than assume."
+    "time, and it is the reason to read the marker labels rather than assume.",
+    "Here the rebase of `feature` onto `main` has replayed F1 and stopped on F2:",
+    "| C1 ── C2 ── C3 ── F1'     ← HEAD, detached",
+    "|         \\",
+    "|          F1 ── F2         ← feature",
+    "HEAD is on the new base, so that side is “ours”. F2, the commit being",
+    "applied, is “theirs”. The `feature` branch itself only moves once the rebase",
+    "has finished."
   ],
   figure: [
     "merge  feature into main:",
@@ -2297,8 +2379,18 @@ const CARDS = [
   detail: [
     "Fetch first when the target is a remote branch — `git fetch` then",
     "`git rebase origin/main` — or you will replay onto a stale local copy and",
-    "have to do it again. The branch point disappears from history entirely;",
-    "afterwards the graph reads as though you had branched today."
+    "have to do it again. After the fetch, `origin/main` points at the server’s",
+    "new C6, but `main` still points at C5:",
+    "| C4 ── F1 ── F2 ── F3      ← feature (HEAD)",
+    "|   \\",
+    "|    C5 ── C6               ← origin/main",
+    "|    ↑",
+    "|    main",
+    "`git rebase main` puts your commits on C5, one commit behind the server.",
+    "`git rebase origin/main` puts them on C6:",
+    "| C4 ── C5 ── C6 ── F1'── F2'── F3'   ← feature (HEAD)",
+    "The branch point disappears from history entirely; afterwards the graph",
+    "reads as though you had branched today."
   ],
   figure: [
     "before:        C4 ── F1 ── F2 ── F3   (feature)",
@@ -2464,7 +2556,10 @@ const CARDS = [
     "The rejection is git protecting the remote from losing commits. Your new",
     "chain is not a descendant of what is there, so accepting the push would",
     "orphan the old commits — which is precisely what you intend, but git makes",
-    "you say so explicitly."
+    "you say so explicitly. Your clone now has both versions of the branch:",
+    "| C4 ── F1 ── F2          ← origin/feature",
+    "|   \\",
+    "|    C5 ── F1'── F2'      ← feature (HEAD)"
   ],
   figure: [
     "remote: feature ──▶ F3    (old chain)",
@@ -2490,20 +2585,28 @@ const CARDS = [
     "Need to specify how to reconcile divergent branches.` and prints the three",
     "settings you can choose from. The trap needs `pull.rebase` already set, or",
     "`--rebase` or `--no-rebase` on the command line. Which one you have decides",
-    "what gets built. A merge-pull keeps both chains, so every commit of yours",
-    "exists twice, joined by a merge commit. The ones that come back are the",
-    "original commit objects with their original hashes; the new hashes belong to",
-    "the copies your rebase made. A log sorted by date puts the two sets side by",
-    "side, which is what makes the duplication easy to miss. A rebase-pull",
-    "replays onto the old remote tip whatever it lacks, which after your rebase",
-    "includes the trunk’s own commits, so copies of other people’s work end up on",
-    "your branch under new hashes. What the rejection called for was",
-    "`--force-with-lease`. It tells the server: replace the branch with mine,",
-    "but only if it still points where my last fetch saw",
-    "it — if anyone pushed in between, refuse (“stale info”). The old copies of",
-    "your commits are deleted from the server, and that is not damage, it is the",
-    "job: they are the leftovers of your rebase, and nothing you have not seen",
-    "can be touched."
+    "what gets built. Both start from this state after your rebase:",
+    "| C4 ── F1 ── F2            ← origin/feature",
+    "|   \\",
+    "|    C5 ── F1'── F2'        ← feature (HEAD)",
+    "A merge-pull keeps both versions, so every commit of yours exists twice,",
+    "joined by a merge commit:",
+    "| C4 ── F1 ── F2 ──────┐    ← origin/feature",
+    "|   \\                  │",
+    "|    C5 ── F1'── F2'── M    ← feature (HEAD)",
+    "The ones that come back are the original commit objects with their",
+    "original hashes; the new hashes belong to the copies your rebase made. A",
+    "log sorted by date puts the two sets side by side, which is what makes the",
+    "duplication easy to miss. A rebase-pull replays your branch onto the old",
+    "remote tip, F2. It skips F1' and F2', because their changes are already",
+    "there, and replays only C5, a trunk commit. So a copy of someone else’s work",
+    "ends up on your branch with a new hash:",
+    "| C4 ── F1 ── F2 ── C5'     ← feature (HEAD)",
+    "What the rejection called for was `--force-with-lease`. It tells the",
+    "server: replace the branch with mine, but only if it still points where my",
+    "last fetch saw it — if anyone pushed in between, refuse (“stale info”). The",
+    "old copies of your commits are deleted from the server, as intended: they",
+    "are the leftovers of your rebase."
   ],
   figure: [
     "merge-pull :  … ── F1 ── F2 ──────┐",
@@ -2563,16 +2666,27 @@ const CARDS = [
   detail: [
     "Rebase compares patches, not hashes, so any commit whose changes already",
     "exist upstream is left out of the replay and git names each one as it drops",
-    "it. That clears a branch holding copies of trunk work. It will not clear a",
-    "merge-pull. There the duplicates are not upstream at all: both chains sit on",
-    "your own branch, so both get replayed and the second copy of a commit meets",
-    "the first. Expect `CONFLICT (content)` where your commits",
-    "edited a file, `CONFLICT (add/add)` where they created one, and hand",
-    "resolution of exactly the work you were trying to avoid. The second route",
-    "starts in the reflog: the tip from right after your original rebase is still",
-    "in it, and a hard reset to that hash puts the branch back where the push",
-    "should have been forced. Either way, read `git log origin/main..HEAD` before",
-    "pushing."
+    "it. That fixes a branch with copies of trunk commits. C5' is dropped because",
+    "C5 already has its change, and F1 and F2 are replayed onto the trunk:",
+    "| before:  C4 ── F1 ── F2 ── C5'   ← feature (HEAD)",
+    "|            \\",
+    "|             C5                   ← origin/main",
+    "|",
+    "| after:   C4 ── C5 ── F1'── F2'   ← feature (HEAD)",
+    "The same rebase will not fix a merge-pull. There the duplicates are not upstream at",
+    "all: both chains sit on your own branch, so both get replayed and the",
+    "second copy of a commit meets the first. Expect `CONFLICT (content)` where",
+    "your commits edited a file, `CONFLICT (add/add)` where they created one,",
+    "and hand resolution of exactly the work you were trying to avoid. The",
+    "second route starts in the reflog: the tip from right after your original",
+    "rebase is still in it, and a hard reset to that hash puts the branch back",
+    "where the push should have been forced:",
+    "| before:  C4 ── F1 ── F2 ──────┐",
+    "|            \\                  │",
+    "|             C5 ── F1'── F2'── M   ← feature (HEAD)",
+    "|",
+    "| after:   C4 ── C5 ── F1'── F2'    ← feature (HEAD)",
+    "Either way, read `git log origin/main..HEAD` before pushing."
   ],
   figure: [
     "copies of trunk commits, cleared by the replay:",
@@ -2601,9 +2715,14 @@ const CARDS = [
     "you hold: rewrite freely. Anything that has left your machine: append."
   ],
   detail: [
-    "The failure mode is concrete: whoever pulled the old chain and then pulls",
-    "again gets both versions of every commit, and their next merge drags the",
-    "duplicates into shared history. Repairing it means every clone resetting its",
+    "Say you rebased `feature` onto C5 and force-pushed. A colleague’s clone still",
+    "has the old F1 and F2, and their next merge-pull joins the old commits with",
+    "the new ones:",
+    "| C4 ── F1 ── F2 ── M      ← feature (HEAD)",
+    "|   \\               │",
+    "|    C5 ── F1'── F2'┘      ← origin/feature",
+    "Now every commit of yours exists twice, and their next push sends both",
+    "copies back to the server. Repairing it means every clone resetting its",
     "branch by hand. Other people are not the boundary: your own second machine,",
     "or a CI worker holding a cached copy, breaks in exactly the same way, so the",
     "test is whether the commits have changed at all."
@@ -2634,7 +2753,12 @@ const CARDS = [
     "chain, and `git status` now claims “have diverged, and have 1 and 1",
     "different commits each” on a branch you never committed to. Its hint",
     "suggests `git pull` — a pull would join the old chain to the new one and",
-    "hand the duplicates back to the person who just cleaned them away."
+    "hand the duplicates back to the person who just cleaned them away. Say the",
+    "last commit was reworded. Before the fetch, `topic` and `origin/topic` both",
+    "pointed at B. After it, only `origin/topic` has moved:",
+    "| C1 ── A ── B       ← topic",
+    "|        \\",
+    "|         B'         ← origin/topic"
   ],
   figure: [
     "$ git fetch",
@@ -2665,7 +2789,14 @@ const CARDS = [
     "why you ask `cherry` first. The rebase route needs no sorting by hand: the",
     "`-` commits carry changes the new chain already has, so the replay drops",
     "them — “skipped previously applied commit” — and keeps the `+` ones.",
-    "Either way you end up on the rewritten branch with nothing of yours lost."
+    "Either way you end up on the rewritten branch with nothing of yours lost.",
+    "Say you added a commit of your own, N, on top of the old version. `cherry`",
+    "marks B with a minus and N with a plus:",
+    "| C1 ── A ── B ── N    ← topic (HEAD)",
+    "|        \\",
+    "|         B'           ← origin/topic",
+    "The rebase drops B and puts N on top of the new version:",
+    "| C1 ── A ── B'── N'   ← topic (HEAD)"
   ],
   figure: [
     "$ git cherry -v origin/topic",
@@ -2879,7 +3010,10 @@ const CARDS = [
     "Reach for it when both commits describe real work and the merged commit",
     "deserves a message of its own. Note the direction: `squash` always folds",
     "*upward*, so the commit you intend to keep has to sit above the ones being",
-    "absorbed."
+    "absorbed. After the squash, F1 and F2 are one commit, and F3 is rebuilt on",
+    "top of it with a new hash:",
+    "| before:  C1 ── F1 ── F2 ── F3   ← feature (HEAD)",
+    "| after:   C1 ── F1+2 ── F3'      ← feature (HEAD)"
   ],
   figure: [
     "pick   F1  Add queue skeleton",
@@ -3068,12 +3202,21 @@ const CARDS = [
   detail: [
     "The reflog is the proof: no rebase entry was written and the tip is still",
     "the commit you made last. Wait for `main` to move and the same command fails",
-    "the other way. Now it has something to replay, so it replays the base",
-    "branch’s commits as well, and they arrive on your branch as copies under new",
-    "hashes while the base branch keeps the originals. One command, two opposite",
-    "wrong answers, decided by whether the trunk happened to move in between.",
-    "Separating where the commits land from where the count starts is what",
-    "`--onto` is for."
+    "the other way. Here `main` has gained C3:",
+    "| C1 ── C2 ── C3              ← main",
+    "|         \\",
+    "|          R1 ── S ── T       ← task-queue (HEAD)",
+    "|          ↑",
+    "|          refactor",
+    "Now there is something to replay, so it replays `refactor`’s commit too. It",
+    "lands on your branch as a copy with a new hash, while `refactor` keeps the",
+    "original:",
+    "| C1 ── C2 ── C3 ── R1'── S'── T'  ← task-queue (HEAD)",
+    "|         \\",
+    "|          R1                      ← refactor",
+    "The same command gives opposite wrong answers depending on whether the trunk",
+    "happened to move in between. Separating where the commits land from where",
+    "the count starts is what `--onto` is for."
   ],
   figure: [
     "main has not moved:",
@@ -3479,7 +3622,11 @@ const CARDS = [
     "`--soft HEAD~3` is the clean way to collapse three commits into one: the",
     "pointer rewinds, all the changes land staged, you commit once. Only `--hard`",
     "can lose work, and only work that was never committed — the commits it moves",
-    "away from remain in the reflog."
+    "away from remain in the reflog. All three move the branch the same way.",
+    "Starting from C3, `git reset HEAD~2` in any mode gives:",
+    "| C1               ← main (HEAD)",
+    "|   \\",
+    "|    C2 ── C3      no branch now, still in the reflog"
   ],
   figure: [
     "                   HEAD   index   working tree",
@@ -3588,7 +3735,11 @@ const CARDS = [
     "undo: whether anyone else is holding the SHAs you are about to invalidate.",
     "Nothing pushed, nobody pulled — reset. Otherwise the honest record is a",
     "revert, which also leaves the original commit visible for anyone asking what",
-    "happened."
+    "happened. Here is C3 undone each way:",
+    "| reset:   C1 ── C2                 ← main (HEAD)",
+    "| revert:  C1 ── C2 ── C3 ── C3⁻¹   ← main (HEAD)",
+    "After a reset, anyone whose clone already has C3 keeps it, and their next",
+    "push puts C3 back on the server."
   ],
   figure: [
     "unpushed, nobody has it  ──▶ reset  (rewrite)",
@@ -3719,7 +3870,14 @@ const CARDS = [
     "It is a one-slot shortcut for the reflog: quicker to type when the very last",
     "operation was the mistake, useless once a second big operation has",
     "overwritten it. When `merge --abort` refuses because the pre-merge state",
-    "cannot be reconstructed, this is the fallback."
+    "cannot be reconstructed, this is the fallback. After `git merge dev`,",
+    "`ORIG_HEAD` points at C3, where `main` was before the merge:",
+    "| C1 ── C2 ── C3 ── M     ← main (HEAD)",
+    "|         \\         │",
+    "|          D1 ──────┘     ← dev",
+    "`git reset --hard ORIG_HEAD` moves `main` back to C3. The reset sets",
+    "`ORIG_HEAD` too, to M, so running the same command again brings the merge",
+    "back."
   ],
   figure: [
     "git merge dev",
@@ -3892,7 +4050,10 @@ const CARDS = [
     "Git refuses because the situation is nearly always a mistake — a merge with",
     "no shared base has nothing to three-way against, so every file that exists",
     "on both sides conflicts. Forcing it works but leaves a repository with two",
-    "roots, which reads as noise in every graph view forever."
+    "roots, which reads as noise in every graph view forever:",
+    "| L1 ── L2 ──────── M    ← main (HEAD)",
+    "|                   │",
+    "| R1 ── R2 ── R3 ───┘    ← origin/main"
   ],
   figure: [
     "local :  L1 ── L2            two roots,",
@@ -4594,7 +4755,12 @@ const CARDS = [
     "Because a merge commit’s first parent is the branch you were standing on,",
     "following it collapses each merged branch to a single entry. On a trunk with",
     "thousands of commits this is the difference between a wall of text and a",
-    "readable week-in-review."
+    "readable week-in-review. Here two branches were merged into `dev`:",
+    "| C1 ── M1 ──────── M2    ← dev",
+    "|   \\   │ \\         │",
+    "|    A1─┘  B1 ── B2─┘",
+    "`--first-parent` lists M2, M1 and C1, so each merged branch shows up once,",
+    "as its merge commit, and A1, B1 and B2 are left out."
   ],
   figure: [
     "full log        every commit from every merged branch",
@@ -4796,7 +4962,17 @@ const CARDS = [
     "If you already committed while detached, nothing is lost yet: still",
     "detached, `git switch -c <name>` carries those commits onto the new branch,",
     "and if you have since switched away, `git reflog` plus",
-    "`git branch <name> <sha>` rescues them before garbage collection."
+    "`git branch <name> <sha>` rescues them before garbage collection. With HEAD",
+    "detached at C2, it points at a commit instead of a branch:",
+    "| C1 ── C2 ── C3     ← main",
+    "|       ↑",
+    "|       HEAD",
+    "A new commit then moves only HEAD:",
+    "| C1 ── C2 ── C3     ← main",
+    "|         \\",
+    "|          X1        ← HEAD",
+    "If you switch away before running `switch -c`, no branch points at X1, and",
+    "the reflog is the only way back to it."
   ],
   figure: [
     "On branch feature, behind by 3   ← harmless, just trailing",
@@ -4973,7 +5149,12 @@ const CARDS = [
     "commit. An annotated tag’s file names a *tag object* instead, which holds",
     "the message and points on to the commit. Nothing enforces the stillness",
     "beyond git refusing to overwrite a tag without `-f`; the discipline is",
-    "convention, and every release process assumes it."
+    "convention, and every release process assumes it. Make one commit on `main`",
+    "after tagging, and you can see the difference:",
+    "| before:  C1 ── C2         ← main (HEAD), v0.1.0",
+    "| after:   C1 ── C2 ── C3   ← main (HEAD)",
+    "|                ↑",
+    "|                v0.1.0"
   ],
   figure: [
     "$ cat .git/refs/heads/main .git/refs/tags/v0.1.0",
@@ -5138,13 +5319,19 @@ const CARDS = [
   ],
   detail: [
     "The copy is a new commit with a new hash, and that line is the only link",
-    "between the two that history keeps. `git log --grep` finds it, and it",
-    "explains the fix to whoever meets it twice. Use `-x` between branches",
-    "other people see. When the original sits on a private branch, its hash",
-    "points at a commit nobody else has, which is why git's own documentation",
-    "advises against `-x` there. That documentation also says the line is",
-    "added only when the pick applies cleanly, but git 2.56 adds it after a",
-    "conflicted pick and `git cherry-pick --continue` as well."
+    "between the two that history keeps. In the graph the original and the copy",
+    "are on different branches, and only the original has D1 below it, a commit",
+    "that must not ship:",
+    "| C1 ── C2 ── D1 ── F      ← main",
+    "|         \\",
+    "|          R1 ── F'        ← release (HEAD)",
+    "`git log --grep` finds the line, and it explains the fix to whoever meets",
+    "it twice. Use `-x` between branches other people see. When the original",
+    "sits on a private branch, its hash points at a commit nobody else has,",
+    "which is why git’s own documentation advises against `-x` there. That",
+    "documentation also says the line is added only when the pick applies",
+    "cleanly, but git 2.56 adds it after a conflicted pick and",
+    "`git cherry-pick --continue` as well."
   ],
   figure: [
     "$ git cherry-pick -x 9550b19",
@@ -5170,10 +5357,15 @@ const CARDS = [
   detail: [
     "`git log release..main` still lists the original, because a range",
     "compares commits and the copy is a different commit. `git cherry`",
-    "compares the changes instead, and marks the original with a minus. The",
-    "quiet merge has a condition: if either branch edits those lines again",
-    "before the promotion, the two sides no longer agree, and the merge stops",
-    "with a conflict over a fix that is already on both."
+    "compares the changes instead, and marks the original with a minus. Here is",
+    "the promotion:",
+    "| C1 ── C2 ── D1 ── F ── D2 ─┐   ← main",
+    "|         \\                  │",
+    "|          R1 ── F' ──────── M   ← release (HEAD)",
+    "Since the merge base C2, both sides made the same change as F, so M",
+    "contains it once. The quiet merge has a condition: if either branch edits",
+    "those lines again before the promotion, the two sides no longer agree, and",
+    "the merge stops with a conflict over a fix that is already on both."
   ],
   figure: [
     "$ git cherry -v release main",
@@ -5199,10 +5391,15 @@ const CARDS = [
   ],
   detail: [
     "Nothing conflicts and nothing warns: the promotion arrives as a merge",
-    "commit that leaves the copy untouched. Every later change to a copied fix",
-    "has to be made on both branches, which is the standing price of the copy.",
-    "To find the copies, list what `release` holds that `main` does not,",
-    "merges aside: `git log --no-merges main..release`."
+    "commit that leaves the copy untouched:",
+    "| C1 ── C2 ── F ── F⁻¹ ──┐   ← main",
+    "|         \\              │",
+    "|          F' ────────── M   ← release (HEAD)",
+    "Since the merge base C2, F and F⁻¹ on `main` cancel each other out. Only the",
+    "copy changed those lines, so M keeps F'. Every later change to a copied fix",
+    "has to be made on both branches, which is the standing price of the copy. To",
+    "find the copies, list what `release` holds that `main` does not, merges",
+    "aside: `git log --no-merges main..release`."
   ],
   figure: [
     "since the merge base:",
