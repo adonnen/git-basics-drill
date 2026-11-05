@@ -60,8 +60,8 @@
     <text class="lbl" x="508" y="198">is dimmed, and</text>
     <text class="lbl" x="508" y="214">stays out of reach</text>
 
-    <text class="lbl" x="30" y="356">resume — back to your first ungraded card, theme and all</text>
-    <text class="lbl" x="30" y="378">new session — starts clean, and discards what was kept</text>
+    <text class="lbl" x="30" y="356">resume: back to your first ungraded card, theme and all</text>
+    <text class="lbl" x="30" y="378">new session: starts clean, and discards what was kept</text>
     <text class="s" x="30" y="402">written as you go: every grade, every lab step ticked, the theme</text>
   </g>
 </svg>

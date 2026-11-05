@@ -1,5 +1,5 @@
 /* =============================================================================
-   references.js — the two books and the manual a card can link to, and the
+   references.js: the two books and the manual a card can link to, and the
    aliases.
 
    A card names a section with a short key instead of a full URL, so the same
@@ -96,7 +96,7 @@ const REFERENCES = {
    `git status` is left alone.
 
    To add one: copy its definition out of examples/gitconfig, exactly as it
-   stands there, and write a sentence saying what it buys you. The check script
+   stands there, and write a sentence saying what it does for you. The check script
    compares the two and fails on drift.
    -------------------------------------------------------------------------- */
 
@@ -104,7 +104,7 @@ const ALIASES = {
 
   lg: {
     expands: "log --all --oneline --graph --decorate",
-    note: "The shape of the whole repository in one screen — every branch, every " +
+    note: "The shape of the whole repository in one screen: every branch and every " +
           "tag, drawn as a graph. The one alias to learn first."
   },
 
@@ -130,8 +130,8 @@ const ALIASES = {
     expands: "!f() { if [ \"$(git symbolic-ref --short -q HEAD)\" = main ]; then " +
              "git log --oneline --max-parents=0 HEAD; " +
              "else git log main..HEAD --oneline | tail -1; fi }; f",
-    note: "The branch's own first commit — the oldest line of `ahead`. On " +
-          "main, where that range is empty, it prints the root commit instead."
+    note: "The branch's own first commit: the oldest line of `ahead`. On " +
+          "main, where that range is empty, it prints the root commit."
   },
 
   "nuke-preview": {
@@ -145,8 +145,8 @@ const ALIASES = {
              "printf 'Are you sure? (y/N) '; read ans; if [ \"$ans\" = 'y' ] || [ \"$ans\" = 'Y' ]; " +
              "then git reset --hard HEAD && git clean -fd && echo 'Done.'; else echo 'Aborted.'; fi }; f",
     note: "Working tree back to HEAD and untracked files gone, after asking. It " +
-          "asks because neither half is recoverable — no reflog returns work that " +
-          "was never committed."
+          "asks because neither half can be recovered: no reflog returns " +
+          "uncommitted work."
   }
 
 };

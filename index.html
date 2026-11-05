@@ -64,7 +64,7 @@
     <div class="filterbar" id="filterbar">
       <input type="text" id="search" autocomplete="off" spellcheck="false"
              aria-label="Filter cards by keyword"
-             placeholder="filter by keyword — e.g. rebase stash reflog">
+             placeholder="filter by keyword, e.g. rebase stash reflog">
       <button class="tbtn" id="searchClear" hidden>clear</button>
       <span class="fcount" id="searchCount" role="status"></span>
     </div>
@@ -77,7 +77,7 @@
 <main id="pageBody">
   <!-- Cards view: exactly one of #stage and #summary is visible. -->
   <section id="stage">
-    <div class="pane" id="pane" role="button" tabindex="0" aria-label="Flashcard — activate to flip">
+    <div class="pane" id="pane" role="button" tabindex="0" aria-label="Flashcard: activate to flip">
       <div class="bar">
         <span class="dots" aria-hidden="true"><i></i><i></i><i></i></span>
         <span class="grow" id="cardPath"></span>
@@ -89,7 +89,7 @@
         <button class="labnote" id="labNote" type="button" hidden></button>
       </div>
       <div class="footrow">
-        <span class="hint" id="hint">space — flip</span>
+        <span class="hint" id="hint">space: flip</span>
         <button class="tbtn" id="detailsBtn" hidden>details ⌄</button>
       </div>
     </div>

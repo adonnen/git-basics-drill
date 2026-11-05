@@ -1,11 +1,11 @@
 # =============================================================================
-# Example git configuration — the aliases and settings the deck refers to.
+# Example git configuration: the aliases and settings the deck refers to.
 #
 # Nothing here is required to use git drill. It is the config the cards keep
-# pointing at, collected in one place so you can try it rather than retype it.
+# pointing at, collected in one place so you can try it without retyping it.
 #
-# Every line carries its own explanation. Read the comment before you paste the
-# line: a config you cannot account for is a config that will surprise you.
+# Every line has its own explanation. Read the comment before you paste the
+# line, so that nothing in your config surprises you later.
 #
 # HOW TO USE
 #   Open your own config and paste in the parts you want:
@@ -30,7 +30,7 @@
 #   on the way in; the mixed case is for you, not for git.
 #
 # Take what you like and leave the rest. Anything you regret is one line to
-# delete — none of this changes your repositories, only how git talks to you.
+# delete. None of this changes your repositories, only how git behaves.
 # =============================================================================
 
 
@@ -64,21 +64,21 @@
     lg  = log --all --oneline --graph --decorate
 
     # The same, but only your current branch. Unmerged work on other branches
-    # is invisible here — that is the --all flag's doing, not a filter.
+    # does not appear here, because this form leaves out --all.
     lgb = log --oneline --graph --decorate
 
     # A richer variant, if you would rather spell the format out than accept
     # what --oneline gives you. The placeholders, in the order they appear:
     #   %C(auto)   colour what follows the way git colours it by default
     #   %h         abbreviated commit hash
-    #   %d         ref names on this commit — (HEAD -> main, tag: v1.0)
+    #   %d         ref names on this commit: (HEAD -> main, tag: v1.0)
     #   %s         the subject line of the message
     #   %C(dim)    dim everything after this point
-    #   %cr        committer date, relative — "3 days ago"
+    #   %cr        committer date, relative: "3 days ago"
     #   %an        author name
     #   %C(reset)  back to the terminal's normal colour
-    # Everything else inside the quotes — the space, the parentheses, the
-    # angle brackets — is printed literally.
+    # Everything else inside the quotes (the space, the parentheses, the
+    # angle brackets) is printed literally.
     lgv = log --graph --all --pretty=format:'%C(auto)%h%d %s %C(dim)(%cr) <%an>%C(reset)'
 
     # The same format with the date and author dropped, for when the terminal
@@ -95,7 +95,7 @@
     #   --simplify-by-decoration  keep a commit only if a ref points at it
     skel = log --graph --simplify-by-decoration --oneline --all
 
-    # A busy trunk read as a list of what landed, one entry per merge.
+    # A busy trunk read as a list of merges, one entry each.
     # Replace `main` with whichever branch you integrate into.
     #   --first-parent  at each merge follow only the branch being merged
     #                   into, so the feature's internal commits stay hidden
@@ -118,39 +118,39 @@
 
     # The full history of one line in one file.
     #   git blame-line 42 src/runner.py
-    # The `!` makes this a shell command rather than a git subcommand, and the
-    # function wrapper exists because git appends your arguments to the end of
-    # an alias — a function is the only way to use them in the middle.
+    # The `!` makes git run this through the shell, and the function wrapper
+    # exists because git appends your arguments to the end of an alias. A
+    # function lets you use them in the middle.
     #   -L <start>,<end>:<file>   trace that line range through history
     blame-line = "!f() { git log -L $1,$1:$2; }; f"
 
 
 # --- staging and committing --------------------------------------------------
 
-    # What you are about to commit: the difference between the index and the
-    # last commit. Reading `git staged` before every commit is the cheapest
-    # good habit there is for keeping commits coherent.
+    # What the next commit will contain: the changes in the index compared with
+    # the last commit. Reading `git staged` before each commit is a quick way to
+    # keep a commit to what you meant.
     staged   = diff --cached
 
-    # What you would still leave behind: the difference between the working
-    # tree and the index. Plain `git diff` with a name that says which of the
-    # two halves you are looking at.
+    # What the next commit would leave out: the changes in your working tree
+    # that are not in the index. Plain `git diff`, with a name that says which
+    # half you are looking at.
     unstaged = diff
 
     # Fold a forgotten file into the last commit, keeping its message.
-    # Stage the file, run this, done — no "fix typo" commit.
+    # Stage the file and run this, and you need no "fix typo" commit.
     #   --amend    replace the last commit instead of adding one
     #   --no-edit  reuse its message rather than opening the editor
     # Only for commits you have not pushed: it rewrites history.
     fixit = commit --amend --no-edit
 
     # Mark a fix for an OLDER commit now; fold it in later with `cleanup`.
-    #   git fixup <sha-of-the-commit-it-belongs-to>
+    #   git fixup <hash-of-the-commit-it-belongs-to>
     # This writes a commit whose subject is `fixup! <that commit's subject>`,
     # which is the marker the rebase below looks for.
     fixup = commit --fixup
 
-    # Consume those markers: git reorders and squashes them for you.
+    # Use those markers: git reorders and squashes them for you.
     # Change `main` to whichever branch you branched from.
     #   -i           interactive rebase, so you see the todo list first
     #   --autosquash move each fixup! next to its target and mark it squashed
@@ -164,21 +164,20 @@
     #   --sort=-committerdate   newest commit first; the minus reverses it
     #   %(HEAD)                 an asterisk on the branch you are on
     #   %(refname:short)        the branch name without refs/heads/
-    #   %(committerdate:relative)  "4 days ago" rather than a timestamp
+    #   %(committerdate:relative)  "4 days ago", with no timestamp
     #   %(color:...)/%(color:reset) open and close a colour; close every one
     recent = branch --sort=-committerdate --format='%(HEAD) %(color:yellow)%(refname:short)%(color:reset) - %(color:dim)%(committerdate:relative)%(color:reset)'
 
-    # What your current branch adds that the trunk does not — the review set.
+    # What your current branch adds that the trunk does not: what a reviewer reads.
     # `main..HEAD` means "reachable from HEAD, not reachable from main".
     ahead = log main..HEAD --oneline
 
-    # The first commit this branch added — the oldest line of `ahead`, since
-    # log prints newest first and tail keeps the last line. On main that
-    # range is empty by construction, so the alias answers the question main
-    # deserves instead: the root commit, the only one with no parent
-    # (--max-parents=0). A fresh branch with no commits of its own still
-    # prints nothing, which is the honest answer. Replace `main` in both
-    # places if your trunk is named something else.
+    # The first commit this branch added: the oldest line of `ahead`, since
+    # log prints newest first and tail keeps the last line. On main that range
+    # is empty, so the alias prints the root commit, the only one with no
+    # parent (--max-parents=0). A fresh branch with no commits of its own
+    # prints nothing. Replace `main` in both places if your trunk is named
+    # something else.
     first = "!f() { \
         if [ \"$(git symbolic-ref --short -q HEAD)\" = main ]; then \
             git log --oneline --max-parents=0 HEAD; \
@@ -196,13 +195,13 @@
     #                   `^\*` is the branch you are on, then main and dev
     #   xargs -r        run the delete once with the surviving names; -r
     #                   suppresses the run entirely when nothing survived
-    #   branch -d       refuse to delete anything not actually merged, so the
-    #                   grep is a convenience and not the safety net
+    #   branch -d       refuse to delete anything unmerged, so the grep is only
+    #                   a convenience
     # Run it occasionally to stay tidy.
     merged-clean = "!git branch --merged main | grep -v -E '^\\*|main|dev' | xargs -r git branch -d"
 
-    # Force your local trunk branches to match the remote, discarding whatever
-    # local commits they carried. Useful when main and dev are read-only to
+    # Force your local trunk branches to match the remote, discarding any
+    # local commits on them. Useful when main and dev are read-only to
     # you and drift only through pulls; dangerous everywhere else.
     #   fetch --all --prune  update every remote, drop deleted branch refs
     #   branch -f <a> <b>    move branch <a> to point at <b>, no questions
@@ -213,10 +212,9 @@
     #     recoverable only through the reflog.
     sync = "!git fetch --all --prune && git branch -f main origin/main && git branch -f dev origin/dev"
 
-    # Force-push that checks its footing first. Refuses if the remote branch
-    # moved since your last fetch, which is what plain --force will not do.
-    # Prefer this to --force always; see push.useForceIfIncludes below for the
-    # second half of the guard.
+    # A force-push with a check. It refuses if the remote branch moved since
+    # your last fetch; plain --force does not check. Prefer this to --force, and
+    # see push.useForceIfIncludes below for the second half of the check.
     pushf = push --force-with-lease
 
 
@@ -234,8 +232,8 @@
     sub-status = submodule foreach --recursive 'git status -sb'
 
     # Pull each submodule's own default branch. Note this moves them off the
-    # commit the parent records, which is a change the parent must then commit
-    # — that is the intent here, not a side effect.
+    # commit the parent records, which is a change the parent must then commit.
+    # That is the intent here.
     sub-pull = submodule foreach --recursive 'git pull'
 
     # Run any command in every submodule:
@@ -254,8 +252,8 @@
     nuke-preview = "!echo '── tracked changes that would be reset ──' && git diff --stat && echo '── untracked files that would be removed ──' && git clean -nd"
 
     # Working tree back to HEAD, untracked files gone. Asks first, because
-    # neither half is recoverable: uncommitted work never entered the object
-    # database, so no reflog can return it.
+    # neither half can be recovered: git never stored uncommitted work, so no
+    # reflog can return it.
     #   reset --hard HEAD  discard changes to tracked files
     #   clean -fd          -f actually delete, -d directories too
     nuke = "!f() { \
@@ -279,8 +277,7 @@
 
 # =============================================================================
 # SETTINGS
-# The aliases above save keystrokes. These change behaviour, and are where the
-# real gains are.
+# The aliases above save typing. The settings change how git behaves.
 # =============================================================================
 
 [init]
@@ -305,17 +302,16 @@
 [merge]
     # Write the common ancestor into every conflict, between ||||||| and
     # =======, instead of showing only the two sides. Two versions of a line
-    # do not tell you which side moved; the ancestor does, and that is the
-    # difference between choosing between two edits and silently reverting
-    # somebody's fix. It also lifts the parts both sides changed identically
-    # out of the conflicted region, so what is left between the markers is the
-    # actual disagreement. Needs git 2.35 or newer; older versions understand
-    # `diff3`, which is the same idea without the tidying.
+    # do not tell you which side changed. The ancestor does, and without it you
+    # can undo somebody's fix without noticing. It also removes the parts both
+    # sides changed identically from the conflict, so only the real disagreement
+    # is left between the markers. Needs git 2.35 or newer; older versions
+    # understand `diff3`, which is the same idea without the tidying.
     conflictStyle = zdiff3
 
-    # Which program `git mergetool` opens. Ask your own machine what it has —
-    # `git mergetool --tool-help` — since the list depends on what is
-    # installed. Left commented because the answer is personal:
+    # Which program `git mergetool` opens. Ask your own machine what it has with
+    # `git mergetool --tool-help`, since the list depends on what is installed.
+    # Left commented because the answer is personal:
     #   tool = vscode
     #   tool = opendiff        # FileMerge, ships with Xcode
     #   tool = vimdiff
@@ -325,44 +321,42 @@
     keepBackup = false
 
 [rerere]
-    # "Reuse recorded resolution" — remember how you resolved a conflict and
-    # replay it when the identical conflict returns. The difference between a
-    # painful and a painless fifth rebase onto a moving trunk. No downside.
+    # rerere stands for "reuse recorded resolution". Git stores your fix for a
+    # conflict and uses it when that exact conflict appears again, which helps
+    # when you rebase onto a moving trunk many times.
     enabled = true
 
 [fetch]
-    # Drop local references to remote branches that no longer exist. Without
-    # it, `git branch -r` fills with the ghosts of deleted branches.
+    # Forget `origin/...` names when their branch is deleted on the server.
+    # Without this, `git branch -r` fills with the names of deleted branches.
     prune = true
 
 [push]
     # Pushing a new branch creates and links its upstream instead of failing
-    # with "no upstream branch". Removes the most common friction in a
-    # branch-per-task workflow. Needs git 2.37 or newer.
+    # with "no upstream branch". This saves a step if you make one branch per
+    # task. Needs git 2.37 or newer.
     #
     # Without it you have to say so once per branch:
     #     git push --set-upstream origin <branch>
     #     git push -u origin HEAD          # same thing, no name to retype
     autoSetupRemote = true
 
-    # Strengthen --force-with-lease: refuse the push unless the remote tip you
-    # are about to overwrite is one you have actually seen, meaning it appears
-    # in your local branch's reflog. This closes the hole where a background
-    # fetch — an editor's, a prompt's — silently updates your remote-tracking
-    # ref and makes the lease look satisfied for a commit you never read.
+    # Strengthen --force-with-lease: refuse the push unless the server's commit
+    # has been part of your local branch, which git checks in the branch's
+    # reflog. This closes a gap: a fetch that runs in the background, in an
+    # editor or a shell prompt, moves your remote-tracking branch and lets the
+    # lease pass even though that commit is not in your branch.
     #
-    # It does nothing at all for plain `git push --force`, and nothing for
-    # `--force-with-lease=<ref>:<expect>` where you named the expected value
-    # yourself. Git documents it as a no-op in both of those cases. Guard the
-    # habit as well as the config: push with the `pushf` alias above.
+    # It has no effect on plain `git push --force`, or on
+    # `--force-with-lease=<ref>:<expect>`, where you name the expected commit
+    # yourself. So keep the habit as well as the setting: push with the `pushf`
+    # alias above.
     useForceIfIncludes = true
 
 [diff]
-    # A different diff algorithm: patience, extended to cope with common lines
-    # that occur only a few times. It tends to line hunks up on the boundaries
-    # a human would have chosen, rather than on whichever alignment happens to
-    # be shortest, which is where the default (myers) produces diffs that
-    # interleave the end of one function with the start of the next.
+    # A different way of working out a diff. It tends to put hunk boundaries
+    # where a person would, while the default (myers) can produce diffs that mix
+    # the end of one function with the start of the next.
     algorithm = histogram
 
     # Colour lines that moved rather than showing them as a deletion here and
@@ -373,13 +367,12 @@
 [color]
     # Colour when the output is a terminal, and no colour when it is piped
     # into a file or another program. `auto` has been the default since git
-    # 1.8.4 — set it explicitly if you want to be sure, or if you inherited a
-    # config that turned it off.
+    # 1.8.4. Set it explicitly if you inherited a config that turned it off.
     ui = auto
 
 [core]
-    # Machine noise — OS metadata, editor swap files — belongs in one global
-    # ignore file rather than in every project's .gitignore.
+    # What comes from your machine, such as OS metadata and editor swap files,
+    # belongs in one global ignore file, so no project needs its own entry.
     # Create it first:
     #   printf '.DS_Store\n._*\n*.swp\n.idea/\n' >> ~/.gitignore_global
     excludesFile = ~/.gitignore_global
@@ -413,14 +406,14 @@
 
 # [diff]
 #     # Show a submodule's change as the list of commits between the old and
-#     # new pointer, rather than as two opaque hashes.
+#     # new pointer. The default shows only the two hashes.
 #     submodule = log
 
 
 # =============================================================================
 # WRITTEN BY OTHER PROGRAMS
 # Some tools append their own sections. Recognise them so you do not mistake
-# them for something you chose, and do not hand-write them — run the tool.
+# them for something you chose. Do not write them by hand: run the tool.
 # =============================================================================
 
 # [filter "lfs"]

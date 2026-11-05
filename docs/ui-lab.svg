@@ -26,7 +26,7 @@
   <g filter="url(#rough)">
 
     <text class="head" x="30" y="34">The lab</text>
-    <text class="s" x="30" y="54">steps you run in a real terminal — solutions stay blurred until you ask</text>
+    <text class="s" x="30" y="54">steps you run in a real terminal; solutions stay blurred until you ask</text>
 
     <!-- act divider. The rule starts well clear of the label, because the
          sketch font differs between machines and the text grows with it. -->
@@ -75,6 +75,6 @@
     <text class="mono" x="528" y="342">6/6</text>
     <circle class="fill" cx="574" cy="338" r="11"/>
     <path class="thin" d="M571 333 L577 338 L571 343"/>
-    <text class="lbl" x="30" y="368">adds a remote — still on your own machine, using a bare repo as the "server"</text>
+    <text class="lbl" x="30" y="368">adds a remote, still on your own machine, using a bare repo as the "server"</text>
   </g>
 </svg>

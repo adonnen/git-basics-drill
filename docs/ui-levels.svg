@@ -26,7 +26,7 @@
   <g filter="url(#rough)">
 
     <text class="head" x="30" y="34">Levels</text>
-    <text class="s" x="30" y="54">one switch, both views — it narrows the deck and the lab together</text>
+    <text class="s" x="30" y="54">one switch, both views: it narrows the deck and the lab together</text>
 
     <!-- the switch itself, sitting with view and theme rather than with the
          card filters: those hide in the lab view, and this must not. -->
@@ -43,11 +43,11 @@
     <!-- cumulative nesting -->
     <rect class="paper" x="30" y="92" width="342" height="196" rx="8"/>
     <text class="t" x="46" y="114">all</text>
-    <text class="mono" x="250" y="114">165 cards · 65 steps</text>
+    <text class="mono" x="250" y="114">183 cards · 84 steps</text>
 
     <rect class="fill" x="52" y="126" width="298" height="146" rx="7"/>
     <text class="t" x="68" y="148">intermediate</text>
-    <text class="mono" x="238" y="148">156 cards · 61 steps</text>
+    <text class="mono" x="238" y="148">169 cards · 74 steps</text>
 
     <rect class="amber" x="74" y="160" width="254" height="96" rx="6"/>
     <text class="t" x="90" y="182">basics</text>
@@ -60,7 +60,7 @@
     <text class="lbl" x="402" y="150">the levels nest.</text>
     <text class="lbl" x="402" y="168">picking one shows</text>
     <text class="lbl" x="402" y="186">everything inside it</text>
-    <text class="lbl" x="402" y="204">too — which is what</text>
+    <text class="lbl" x="402" y="204">too, which is what</text>
     <text class="lbl" x="402" y="222">lets any of the three</text>
     <text class="lbl" x="402" y="240">stand on its own.</text>
 
@@ -98,8 +98,8 @@
     <text class="s" x="420" y="355">X</text>
 
     <path class="fade" d="M272 378 C 272 370, 272 368, 272 364"/>
-    <text class="lbl" x="30" y="394">acts VI to IX keep no basics steps, so they are hidden — and the numerals</text>
-    <text class="lbl" x="30" y="410">keep their gaps, which is honest about the lab being larger than this pass.</text>
+    <text class="lbl" x="30" y="394">acts VI to IX keep no basics steps, so they are hidden, and the numerals</text>
+    <text class="lbl" x="30" y="410">keep their gaps, which shows the lab is larger than this pass.</text>
     <text class="s" x="30" y="430">act X stops being optional at basics: the minimum includes pushing and pulling.</text>
   </g>
 </svg>

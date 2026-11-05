@@ -125,7 +125,7 @@ anywhere.
 The steps grow a small Python module, but the code is only a prop, and your own
 files work too. Wherever the git lesson needs an edit of a particular shape, such
 as two changes far apart in one file or a line both branches will fight over,
-the task names that condition explicitly and the solution explains the reasons behind it..
+the task names that condition explicitly and the solution explains the reasons behind it.
 
 The round button at the right end of an act's divider folds the act away and
 opens it again. The count beside the button shows ticked steps over the act's
@@ -242,7 +242,7 @@ a comment saying what it does and why.
 
 When a card mentions one of these shorthands, such as `git lg`, `git s` or
 `git nuke`, the name is a green chip. Click it and a pop-up shows what it
-expands to, why it is worth having, and the one command that installs it. Every
+expands to, what it is for, and the one command that installs it. Every
 card also makes sense without them.
 
 Start with these on day one:
@@ -260,7 +260,7 @@ Start with these on day one:
 [merge]
     conflictStyle = zdiff3 # show the ancestor inside a conflict (git 2.35+)
 [rerere]
-    enabled = true         # remember how you resolved a conflict, replay it
+    enabled = true         # reuse a conflict fix you made before
 [fetch]
     prune = true           # forget remote branches that no longer exist
 [push]
@@ -462,6 +462,9 @@ Keep these consistent, since a deck that reads in two voices is harder to
 drill:
 
 - Ask one thing per card. If the answer needs "and", it is two cards.
+- Build on what came before. A card may use only terms that an earlier card at
+  its own level has explained, or that it explains itself where the term first
+  appears. The same holds for the lab, whose steps are read in order too.
 - Phrase questions as tasks, or as failures met in practice: "you rebased and
   push is rejected, why" is better than "what does `--force-with-lease` do".
 - The answer is the short version; the pop-up holds the details.
@@ -515,8 +518,7 @@ come from `data/`.
 
 ## Credits
 
-The cards point at two books, both freely readable online and both worth your
-time:
+The cards point at two books, both free to read online:
 
 - **Pro Git**, Chacon & Straub: <https://git-scm.com/book/en/v2>
 - **Git from the Bottom Up**, John Wiegley: <https://jwiegley.github.io/git-from-the-bottom-up/>
@@ -537,9 +539,10 @@ for years, and their answers inspired the drawings in this deck. A hat tip to
 all of them. The histories drawn here are the deck's own.
 
 The author built this repository to learn the git basics it drills, and
-vibe-coded it with Claude, as the commit trailers show. Every output a card or
-lab step quotes was still reproduced against a real git before it was
-committed.
+vibe-coded it with Claude, as the commit trailers show. Every output a lab step
+quotes was reproduced against a real git before it was committed. The outputs
+quoted on cards were checked by hand, which is less reliable, so please report
+any that look wrong.
 
 ---
 

@@ -81,7 +81,7 @@ const renderInline = text => escapeHtml(text)
     const name = code.startsWith('git ') ? code.slice(4) : '';
     return Object.hasOwn(ALIASES, name)
       ? '<button class="alias" type="button" data-alias="' + name +
-        '" title="an alias — click to see what it expands to">' + code + '</button>'
+        '" title="an alias: click to see what it expands to">' + code + '</button>'
       : '<code>' + code + '</code>';
   })
   .replace(/\*\*([^*]+)\*\*/g, '<b>$1</b>')
@@ -406,7 +406,7 @@ function drawCard(){
   el.eyebrow.className   = 'eyebrow' + (flipped ? ' ans' : '');
   el.text.className      = 'prose ' + (flipped ? 'a' : 'q');
   el.text.innerHTML      = flipped ? card.answer : card.question;
-  el.hint.textContent    = flipped ? 'space — back to question' : 'space — flip';
+  el.hint.textContent    = flipped ? 'space: back to question' : 'space: flip';
   el.details.hidden      = !flipped;
   syncLabNote(card);
 }
@@ -541,9 +541,9 @@ function openAlias(name){
   // Shell aliases are long and full of quoting; sending someone to the file is
   // kinder than a paste that a stray quote can break.
   el.aHow.innerHTML = alias.expands.startsWith('!')
-    ? 'A shell alias — the <code>!</code> makes git run it as a command rather ' +
-      'than as a git subcommand. Copy this one out of <code>examples/gitconfig</code>, ' +
-      'where it is written across several lines.'
+    ? 'A shell alias: the <code>!</code> hands the rest of the line to your shell. ' +
+      'Copy this one out of <code>examples/gitconfig</code>, where it is written ' +
+      'across several lines.'
     : 'Aliases live under <code>[alias]</code> in your git config. To add this one:' +
       '<span class="cmdline">git config --global alias.' + name + ' ' +
       escapeHtml(shellQuote(alias.expands)) + '</span>' +
@@ -665,25 +665,26 @@ function buildIntro(){
   const optionalActs = acts.filter(entry => entry.optional).length;
   const shown = labSteps().length;
   intro.innerHTML =
-    '<h2>Lab — build a repository from nothing</h2>' +
-    '<p>' + shown + ' steps in a real terminal, against a real directory on ' +
-    'your machine. Read the task, do it in your shell, then reveal the solution to ' +
-    'check yourself.</p>' +
-    '<p>The steps grow a tiny Python module — a <code>TaskRunner</code> class that ' +
-    'queues work and runs it — but the code is a prop, not the subject: nothing ' +
-    'depends on it being Python, or on it ever running. Write your own files instead ' +
-    'if you prefer. Where an edit has to have a particular <em>shape</em> for the git ' +
-    'lesson to work — two changes far apart in one file, a line both branches will ' +
-    'fight over — the task names that property, and the solution says why it ' +
-    'matters.</p>' +
+    '<h2>Lab: build a repository from nothing</h2>' +
+    '<p>' + shown + ' steps in a real terminal, in a real folder on your machine. ' +
+    'Read the task, do it in your shell, then reveal the solution to check yourself.</p>' +
+    '<p>The steps grow a small Python class, <code>TaskRunner</code>, that queues work ' +
+    'and runs it. Nothing depends on it being Python, or on it ever running, so you can ' +
+    'write your own files if you prefer. A few steps need a particular kind of edit, ' +
+    'such as two changes far apart in one file. The task says when, and the solution ' +
+    'says why.</p>' +
     '<p>' + (optionalActs || 'None') + ' of the ' + acts.length + ' acts ' +
-    (optionalActs === 1 ? 'is' : 'are') + ' marked optional and can ' +
-    'be skipped. Everything up to the last act runs on your own machine; the last act ' +
-    'adds a remote, using a bare repository next door as the “server”, so no account is ' +
-    'needed anywhere. You need git and a shell: Terminal on macOS or Linux, Git Bash on ' +
-    'Windows.</p>' +
-    '<p>The whole exercise is disposable; the last step of each act tells you how to ' +
-    'delete it. Tick steps off as you go and they are kept in your progress file.</p>' +
+    (optionalActs === 1 ? 'is' : 'are') + ' marked optional and can be skipped' +
+    (acts.length < LAB.filter(entry => entry.act).length
+      ? ', and the numbers have gaps because this level hides some acts' : '') + '. All of ' +
+    'it stays on your machine and needs no account anywhere: in the last act, a second ' +
+    'folder plays the part of a server. You need git and a shell: Terminal on macOS or ' +
+    'Linux, Git Bash on Windows.</p>' +
+    '<p>Many solution lines end with a comment after <code>#</code>. If you paste such ' +
+    'a line into zsh, the default shell on macOS, it fails on the comment. Leave the ' +
+    'comment out, or run <code>setopt interactive_comments</code> first.</p>' +
+    '<p>The last step tells you how to delete everything. Tick steps off as you go and ' +
+    'they are kept in your progress file.</p>' +
     '<div class="lab-count" id="labCount">' + labProgressText() + '</div>';
   return intro;
 }
@@ -1056,7 +1057,7 @@ function openGate(data){
   el.gSummary.innerHTML =
     'This browser kept a session from ' + ago(data.saved) + ': <b>' + parts.join('</b>, <b>') + '</b>.' +
     (count.unmatched ? ' ' + count.unmatched + ' further mark' + (count.unmatched === 1 ? '' : 's') +
-      ' belonged to cards that have been reworded since, and cannot come back.' : '') +
+      ' belonged to cards that have since been reworded or moved, and cannot come back.' : '') +
     ' Starting a new session discards it.';
 
   el.gate.hidden = false;
@@ -1099,7 +1100,7 @@ function downloadFile(text){
   a.download = 'git-drill-progress.json';
   a.click();
   setTimeout(() => URL.revokeObjectURL(url), 2000);
-  status('picker unavailable — downloaded instead');
+  status('picker unavailable, downloaded instead');
 }
 
 async function saveProgress(forcePicker){
@@ -1325,7 +1326,7 @@ document.addEventListener('keydown', e => {
 el.blurb.innerHTML =
   DECK.length + ' cards in ' + STAGES.length + ' stages, plus a ' + LAB_STEPS.length +
   '-step lab you run in a real terminal. New to git? Set the switch to ' +
-  '<b>basics</b> and both halves shrink to the minimum worth knowing. ' +
+  '<b>basics</b> and both halves shrink to the minimum you need. ' +
   'Flip a card, then hit <b>details</b> for a figure, ' +
   'the fine print, and links into the exact section of <i>Pro Git</i> and Wiegley’s ' +
   '<i>Git from the Bottom Up</i>. The ' +

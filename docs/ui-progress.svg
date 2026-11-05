@@ -80,6 +80,6 @@
     <text class="s" x="372" y="366">load it again on any machine</text>
 
     <text class="lbl" x="30" y="418">Chrome and Edge overwrite the same file each time. Firefox</text>
-    <text class="lbl" x="30" y="440">downloads a fresh copy instead — same file, same result.</text>
+    <text class="lbl" x="30" y="440">downloads a fresh copy instead: same file, same result.</text>
   </g>
 </svg>

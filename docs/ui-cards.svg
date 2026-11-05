@@ -61,7 +61,7 @@
     <line class="ink" x1="48" y1="210" x2="356" y2="210"/>
     <line class="ink" x1="48" y1="228" x2="300" y2="228"/>
 
-    <text class="s" x="48" y="278">space — flip</text>
+    <text class="s" x="48" y="278">space: flip</text>
     <rect class="fill" x="316" y="262" width="78" height="22" rx="3"/>
     <text class="s" x="326" y="277">details ⌄</text>
 
@@ -83,11 +83,11 @@
     <rect class="fill" x="294" y="312" width="44" height="30" rx="4"/>
     <text class="t" x="310" y="332">→</text>
     <path class="fade" d="M360 330 C 348 330, 344 328, 338 328"/>
-    <text class="lbl" x="366" y="326">grade honestly —</text>
+    <text class="lbl" x="366" y="326">grade honestly:</text>
     <text class="lbl" x="366" y="342">"again" cards come back</text>
 
     <!-- progress graph -->
-    <text class="s" x="30" y="378">progress graph — one dot per card, gaps mark stages</text>
+    <text class="s" x="30" y="378">progress graph: one dot per card, gaps mark stages</text>
     <circle class="green" cx="32" cy="396" r="5.5"/>
     <circle class="green" cx="47" cy="396" r="5.5"/>
     <circle class="green" cx="62" cy="396" r="5.5"/>
