@@ -101,6 +101,11 @@
     #                   into, so the feature's internal commits stay hidden
     landed = log --first-parent main --oneline
 
+    # With a dev/main pair, one list per trunk. landed-main is landed under a
+    # name that says which trunk it reads.
+    landed-main = log --first-parent main --oneline
+    landed-dev  = log --first-parent dev --oneline
+
     # Status without the tutorial.
     #   -s  short format: two columns of status letters, one line per path
     #   -b  keep the branch and tracking line at the top, which -s drops
@@ -172,6 +177,12 @@
     # `main..HEAD` means "reachable from HEAD, not reachable from main".
     ahead = log main..HEAD --oneline
 
+    # With a dev/main pair, the same question asked of each trunk. ahead-dev
+    # is the review set for a branch cut from dev; ahead-main also counts what
+    # dev holds that main does not have yet.
+    ahead-main = log main..HEAD --oneline
+    ahead-dev  = log dev..HEAD --oneline
+
     # The first commit this branch added: the oldest line of `ahead`, since
     # log prints newest first and tail keeps the last line. On main that range
     # is empty, so the alias prints the root commit, the only one with no
@@ -188,6 +199,9 @@
 
     # Everything queued for the next release, if you use a dev/main pair.
     pending = log main..dev --oneline
+
+    # The same list, under a name that says what it is queued for.
+    pending-release = log main..dev --oneline
 
     # Delete every local branch already merged into main.
     #   --merged main   list only branches whose tip is an ancestor of main
