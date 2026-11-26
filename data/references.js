@@ -80,7 +80,9 @@ const REFERENCES = {
     base: "https://git-scm.com/docs/",
     sections: {
       "git-push#Documentation/git-push.txt---force-if-includes": "git push --force-if-includes",
-      "git-push#Documentation/git-push.txt---force-with-lease": "git push --force-with-lease"
+      "git-push#Documentation/git-push.txt---force-with-lease": "git push --force-with-lease",
+      "git-revert#Documentation/git-revert.txt--mparent-number": "git revert -m",
+      "git-revert#_examples": "git revert examples"
     }
   }
 

@@ -3964,6 +3964,99 @@ const CARDS = [
 {
   stage:    "10 undo · reflog",
   level:    "intermediate",
+  question: "A feature arrived as a merge commit and has to go. Undo all of it in one commit?",
+  answer: [
+    "$ git revert -m 1 <merge>",
+    "The merge commit stands for the whole feature. `-m 1` keeps the side of",
+    "parent 1, the branch you merged into, and the new commit takes out",
+    "everything parent 2 brought.",
+    "| C1 ─────────── M ── M⁻¹   ← shared (HEAD)",
+    "|   \\            │",
+    "|    F1 ── F2 ───┘",
+    "M⁻¹ takes out F1 and F2 together."
+  ],
+  detail: [
+    "Without `-m` git refuses, with `error: commit … is a merge but no -m option",
+    "was given.` A merge has two parents, and git does not guess which side is",
+    "the main line. `git show -s --format='%h  parents: %p' <merge>` lists them,",
+    "the first one first. F1 and F2 stay in the history, and the revert itself",
+    "is an ordinary commit with one parent, so reverting it later needs no `-m`."
+  ],
+  figure: [
+    "git revert <merge>         error: no -m option was given",
+    "git revert -m 1 <merge>    keep parent 1, the branch you merged into",
+    "git revert -m 2 <merge>    keep parent 2, and take out what the",
+    "                           trunk gained since the branch split off"
+  ],
+  proGit:   "Git-Tools-Advanced-Merging",
+  manual:   "git-revert#Documentation/git-revert.txt--mparent-number",
+  lab:      "Undo a whole feature in one commit"
+},
+
+{
+  stage:    "10 undo · reflog",
+  level:    "intermediate",
+  question: "A feature was rebased and fast-forwarded, so no merge commit stands for it. Undo all of it?",
+  answer: [
+    "Find where it starts on the trunk's own line, then revert the range:",
+    "$ git log --oneline --first-parent",
+    "$ git revert <first>^..<last>",
+    "git makes one revert per commit, newest first.",
+    "| C1 ── F1 ── F2 ── F2⁻¹ ── F1⁻¹   ← shared (HEAD)"
+  ],
+  detail: [
+    "Nothing in the history marks where the feature starts or ends, so you read",
+    "it off the messages. `<first>^` is the parent of the first commit, which",
+    "puts the first commit inside the range. Newest first means each commit is",
+    "undone before the one it builds on. Named one by one, `git revert A B` goes",
+    "in the order you type, and the wrong order conflicts. To make the reverts",
+    "one commit, add `--no-commit`, which stages them all, then run `git commit`."
+  ],
+  figure: [
+    "git revert <first>^..<last>                one revert per commit",
+    "git revert --no-commit <first>^..<last>    stage them all,",
+    "git commit -m \"Revert the progress bar\"    then make one commit"
+  ],
+  proGit:   "Git-Tools-Advanced-Merging",
+  manual:   "git-revert#_examples",
+  lab:      "Undo a feature that left no merge commit"
+},
+
+{
+  stage:    "10 undo · reflog",
+  level:    "intermediate",
+  question: "You reverted a merged feature, fixed its branch and merged it again. Why is the feature still missing?",
+  answer: [
+    "Its old commits are already in the trunk's history, and a merge brings only",
+    "the commits a branch lacks. So only the fix arrives, the revert stays in",
+    "force, and nothing warns you. Revert the revert first, then merge:",
+    "$ git revert <the revert>",
+    "$ git merge <the branch>"
+  ],
+  detail: [
+    "A feature that was fast-forwarded behaves the same way: merging its branch",
+    "again prints `Already up to date.` In both cases the revert is an ordinary",
+    "commit, and reverting it puts the feature back. Since git 2.43 the new",
+    "commit's message reads `Reapply \"…\"`. Do it before the merge: if the fix",
+    "edits a file the revert deleted, merging first stops with `CONFLICT",
+    "(modify/delete)`."
+  ],
+  figure: [
+    "C1 ─────────── M ── M⁻¹ ── M2   ← shared (HEAD)",
+    "  \\            │           │",
+    "   F1 ── F2 ───┴─── fix ───┘",
+    "",
+    "M2 brings only fix: F1 and F2 are already behind M,",
+    "and M⁻¹ still takes them out"
+  ],
+  proGit:   "Git-Tools-Advanced-Merging",
+  manual:   "git-revert#Documentation/git-revert.txt--mparent-number",
+  lab:      "Merge the fixed branch, and watch half of it stay gone"
+},
+
+{
+  stage:    "10 undo · reflog",
+  level:    "intermediate",
   question: "What is the reflog?",
   answer: [
     "*ref* + *log*: a local record of every move of HEAD and your branches,",

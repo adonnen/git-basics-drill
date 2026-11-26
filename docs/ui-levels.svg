@@ -43,11 +43,11 @@
     <!-- cumulative nesting -->
     <rect class="paper" x="30" y="92" width="342" height="196" rx="8"/>
     <text class="t" x="46" y="114">all</text>
-    <text class="mono" x="250" y="114">183 cards · 84 steps</text>
+    <text class="mono" x="250" y="114">186 cards · 88 steps</text>
 
     <rect class="fill" x="52" y="126" width="298" height="146" rx="7"/>
     <text class="t" x="68" y="148">intermediate</text>
-    <text class="mono" x="238" y="148">169 cards · 74 steps</text>
+    <text class="mono" x="238" y="148">172 cards · 78 steps</text>
 
     <rect class="amber" x="74" y="160" width="254" height="96" rx="6"/>
     <text class="t" x="90" y="182">basics</text>
